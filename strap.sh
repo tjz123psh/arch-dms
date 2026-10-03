@@ -11,7 +11,7 @@
 
 set -Eeuo pipefail
 
-REPO_URL="${REPO_URL:-https://github.com/tjz123psh/my-arch-setup-deepseek.git}"
+REPO_URL="${REPO_URL:-https://github.com/tjz123psh/arch-dms.git}"
 INSTALL_DIR="${INSTALL_DIR:-/opt/my-arch-setup}"
 BRANCH="${BRANCH:-main}"
 

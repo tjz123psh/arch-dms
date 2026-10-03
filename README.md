@@ -1,4 +1,4 @@
-# my-arch-setup-deepseek
+# arch-dms
 
 面向本人 ASUS AMD + NVIDIA 工作站的 Arch Linux 一键恢复配置：重装 Arch、完成基础
 安装后，一条命令恢复完整桌面（Niri/Hyprland、软件包、AUR、个人配置与服务）。
@@ -8,8 +8,8 @@
 ## 在线安装（可直连 GitHub）
 
 ```bash
-git clone https://github.com/tjz123psh/my-arch-setup-deepseek.git
-cd my-arch-setup-deepseek && ./install.sh    # 或 sudo bash strap.sh（root 自动克隆）
+git clone https://github.com/tjz123psh/arch-dms.git
+cd arch-dms && ./install.sh    # 或 sudo bash strap.sh（root 自动克隆）
 ```
 
 交互：选机器类型（物理机/虚拟机）→ 选桌面（Niri / Niri+Hyprland / 无）→ 自动分步
@@ -30,7 +30,7 @@ cd my-arch-setup-deepseek && ./install.sh    # 或 sudo bash strap.sh（root 自
 
 ## 离线安装（无海外网络）
 
-从 [GitHub Releases](https://github.com/tjz123psh/my-arch-setup-deepseek/releases)
+从 [GitHub Releases](https://github.com/tjz123psh/arch-dms/releases)
 下载两个文件到 U 盘 / 共享文件夹：
 
 | 文件 | 内容 |
@@ -43,6 +43,11 @@ tar -xf my-arch-setup.tar -C ~/                        # 得到 ~/my-arch-setup-
 tar -xzf aur-sources-vm.tar.gz -C ~/my-arch-setup-deepseek/   # 得到 .aur-sources/（物理机换 physical 包）
 cd ~/my-arch-setup-deepseek && ./install.sh
 ```
+
+> **目录名说明**：仓库已改名为 **`arch-dms`**，在线安装的 `git clone` 会得到 `arch-dms/`；
+> 而 Release 里的 `my-arch-setup.tar` 是改名前的打包，顶层目录仍是 `my-arch-setup-deepseek/`，
+> 所以离线安装按上面的路径走即可（重新打包后两者统一）。目录名不影响安装——
+> 安装器用脚本自身位置推导项目根。
 
 完整步骤与注意事项（挂载/验证要点/常见坑）：
 [`docs/physical-offline-install.md`](docs/physical-offline-install.md)。

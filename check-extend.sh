@@ -338,7 +338,7 @@ deploy_host() {
     if timeout 15 "$HOME/scripts/desktop/gsudo" -- install -m 755 config/home/.local/bin/shorin-screenrec-menu /usr/local/bin/shorin-screenrec-menu 2>/dev/null; then
       echo "  → /usr/local/bin/shorin-screenrec-menu（root）"
     else
-      echo "  ⚠ /usr/local/bin 同步需密码，跳过（可手动: sudo install -m 755 ~/Projects/my-arch-setup-deepseek/config/home/.local/bin/shorin-screenrec-menu /usr/local/bin/shorin-screenrec-menu）"
+      echo "  ⚠ /usr/local/bin 同步需密码，跳过（可手动: sudo install -m 755 $PWD/config/home/.local/bin/shorin-screenrec-menu /usr/local/bin/shorin-screenrec-menu）"
     fi
   fi
   echo "  部署完成，可重跑 --only=deploy-sync 确认 0 漂移"
