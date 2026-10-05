@@ -91,7 +91,7 @@ dl opencode-bin_1.18.31_x86_64.tar.gz "https://github.com/anomalyco/opencode/rel
 # paru
 dl paru-2.1.0.tar.gz "https://github.com/Morganamilo/paru/archive/v2.1.0.tar.gz"
 # wechat-universal-bwrap (CN CDN; makepkg stores the deb under the recipe SRCDEST name)
-dl wechat-universal-4.1.13.9-x86_64.deb "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb" 096865e050ba0d3c1a23887227e2400bf343037b1d7d658c84c88ff26bfdc17f
+dl wechat-universal-4.1.13.23-x86_64.deb "https://dldir1v6.qq.com/weixin/Universal/Linux/WeChatLinux_x86_64.deb" b7d0f8d53e9f648bc2c77a6096a04100d008f2d9f0d3988a2a4859b5992aca0a
 # wooz-git
 dl wooz-24e2856bf2cc13810f00971ae143973840555321.tar.gz "https://github.com/negrel/wooz/archive/24e2856bf2cc13810f00971ae143973840555321.tar.gz"
 
