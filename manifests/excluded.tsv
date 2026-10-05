@@ -81,4 +81,11 @@ secret	~/.config/pac/ai.conf	physical	个人包工具 pac 的 AI 后端配置，
 secret	~/.config/opencode/*	physical	AI CLI 配置（opencode.jsonc 等），疑含 api key（未读值），不入库
 payload-file	~/.local/bin/{vellum,vellumctl,vellum-ui,vellum-tray} + ai.vellum{,-panel}.desktop + vellum{,-tray}.service	physical	用户 2026-10-05 决定：vellum 已改为自带版本管理器（~/.local/lib/vellum/releases/<ver> + current 软链，bin / 桌面项 / systemd 单元都由它生成并软链），仓库不再分发二进制与派生文件（旧 payload 是 0.1.2 真文件，07-config 部署时会把软链覆盖成旧版真实文件）
 runtime-state	~/.grok/*	physical	手工下载的 grok 发行包（~/.grok/bin/grok → ~/downloads/grok-<ver>），不在任何清单里；~/.local/bin/grok 包装器因此改调包提供的 /usr/bin/grok（2026-09-18 修复），本目录仅记录、不入库
+#
+# --- 9. 2026-10-05 第二轮扫描：宿主独有，用户决定**不收**（不改安装行为，仅登记）---
+payload-file	~/.config/systemd/user/wb2api-guard.{service,timer} + dms.service.d/10-wait-network-backend.conf	physical	用户 2026-10-05 决定不收；wb2api-guard 的 ExecStart 指向未入库的原型仓库 ~/Projects/grok-workbuddy（与 grok-workbuddy-shim.service 同类）
+payload-file	~/.local/bin/dms-ensure-display	physical	用户 2026-10-05 决定不收（Hyprland/DMS 会话诊断 helper；排查步骤见 docs/hyprland-dms-host-remediation.md）
+payload-file	~/.config/cava/shaders/*	physical	用户 2026-10-05 决定不收（12 个 cava 着色器文件）
+payload-file	~/.config/vellum/{shortcuts.json,tray.json}	both	用户 2026-10-05 决定不收；vellum 已改由其自带版本管理器安装（见第 8 节），其用户配置不属恢复范围
+runtime-state	~/.config/fish/conf.d/rustup.fish、completions/grok.fish	physical	生成物：rustup.fish 由 rustup 生成，grok.fish 为 150KB 自动生成补全；均不收
 
