@@ -97,11 +97,13 @@ function assertNoLiveDshWriter() {
 			if (!/^\d+$/.test(entry)) continue;
 			let cmd = "";
 			try { cmd = readFileSync(`/proc/${entry}/cmdline`, "utf8").replace(/\0/g, " "); } catch { continue; }
-			if (cmd.includes("@deepseek-ai/dsh") && cmd.includes("web")) { pid = entry; break; }
+			// 桌面版时代（2026-09-26 起）：宿主是 deepseek-harness-desktop（Electron）进程，
+			// 不再存在 `dsh web` 命令行。会话数据由该进程写入，因此只要它在跑就拒绝。
+			if (cmd.includes("deepseek-harness-desktop")) { pid = entry; break; }
 		}
 	} catch { return; }
 	if (pid) {
-		console.error(`拒绝执行：检测到 dsh web 正在运行 (pid ${pid})。先停服务（~/scripts/dsh/dsh-web.sh --stop），或确认风险后加 --force。`);
+		console.error(`拒绝执行：检测到 DeepSeek Harness 桌面版正在运行 (pid ${pid})。先退出桌面应用（它会写这些会话），或确认风险后加 --force。`);
 		process.exit(3);
 	}
 }

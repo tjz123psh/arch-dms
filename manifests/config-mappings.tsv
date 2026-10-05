@@ -246,10 +246,13 @@ physical-v1	personal-scripts	config/home/scripts/desktop/screenshot-clipboard	sc
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-expand-ranges.mjs	scripts/dsh/dsh-session-expand-ranges.mjs	644
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-migrate.mjs	scripts/dsh/dsh-session-migrate.mjs	644
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-repair.mjs	scripts/dsh/dsh-session-repair.mjs	644
-physical-v1	personal-scripts	config/home/scripts/dsh/dsh-web.sh	scripts/dsh/dsh-web.sh	755
-physical-v1	personal-scripts	config/home/scripts/dsh/dsh-web-watchdog.sh	scripts/dsh/dsh-web-watchdog.sh	755
-physical-v1	personal-scripts	config/home/scripts/dsh/patch-upstream-client-modules-speedup.sh	scripts/dsh/patch-upstream-client-modules-speedup.sh	755
-physical-v1	personal-scripts	config/home/scripts/dsh/upgrade-dsh.sh	scripts/dsh/upgrade-dsh.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/retired/dsh-web.sh	scripts/dsh/retired/dsh-web.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/retired/dsh-web-watchdog.sh	scripts/dsh/retired/dsh-web-watchdog.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/retired/patch-upstream-client-modules-speedup.sh	scripts/dsh/retired/patch-upstream-client-modules-speedup.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/retired/upgrade-dsh.sh	scripts/dsh/retired/upgrade-dsh.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/patch-plugin-icon-renames.sh	scripts/dsh/patch-plugin-icon-renames.sh	755
+physical-v1	personal-scripts	config/home/scripts/dsh/README.md	scripts/dsh/README.md	644
+physical-v1	personal-scripts	config/home/scripts/dsh/retired/README.md	scripts/dsh/retired/README.md	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/GD音乐台.js	scripts/MusicFree-歌单和插件/GD音乐台.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/W音乐.js	scripts/MusicFree-歌单和插件/W音乐.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/patch_lrc.py	scripts/MusicFree-歌单和插件/patch_lrc.py	644
@@ -301,4 +304,3 @@ physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-syn
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.timer	.config/systemd/user/obsidian-sync.timer	644
 physical-v1	personal-user-services	config/home/.local/bin/anyrouter-proxy.mjs	.local/bin/anyrouter-proxy.mjs	755
 physical-v1	desktop-shared	config/home/.local/share/applications/dbx-handler.desktop	.local/share/applications/dbx-handler.desktop	644
-physical-v1	desktop-shared	config/home/.local/share/applications/dsh.desktop	.local/share/applications/dsh.desktop	644
