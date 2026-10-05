@@ -16,7 +16,7 @@ set -euo pipefail
 ORIGINAL_LANG="${LC_ALL:-${LC_MESSAGES:-${LANG:-C}}}"
 SHOW_HELP=false
 QUERY_ARGS=()
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/pacd_tui"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/pac/pacd"
 REPO_CACHE="${CACHE_DIR}/repo_packages.txt"
 
 # 强制 C locale 确保 awk 解析的一致性
@@ -55,6 +55,11 @@ while [[ $# -gt 0 ]]; do
             shift
         ;;
         *)
+            # 只敲一个 help 时当帮助用（否则会被当成搜索词）
+            if [[ $# -eq 1 && "$1" == "help" ]]; then
+                SHOW_HELP=true
+                break
+            fi
             QUERY_ARGS+=("$1")
             shift
         ;;
@@ -81,6 +86,8 @@ if [[ "$ORIGINAL_LANG" == *"zh_CN"* ]]; then
     MSG[DOWNGRADING]=">> 准备降级："
     MSG[WARN_DEP]="[依赖危险警告] 降级核心库(如 glibc, mesa, python 等)极易导致系统崩溃！"
     MSG[HEADER]="Tab:多选 | Enter:降级 | Esc:退出"
+    MSG[HELP_HEAD]="pacd —— 把已装的包退回到旧版本"
+    MSG[HELP_BODY]=$'用法\n  pacd [关键词]                 搜索已安装的包，选择要回退的版本\n\n选项\n  -h, --help, help              显示这份帮助\n\n说明\n  版本来源两处：downgrade 的本地缓存（/var/cache/pacman/pkg）与 Arch 官方归档（A.L.A）\n  依赖冲突交给 pacman 拦下；界面上的高危警告只是提前提醒，不是替代品\n  需要 downgrade（官方源里有），缺了会直接提示装法\n  软件源列表缓存在 ~/.cache/pac/pacd，pacman -Syy 之后自动失效重取\n\n例子\n  pacd linux                    搜索并降级 linux 内核\n  pacd                          列出所有已安装的包'
 else
     MSG[DESC]="Fuzzy search and downgrade installed packages."
     MSG[OPTS]="Options:"
@@ -98,27 +105,16 @@ else
     MSG[DOWNGRADING]=">> Preparing to downgrade:"
     MSG[WARN_DEP]="[DANGER] Downgrading core libs can break your system!"
     MSG[HEADER]="Tab:Multi-Select | Enter:Downgrade | Esc:Exit"
+    MSG[HELP_HEAD]="pacd — roll an installed package back to an older version"
+    MSG[HELP_BODY]=$'Usage\n  pacd [query]                  Search installed packages and pick a version to roll back to\n\nOptions\n  -h, --help, help              Show this help\n\nNotes\n  Two sources of old versions: the local cache kept by downgrade (/var/cache/pacman/pkg) and the\n  Arch Linux Archive (A.L.A).\n  Dependency conflicts are handled by pacman; the in-UI warning is only an early heads-up.\n  Requires the downgrade tool (official repos); if missing, it prints how to install.\n  The repo list cache lives in ~/.cache/pac/pacd and refreshes after pacman -Syy.\n\nExamples\n  pacd linux                    Search and downgrade the linux kernel\n  pacd                          List every installed package'
 fi
 
 # --- 4. 帮助信息拦截 ---
 if [ "$SHOW_HELP" = true ]; then
     cat <<EOF
-Usage: ${0##*/} [options] [query]
+${MSG[HELP_HEAD]}
 
-${MSG[OPTS]}
-${MSG[OPT_HELP]}
-
-Description:
-  ${MSG[DESC]}
-
-${MSG[FEAT]}
-  ${MSG[FEAT_1]}
-  ${MSG[FEAT_2]}
-  ${MSG[FEAT_3]}
-
-${MSG[EX]}
-  ${0##*/} linux        # 搜索并降级 'linux' 内核
-  ${0##*/}              # 列出所有已安装的包
+${MSG[HELP_BODY]}
 EOF
     exit 0
 fi

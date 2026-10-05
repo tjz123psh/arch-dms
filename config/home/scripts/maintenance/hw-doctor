@@ -159,6 +159,25 @@ query_service_state() {
   return 1
 }
 
+# 单元被 systemd 条件跳过 ≠ 故障：如 bluetooth.service 在无蓝牙控制器的机器上
+# 会被 ConditionPathIsDirectory 拦下，is-active 仍报 inactive。仅当「已加载 +
+# 已启用 + 条件不满足」同时成立才视为预期跳过，其余情况维持原判定。
+service_condition_skipped() {
+  local unit="$1" scope="${2:-system}"
+  local out load_state condition unit_file_state
+  if [[ "$scope" == "user" ]]; then
+    out="$(systemctl --user show "$unit" \
+      -p LoadState -p ConditionResult -p UnitFileState 2>/dev/null)" || return 1
+  else
+    out="$(systemctl show "$unit" \
+      -p LoadState -p ConditionResult -p UnitFileState 2>/dev/null)" || return 1
+  fi
+  load_state="$(sed -n 's/^LoadState=//p' <<< "$out")"
+  condition="$(sed -n 's/^ConditionResult=//p' <<< "$out")"
+  unit_file_state="$(sed -n 's/^UnitFileState=//p' <<< "$out")"
+  [[ "$load_state" == "loaded" && "$condition" == "no" && "$unit_file_state" == enabled* ]]
+}
+
 check_service() {
   local unit="$1"
   local scope="${2:-system}"
@@ -171,7 +190,13 @@ check_service() {
 
   case "$SERVICE_STATE" in
     active) ok "$label active" ;;
-    inactive|failed) warn "$label $SERVICE_STATE" ;;
+    inactive|failed)
+      if service_condition_skipped "$unit" "$scope"; then
+        info "$label 已启用；无对应硬件，systemd 条件跳过（硬件就绪后自动启动）"
+      else
+        warn "$label $SERVICE_STATE"
+      fi
+      ;;
     *) info "$label $SERVICE_STATE" ;;
   esac
 }

@@ -54,6 +54,19 @@ ALLOW_SCRIPTS="node-pty,@deepseek-ai/dsh-subprocess-local"
 WATCHDOG="$SCRIPT_DIR/dsh-web-watchdog.sh"
 LAUNCHER="$SCRIPT_DIR/dsh-web.sh"
 SPEEDUP_PATCH="$SCRIPT_DIR/patch-upstream-client-modules-speedup.sh"
+# 起服前必须补齐的本地补丁。dsh-web.sh（启动器）本来会在起新实例前逐个自动补，
+# 但本脚本用 setsid 直接派生 `dsh web`，**绕过了启动器** ⇒ 这里必须自己补一遍。
+# 2026-09-23 实测教训：原先这里只补提速补丁，于是 `dsh plugin add`（bump_experimental）
+# 触发的 pnpm 重装覆盖掉 dshmarket/client/client.js 后没人补回 ⇒ 插件市场一开就
+# React #130 整块崩。三个补丁都幂等（已修好则空转），失败只警告不阻断。
+# 2026-09-23：`patch-theme-xuanpaper-rightbar-ghost.sh` 已退休——该修复已上游化进
+# 主题源码（client.js 与 client.template.js 都有，build.mjs 重建也不会丢），无需再补。
+# 2026-09-24：`patch-better-sidebar-turntail-fix.sh` 随 dsh-better-sidebar 卸载一并删除
+# （用户改用平台原生侧边栏）⇒ 补丁从 3 个减到 2 个。
+LOCAL_PATCHES=(
+  "$SCRIPT_DIR/patch-upstream-client-modules-speedup.sh"
+  "$SCRIPT_DIR/patch-plugin-icon-renames.sh"
+)
 WATCHDOG_PIDFILE="$REAL_HOME/dsh-web-watchdog.pid"
 WATCHDOG_LOG="$REAL_HOME/watchdog.log"
 KEEPALIVE="$REAL_HOME/keepalive"
@@ -65,24 +78,34 @@ FORCE=0
 WEB_OFFSET=0
 BUMP_FAILS=0
 
+# 2026-09-22（升 0.1.7-alpha.1 时修订）：-web-profile **已被上游合并进 -profile**。
+# 证据：① -profile@0.1.7 的描述改为 "Agent Teams collaboration, tools, and Web UI in one
+# experimental bundle"；② -profile@0.1.7 的 cordis.patch.yml 新增了 `ui-agent-team` insert，
+# 而这正是 -web-profile 在 0.1.6 的唯一内容（逐字一致）→ 合并无损；
+# ③ -web-profile **没有 0.1.7 产物**（alpha 标签停在 0.1.6-alpha.2），CLI 也已把它移出依赖。
+# 因此不能再对齐它——留在数组里 bump 必然失败 ⇒ BUMP_FAILS≠0 ⇒ probe FAIL ⇒ 升级被拒。
 EXPERIMENTAL=(
   '@deepseek-ai/dsh-experimental-agent-team'
   '@deepseek-ai/dsh-experimental-agent-team-profile'
-  '@deepseek-ai/dsh-experimental-agent-team-web-profile'
   '@deepseek-ai/dsh-experimental-client-ui-agent-team'
   '@deepseek-ai/dsh-experimental-tool-agent-team'
 )
 
 # web profile 组合树里应出现的 bundle 层标记（--dump-config 的注释行）
+# 2026-09-22：随 -web-profile 合并而删掉它的标记；`ui-agent-team` 现在由 -profile 层提供。
+# 2026-09-23：@opencode2dsh/dsh-plugin 已摘出 bundles（0.3.3 仍把 0.1.7 已删的 settingsScope
+# 写在模块级 inject ⇒ 条目永久 pending），故它的标记同时移除；装回时记得加回来。
+# 2026-09-23（同日二次）：@axiaohungry/dsh-llm-workbuddy 的标记也移除——它已被官方
+# reconcile 从 bundles 摘掉（条目本来就被部署层 disabled），标记留着会让**每次探测都误判
+# 缺层、probe 恒为 FAIL、升级器直接拒跑**（实测）。同时补上 dsh-archive-panel 的标记。
+# 判据：标记必须与 profile package.json 的 dsh.profile.bundles 一一对应，改 bundles 就改这里。
+# 2026-09-24：dsh-better-sidebar 已按用户要求整体卸载 ⇒ 其层标记移除（bundles 8 → 7）。
 LAYER_MARKERS=(
   '# == dshmarket'
-  '# == dsh-better-sidebar'
   '# == dsh-web-fetch-global'
-  '# == @opencode2dsh/dsh-plugin'
+  '# == dsh-archive-panel'
   '# == @deepseek-ai/dsh-experimental-agent-team-profile'
-  '# == @deepseek-ai/dsh-experimental-agent-team-web-profile'
   '# == dsh-theme-xuanpaper'
-  '# == @axiaohungry/dsh-llm-workbuddy'
 )
 
 log()   { printf '[%s] %s\n' "$(date '+%F %T')" "$*"; }
@@ -154,7 +177,9 @@ start_server() { # $1 dsh bin -> sets WEB_OFFSET; 0 ok / 1 port never opened
   dpid=$(dsh_pid_on_port "$PORT")
   if [[ -n "$dpid" && -x "$WATCHDOG" ]]; then
     local wp wt rest
-    read -r wp wt rest <"$WATCHDOG_PIDFILE" 2>/dev/null || true
+    # 顺序要紧：2>/dev/null 必须写在输入重定向之前——否则 pidfile 不存在时，
+    # bash 在应用 2>/dev/null 之前就把"没有那个文件"的报错打到 stderr 了。
+    read -r wp wt rest 2>/dev/null <"$WATCHDOG_PIDFILE" || true
     if [[ -n "${wp:-}" && "${wt:-}" == "$dpid" ]] && kill -0 "$wp" 2>/dev/null; then
       log "看门狗已在守候 pid=$dpid（pid=$wp），跳过重复派生"
     else
@@ -258,7 +283,7 @@ probe() {
   dump_config "$probe_home" "$stage/bin/dsh" "$dump" "$plog"
   miss=$(missing_markers "$dump")
   if [[ -z "$miss" ]]; then
-    log "[probe] dump-config: 8 个 bundle 层标记齐全"
+    log "[probe] dump-config: ${#LAYER_MARKERS[@]} 个 bundle 层标记齐全"
   else
     log "[probe] dump-config 缺层:"; printf '%s\n' "$miss"; fail=1
   fi
@@ -373,13 +398,19 @@ activate() {
   ver="$("$REAL_PREFIX/bin/dsh" --version 2>/dev/null)"
   log "[activate] 实装版本: $ver"
 
-  # 3) 实验包对齐 + 提速补丁
+  # 3) 实验包对齐 + 本地补丁补齐（顺序要紧：补丁必须在 bump 的 pnpm 重装之后）
   bump_experimental "$REAL_HOME" "$REAL_PREFIX/bin/dsh" "$TARGET" "$alog"
   local bumpnote=""
   [[ "$BUMP_FAILS" -ne 0 ]] && bumpnote="失败 $BUMP_FAILS 个（Agent Teams 仍为旧版，见日志）"
-  if [[ -f "$SPEEDUP_PATCH" ]]; then
-    bash "$SPEEDUP_PATCH" >>"$alog" 2>&1 || log "警告: 提速补丁应用失败（不阻断）"
-  fi
+  local p
+  for p in "${LOCAL_PATCHES[@]}"; do
+    [[ -f "$p" ]] || continue
+    if bash "$p" >>"$alog" 2>&1; then
+      log "  本地补丁已补齐 → $(basename "$p")"
+    else
+      log "  警告: 本地补丁 $(basename "$p") 应用失败（不阻断，可手动重跑）"
+    fi
+  done
 
   # 4) 起服并验证
   if ! start_server "$REAL_PREFIX/bin/dsh"; then
@@ -437,7 +468,7 @@ activate() {
       bash "$SKILL_VERIFY" >"$NOTES_DIR/upgrade-$TARGET-verify-sh.out" 2>&1 || true
       body="$body"$'\n\n技能自校验已写入 `'"$NOTES_DIR/upgrade-$TARGET-verify-sh.out"$'`（版本锚点必然报 `[DRIFT]`）。\n'
     fi
-    body="$body"$'\n\n## 后续收尾（建议在会话恢复后做）\n\n1. 刷新 `http://127.0.0.1:'"$PORT"$'/`（30 天 trust cookie 仍在，无需 token）；\n2. 按 verify.sh 输出把 `SKILL.md` 与 `scripts/verify.sh` 的版本锚点从 `'"$FALLBACK"$'` 修订到 `'"$TARGET"$'`；\n3. 更新 `~/.ai/WORKING.md` 与 `~/.dsh/notes/REINSTALL-INVENTORY.md` 的版本记录。\n'
+    body="$body"$'\n\n## 后续收尾（建议在会话恢复后做）\n\n1. 刷新 `http://127.0.0.1:'"$PORT"$'/`（30 天 trust cookie 仍在，无需 token）；\n2. 按 verify.sh 输出把 `SKILL.md` 与 `scripts/verify.sh` 的版本锚点从 `'"$FALLBACK"$'` 修订到 `'"$TARGET"$'`；\n3. 更新 `~/Projects/dsh/.ai/WORKING.md` 与 `~/.dsh/notes/REINSTALL-INVENTORY.md` 的版本记录。\n'
   fi
 
   emit_report "$report" "$status" "$body"

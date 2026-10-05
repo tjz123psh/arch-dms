@@ -147,6 +147,8 @@ input {
 include "touchpad-state.kdl"
 include "dms/cursor.kdl"
 include "dms/windowrules.kdl"
+// DMS 模糊壁纸层的 layer-rule（DMS 启动时自动生成，需 include 才生效）
+include "dms/wpblur.kdl"
 include "animations-spring.kdl"
 
 // VM 测试模式开关：Win+Shift+D 进入测试模式

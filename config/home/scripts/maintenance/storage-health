@@ -75,7 +75,7 @@ check_smart_device() {
       ((.smartctl?.exit_status? // null) | s),
       (if ((try (.ata_smart_attributes.table? | type) catch "none") // "none") == "array"
        then "1" else "" end)
-     ] | @tsv),
+     ] | join("\u001f")),
     (try ([.ata_smart_attributes.table[]?
       | select(.id == 5 or .id == 187 or .id == 188 or .id == 197 or .id == 198)
       | select((.raw.value // 0) > 0)
@@ -93,7 +93,8 @@ check_smart_device() {
     ata_errors="${fields#*$'\n'}"
     ata_errors="${ata_errors%$'\n'}"
   fi
-  IFS=$'\t' read -r model serial health temp used media critical hours exit_status ata_table \
+  # \u001f 不是 IFS 空白字符：空字段原样保留（用 tab 会被折叠，导致列错位）。
+  IFS=$'\037' read -r model serial health temp used media critical hours exit_status ata_table \
     <<< "${fields%%$'\n'*}"
   [[ -n "$model" ]] && ui_panel_kv "型号" "$model"
   [[ -n "$serial" ]] && ui_panel_kv "序列号" "$serial"

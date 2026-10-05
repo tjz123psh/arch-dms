@@ -1,5 +1,5 @@
 function paru --description "Use fzf UI for plain package searches, keep paru commands unchanged"
-    set -l ui_script "$HOME/scripts/package/paru-ui"
+    set -l ui_script "$HOME/scripts/package/pac"
 
     if test -x "$ui_script"
         if test (count $argv) -eq 0

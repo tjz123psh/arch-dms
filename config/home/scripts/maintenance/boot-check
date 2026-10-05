@@ -101,6 +101,11 @@ check_unit() {
   esac
 }
 
+# 固件模式判定：测试可用 BOOT_CHECK_EFI_DIR 指向不存在的路径来模拟非 UEFI 机器。
+is_uefi_mode() {
+  [[ -d "${BOOT_CHECK_EFI_DIR:-/sys/firmware/efi}" ]]
+}
+
 main() {
   local strict=0 file_rc=0 query_output="" query_rc=0 missing_cmd=0
   if (( $# > 1 )); then
@@ -127,7 +132,7 @@ main() {
   fi
 
   panel "启动模式 / 挂载点" ""
-  if [[ -d /sys/firmware/efi ]]; then
+  if is_uefi_mode; then
     ok "当前系统以 UEFI 模式启动"
   else
     miss "当前系统不是 UEFI 模式；双系统 GRUB/EFI 检查不可靠"
@@ -230,7 +235,10 @@ main() {
   fi
 
   panel "EFI 启动项" ""
-  if have efibootmgr; then
+  if ! is_uefi_mode; then
+    # 非 UEFI 模式没有 EFI 变量：efibootmgr 必然读不到，属“本机不适用”，不算查询失败。
+    info "efibootmgr 跳过：当前系统非 UEFI 模式，本机没有 EFI 启动项"
+  elif have efibootmgr; then
     local efi_out efi_rc=0
     efi_out="$("${SUDO_READ[@]}" efibootmgr 2>&1)" || efi_rc=$?
     if [[ "$efi_rc" -eq 0 && -n "$efi_out" ]]; then

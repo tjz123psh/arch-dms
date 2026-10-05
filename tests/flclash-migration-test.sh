@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # flclash-migration-test.sh - static contract for the AUR -> archlinuxcn
-# proxy-client migrations (flclash-bin -> flclash, clash-verge-rev-bin ->
-# clash-verge-rev). It does not install or remove packages.
+# proxy-client migration (flclash-bin -> flclash), plus the 2026-10-05 decision to drop
+# clash-verge-rev from the restore set. It does not install or remove packages.
 set -Eeuo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
@@ -50,21 +50,11 @@ if "flclash-bin" in recipe_names:
 if (root / "third_party/aur/flclash-bin").exists():
     raise SystemExit("legacy flclash-bin recipe tree still exists")
 
-clash_rows = [row for row in rows if row[0] == "clash-verge-rev"]
-if clash_rows != [
-    [
-        "clash-verge-rev",
-        "pacman",
-        "archlinuxcn",
-        "pacman",
-        "daily-apps",
-        "package-only",
-        "install",
-        "current-explicit",
-        "Continuation of Clash Verge | A Clash Meta GUI based on Tauri (archlinuxcn)",
-    ]
-]:
-    raise SystemExit(f"unexpected clash-verge-rev manifest row: {clash_rows!r}")
+# 2026-10-05：用户决定不再纳入 clash-verge-rev，安装行已删除（宿主上也已卸载）。
+# 03-packages.sh 里的历史迁移守卫保持不动（改安装器核心脚本属红线），对它的字符串
+# 断言因而保留 —— 该分支现在是不可达的兜底。
+if any(row[0] == "clash-verge-rev" for row in rows):
+    raise SystemExit("clash-verge-rev is no longer a restore target but an active row remains")
 if any(row[0] == "clash-verge-rev-bin" for row in rows):
     raise SystemExit("legacy clash-verge-rev-bin remains an active package row")
 if "clash-verge-rev-bin" in recipe_names:
@@ -104,5 +94,5 @@ for required in (
     if required not in packages_script:
         raise SystemExit(f"clash-verge migration guard missing: {required}")
 
-print("proxy migration checks passed: flclash + clash-verge-rev archlinuxcn targets, legacy AUR replaced")
+print("proxy migration checks passed: flclash archlinuxcn target; clash-verge-rev dropped; legacy AUR names absent")
 PY

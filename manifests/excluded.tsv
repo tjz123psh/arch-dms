@@ -67,4 +67,16 @@ payload-file	~/.local/share/applications/mimeapps.list	both	空的（0 字节）
 # --- 7. 依赖宿主未入库项目/包的服务与入口（2026-09-21 重扫补录）---
 payload-file	~/.config/systemd/user/grok-workbuddy-shim.service	physical	ExecStart 指向 ~/Projects/grok-workbuddy 原型仓库（未入库）；属未纳入的 workbuddy AUR 包配套
 payload-file	~/.local/share/applications/antigravity-ide-url-handler.desktop	physical	属于未纳入的 antigravity-ide AUR 包（URL handler）
+#
+# --- 8. 2026-10-05 用户决定：不再纳入 / 已从清单移除 ---
+pacman-package	cc-switch	physical	用户 2026-10-05 决定不收（宿主已卸载）；已同步删除清单行、映射行与 cc-switch-handler.desktop
+pacman-package	clash-verge-rev	physical	用户 2026-10-05 决定不收（宿主已卸载）；已删除清单行、映射行与 clash-verge-handler.desktop。03-packages.sh 的历史迁移守卫保留不动（不可达兜底）
+pacman-package	openai-codex	physical	用户 2026-10-05 决定不收（宿主已卸载）；已删除清单行、映射行与 .local/bin/codex 包装器
+pacman-package	deepseek-harness-desktop	physical	用户 2026-10-05 决定不收（AUR，1.08G）；仓库仍分发 ~/scripts/dsh 运维脚本，本体按需自行 paru -S
+pacman-package	kimi-code-bin	physical	用户 2026-10-05 决定不收（AUR，182M）
+pacman-package	visual-studio-code-bin	physical	用户 2026-10-05 决定不收（AUR，979M）
+pacman-package	antigravity-cli	physical	用户 2026-10-05 决定不收（AUR，210M）；与已排除的 antigravity-ide 同门
+runtime-state	~/.config/go/telemetry/*	physical	Go 遥测计数与 upload.token；运行时数据且含凭据类文件，不入库
+secret	~/.config/pac/ai.conf	physical	个人包工具 pac 的 AI 后端配置，疑含 api key（按凭据红线未读取值），不入库
+secret	~/.config/opencode/*	physical	AI CLI 配置（opencode.jsonc 等），疑含 api key（未读值），不入库
 

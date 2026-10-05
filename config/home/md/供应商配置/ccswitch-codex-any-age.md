@@ -1,5 +1,16 @@
 # cc-switch Codex（any / age）可用方案
 
+> **2026-09-30 二次更新：cc-switch 本体已删除**（用户确认不再使用；`~/.cc-switch/` + 自启动项已清，
+> 系统包待 `sudo pacman -Rns cc-switch`）。⇒ **本文描述的"在 cc-switch GUI 里切换供应商"整套流程作废**。
+> 唯一仍有效的是 **"Grok 部分"**：grok 的供应商现在只能**手改** `~/.grok/config.toml`
+> 的 `[model.*]` 与 `[auth_provider.*]` 段（登录态在 `~/.grok/auth.json`）。
+
+> **2026-09-30 更新：本机 codex 已卸载。** 已删除 `openai-codex` 包（待你执行 `sudo pacman -Rns openai-codex`）、
+> `~/.codex/`（181M 历史与日志）、`~/.local/bin/codex` 包装脚本、`age-env.fish` 与 `anyrouter-env.fish`。
+> ⇒ 下文「方案构成」与「日常使用」中的 **codex 部分已作废**；`cc-switch` GUI 本身**保留**（它还管着
+> claude / claude-desktop / gemini / **grokbuild** 的条目）。
+> **下方「Grok 部分（tabi + seek 供应商）」仍然有效。**
+
 > 更新：2026-08-17（最终可用版，已实测）
 
 ## 现状

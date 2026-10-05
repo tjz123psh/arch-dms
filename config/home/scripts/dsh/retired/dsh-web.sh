@@ -216,6 +216,39 @@ ensure_speedup_patch() {
   return 0
 }
 
+# （2026-09-24：`dsh-better-sidebar` 已按用户要求整体卸载，改用平台原生侧边栏 ⇒
+#  `ensure_turntail_patch` 与 `patch-better-sidebar-turntail-fix.sh` 一并删除。
+#  历史知识保留在 dsh-plugin-management/references/plugin-traps.md：list 槽的 register
+#  必须带 options.id，且门控要写进组件（平台样板 dsh-client-ui-deliverables），
+#  「只补 id」或「静默 return」都不行。若将来重装该插件，照那段重做补丁。）
+
+# （2026-09-23 已退休 patch-theme-xuanpaper-rightbar-ghost.sh）
+# 「右侧边栏收起后残留 354×900 米色块」的修复已**上游化进主题源码**：
+# dsh-theme-xuanpaper v8.7.4 把那条透明规则写进了 lib/client.js **与** lib/client.template.js，
+# 而 `node build.mjs` 由模板重新生成 ⇒ 重装/重建都不会再丢。故不再需要起服补丁。
+# 复核方式：`grep -cF 'dsh-017-rightbar-ghost' lib/client.js lib/client.template.js`
+# 两个文件都应 ≥1；若主题被换回 npm 版（非 file: 依赖）则需重新评估。
+
+# 通用：插件按**旧图标名**引用宿主 primitives，导致 React #130 整块 UI 崩掉。
+# 宿主把图标导出由尺寸后缀制改成字重档制（IconXxx16/14 → IconXxxRegular，旧名一个不剩），
+# 而这不是"删 API"：inject 不报 pending、web.log 干净 ⇒ 只看服务端会判成"升级无碍"。
+# 已知受害：dshmarket 的「插件市场」整块被恢复面板替换（2026-09-24 实测 1.59.0 仍有 138 处旧名）。
+# 上游未修（dshmarket 1.55.0 与装机 1.47.0 用同一批旧名）⇒ 只能本地补，故起服前自动补。
+ensure_icon_rename_patch() {
+  local patcher="$SCRIPT_DIR/patch-plugin-icon-renames.sh"
+  [[ -f "$patcher" ]] || return 0
+  local out
+  if ! out=$(bash "$patcher" 2>&1); then
+    echo "警告: 插件图标改名补丁未应用（不影响启动，但相关插件的界面会报 React #130 崩掉）:" >&2
+    printf '%s\n' "$out" | tail -3 >&2
+    return 0
+  fi
+  if [[ "$out" != *"已经是修好的状态"* ]]; then
+    echo "已自动重跑插件图标改名补丁（检测到插件被重装/升级过）"
+  fi
+  return 0
+}
+
 main() {
   require_deps curl xdg-open ss
   if [[ ! -x "$DSH_BIN" ]]; then
@@ -241,6 +274,7 @@ main() {
 
   echo "正在启动 dsh web ..."
   ensure_speedup_patch
+  ensure_icon_rename_patch
   mkdir -p "$(dirname "$LOG_FILE")"
   # 必须 --no-open：dsh 自身会调 xdg-open 开一次浏览器，脚本就绪后再开一次会变双标签。
   # 由脚本统一负责打开，保证每次调用只出一个标签页。

@@ -152,15 +152,6 @@ binds {
     Print hotkey-overlay-title="截图" { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; /home/pang/scripts/desktop/screenshot-clipboard"; }
     XF86Launch1 { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; /home/pang/scripts/desktop/screenshot-clipboard"; }
 
-    // --- vellum 增强截图工具（Super+Print 系列，不覆盖上面的 niri 原生截图） ---
-    // Super+Print: 框选截图，选区下方出工具栏（确认/OCR/翻译/涂鸦/Pin/长截图）
-    Mod+Print hotkey-overlay-title="vellum 框选" { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; $HOME/.local/bin/vellumctl region"; }
-    Mod+XF86Launch1 { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; $HOME/.local/bin/vellumctl region"; }
-    // Super+Shift+Print: 框选后进入长截图（滚动拼接）
-    Mod+Shift+Print hotkey-overlay-title="vellum 长截图" { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; $HOME/.local/bin/vellumctl long"; }
-    // Super+Ctrl+Print: 把剪贴板里的图钉到桌面（Deskpin，不产生新截图，不上膛）
-    Mod+Ctrl+Print hotkey-overlay-title="vellum 钉图" { spawn-sh "$HOME/.local/bin/vellumctl pin-last"; }
-
     // ===== 窗口操作 =====
 
     // --- 关闭窗口 ---
