@@ -164,8 +164,6 @@ physical-v1	personal-scripts	config/home/scripts/package/pacr	scripts/package/pa
 physical-v1	personal-scripts	config/home/scripts/share/prompts/aur-review.md	scripts/share/prompts/aur-review.md	744
 physical-v1	personal-autostart	config/home/.config/autostart/FlClash.desktop	.config/autostart/FlClash.desktop	644
 physical-v1	asus-hardware	config/home/.config/rog/rog-control-center.cfg	.config/rog/rog-control-center.cfg	644
-physical-v1	personal-user-services	config/home/.config/systemd/user/vellum-tray.service	.config/systemd/user/vellum-tray.service	644
-physical-v1	personal-user-services	config/home/.config/systemd/user/vellum.service	.config/systemd/user/vellum.service	644
 physical-v1	developer-editor	config/home/md/linux/Shorin-ArchLinux-Guide-合集.md	md/linux/Shorin-ArchLinux-Guide-合集.md	644
 physical-v1	developer-editor	config/home/md/linux/.gitignore	md/linux/.gitignore	644
 physical-v1	developer-editor	config/home/md/linux/Btrfs快照与滚挂恢复流程.md	md/linux/Btrfs快照与滚挂恢复流程.md	644
@@ -197,10 +195,6 @@ physical-v1	desktop-shared	config/home/.config/menus/applications-merged/xdg-des
 physical-v1	desktop-apps	config/home/.config/mimeapps.list	.config/mimeapps.list	644
 physical-v1	desktop-shared	config/home/.config/user-dirs.dirs	.config/user-dirs.dirs	644
 physical-v1	desktop-shared	config/home/.config/user-dirs.locale	.config/user-dirs.locale	644
-physical-v1	personal-user-services	config/home/.local/bin/vellum	.local/bin/vellum	755
-physical-v1	personal-user-services	config/home/.local/bin/vellum-tray	.local/bin/vellum-tray	755
-physical-v1	personal-user-services	config/home/.local/bin/vellumctl	.local/bin/vellumctl	755
-physical-v1	personal-user-services	config/home/.local/bin/vellum-ui	.local/bin/vellum-ui	755
 physical-v1	fonts	config/home/.local/share/fonts/MiSans/MiSans-Bold.ttf	.local/share/fonts/MiSans/MiSans-Bold.ttf	644
 physical-v1	fonts	config/home/.local/share/fonts/MiSans/MiSans-Demibold.ttf	.local/share/fonts/MiSans/MiSans-Demibold.ttf	644
 physical-v1	fonts	config/home/.local/share/fonts/MiSans/MiSans-Medium.ttf	.local/share/fonts/MiSans/MiSans-Medium.ttf	644
@@ -262,7 +256,6 @@ physical-v1	personal-user-services	config/home/.config/systemd/user/agentrouter-
 physical-v1	development-toolchain	config/home/.clang-format	.clang-format	644
 physical-v1	desktop-shared	config/home/.config/gtk-3.0/bookmarks	.config/gtk-3.0/bookmarks	644
 physical-v1	wm-hyprland	config/home/.config/hypr/dms/windowrules.lua	.config/hypr/dms/windowrules.lua	644
-physical-v1	personal-user-services	config/home/.local/share/applications/ai.vellum.desktop	.local/share/applications/ai.vellum.desktop	644
 physical-v1	development-toolchain	config/home/.config/go/env	.config/go/env	644
 physical-v1	build-foundation	config/home/md/供应商配置/ccswitch-codex-any-age.md	md/供应商配置/ccswitch-codex-any-age.md	644
 physical-v1	developer-editor	config/home/md/linux/Obsidian-GoogleDrive云端自动同步配置.md	md/linux/Obsidian-GoogleDrive云端自动同步配置.md	644
@@ -272,7 +265,6 @@ physical-v1	maintenance	config/home/scripts/desktop/hypr-touchpad-toggle	scripts
 physical-v1	maintenance	config/home/scripts/desktop/niri-touchpad-toggle	scripts/desktop/niri-touchpad-toggle	755
 physical-v1	wm-hyprland	config/home/.config/hypr/touchpad-state.lua	.config/hypr/touchpad-state.lua	644
 physical-v1	wm-niri	config/home/.config/niri/touchpad-state.kdl	.config/niri/touchpad-state.kdl	644
-physical-v1	desktop-shared	config/home/.local/share/applications/ai.vellum-panel.desktop	.local/share/applications/ai.vellum-panel.desktop	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/anyrouter-proxy.service	.config/systemd/user/anyrouter-proxy.service	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.service	.config/systemd/user/obsidian-sync.service	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.timer	.config/systemd/user/obsidian-sync.timer	644

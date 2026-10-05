@@ -79,4 +79,6 @@ pacman-package	antigravity-cli	physical	用户 2026-10-05 决定不收（AUR，2
 runtime-state	~/.config/go/telemetry/*	physical	Go 遥测计数与 upload.token；运行时数据且含凭据类文件，不入库
 secret	~/.config/pac/ai.conf	physical	个人包工具 pac 的 AI 后端配置，疑含 api key（按凭据红线未读取值），不入库
 secret	~/.config/opencode/*	physical	AI CLI 配置（opencode.jsonc 等），疑含 api key（未读值），不入库
+payload-file	~/.local/bin/{vellum,vellumctl,vellum-ui,vellum-tray} + ai.vellum{,-panel}.desktop + vellum{,-tray}.service	physical	用户 2026-10-05 决定：vellum 已改为自带版本管理器（~/.local/lib/vellum/releases/<ver> + current 软链，bin / 桌面项 / systemd 单元都由它生成并软链），仓库不再分发二进制与派生文件（旧 payload 是 0.1.2 真文件，07-config 部署时会把软链覆盖成旧版真实文件）
+runtime-state	~/.grok/*	physical	手工下载的 grok 发行包（~/.grok/bin/grok → ~/downloads/grok-<ver>），不在任何清单里；~/.local/bin/grok 包装器因此改调包提供的 /usr/bin/grok（2026-09-18 修复），本目录仅记录、不入库
 

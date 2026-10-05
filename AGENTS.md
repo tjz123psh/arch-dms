@@ -4,7 +4,8 @@
 
 ## 绝对指令一：工作区边界，禁止越界修改
 
-- **唯一可写范围**：本工作区 `/home/pang/Projects/my-arch-setup-deepseek/` 之内。
+- **唯一可写范围**：本工作区 `/home/pang/Projects/arch-dms/` 之内
+  （仓库 2026-10-03 由 `my-arch-setup-deepseek` 改名为 `arch-dms`；旧路径现已空置，勿再按其判断越界）。
 - **禁止跨越工作区修改任何其他项目**，特别是：
   - `/home/pang/Projects/` 下的任何其他项目（my-archlinux-setup、插件、k12-gmail、MD Reader、md-reader-android、qq-agent-bot、rjsupplicant-gui、SystemMaintenance-tui 等）；
   - 任何位于本工作区之外的路径。
