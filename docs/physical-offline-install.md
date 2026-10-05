@@ -11,7 +11,9 @@
 | `aur-sources-physical.tar.gz`（物理机）/ `aur-sources-vm.tar.gz`（虚拟机） | AUR 离线缓存（全部源码 + 构建依赖，解压为 `.aur-sources/`） | 1.6G / 899M |
 
 获取：
-- 仓库：`cd ~/Projects && tar --exclude='.git' --exclude='.aur-sources' --exclude='artifacts' --exclude='.install_logs' --exclude='.ai' -czf my-arch-setup.tar my-arch-setup-deepseek`
+- 仓库：`cd ~/Projects && tar --exclude='.git' --exclude='.aur-sources' --exclude='artifacts' --exclude='.install_logs' --exclude='.ai' -czf my-arch-setup.tar arch-dms`
+  （**tar 的顶层目录名 = 你打包时写的仓库目录名**。仓库已改名为 `arch-dms`；若目录名不同请照改——
+  注意别对着改名后留下的空目录打包，那会得到一个**没有安装器的空包**）
 - 缓存：`./fetch-aur-sources.sh physical|vm` 生成，或从 GitHub Releases 下载
   `aur-sources-physical.tar.gz` / `aur-sources-vm.tar.gz`（按机器类型选）
 
@@ -27,25 +29,27 @@ USB=/mnt/usb/arch
 #   sudo mkdir -p /mnt/hgfs && sudo vmhgfs-fuse .host:/ /mnt/hgfs -o allow_other
 #   USB=/mnt/hgfs/test
 
-# ② 解包仓库 → ~/my-arch-setup-deepseek/
+# ② 解包仓库（tar 顶层目录名 = 打包时的仓库目录名）
 tar -xf "$USB/my-arch-setup.tar" -C ~/
+tar -tzf "$USB/my-arch-setup.tar" | head -1   # 看实际顶层：新包是 arch-dms/，旧 Release 包是 my-arch-setup-deepseek/
+REPO=~/arch-dms                              # 旧 Release 包请改成 REPO=~/my-arch-setup-deepseek
 
 # ③ 解压缓存进仓库 → .aur-sources/（触发 06 离线模式）
-tar -xzf "$USB/aur-sources-physical.tar.gz" -C ~/my-arch-setup-deepseek/
+tar -xzf "$USB/aur-sources-physical.tar.gz" -C "$REPO/"    # 虚拟机换 aur-sources-vm.tar.gz
 
 # ④ 确认缓存就位
-ls -d ~/my-arch-setup-deepseek/.aur-sources
+ls -d "$REPO/.aur-sources"
 
 # ⑤ 联网（仅国内镜像即可）+ 安装
 curl -m 5 -s -o /dev/null -w "%{http_code}\n" https://mirrors.aliyun.com   # 期望 200 或 3xx（301 是正常跳转，有响应即说明已联网）
-cd ~/my-arch-setup-deepseek && ./install.sh -d both -t physical    # 虚拟机用 -t vm
+cd "$REPO" && ./install.sh -d both -t physical    # 虚拟机用 -t vm
 ```
 
 ## 验证离线模式生效（06-aur 阶段）
 
 - 横幅：`★ AUR MODE: OFFLINE — makepkg pinned recipes ★`
 - 日志：`Using local AUR source cache: ... (offline mode)`，makepkg 构建、无 `Downloading`
-- 装完：`cat ~/my-arch-setup-deepseek/.install_logs/06-aur.log` 应显示 `mode=offline`
+- 装完：`cat "$REPO/.install_logs/06-aur.log"` 应显示 `mode=offline`
 
 ## 注意事项
 
@@ -54,7 +58,8 @@ cd ~/my-arch-setup-deepseek && ./install.sh -d both -t physical    # 虚拟机�
   其中 `linux-zen` 最容易漏（archinstall 默认只装 `linux`），补装：
   `pacman -S linux-zen && grub-mkconfig -o /boot/grub/grub.cfg`；非 btrfs 根或不用 GRUB 的基线
   也会分别因缺 `btrfs-progs`/`grub` 被拦下。
-- **打包结构**：仓库 tar 必须带顶层目录（`my-arch-setup-deepseek/`）；缓存 tar 顶层必须是
+- **打包结构**：仓库 tar 必须带顶层目录（目录名 = 打包时的仓库目录名：新包 `arch-dms/`，
+  旧 Release 包 `my-arch-setup-deepseek/`）；缓存 tar 顶层必须是
   `.aur-sources/`。否则解压散文件、离线模式不触发（06 会走在线 paru）
 - **磁盘空间（重要）**：离线 AUR 阶段要解包全部源码、构建 10+ 个包、再一次性安装
   （chrome/QQ/微信/Obsidian 解包后合计 ~2.5G），需要 `.aur-sources` 体积 + **~3G** 余量。

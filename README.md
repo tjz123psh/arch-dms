@@ -59,9 +59,9 @@ cd ~/my-arch-setup-deepseek && ./install.sh
 
 ## 手工准备项（不在自动恢复范围内）
 
-- **目标用户名为 `pang`**：`config/` 里有 41 个文件硬编码 `/home/pang`（`~/.config` 与
-  `~/.local` 下 26 个：niri 键位与 `spawn-at-startup`、截图脚本、fish 的
-  `fish_add_path`、七个 systemd user 单元、`ai.vellum.desktop`、fuzzel 的 `include=`、
+- **目标用户名为 `pang`**：`config/` 里有 39 个文件硬编码 `/home/pang`（`~/.config` 与
+  `~/.local` 下 24 个：niri 键位与 `spawn-at-startup`、截图脚本（vellum 六项）、fish 的
+  `fish_add_path`、五个 systemd user 单元、`ai.vellum.desktop`、fuzzel 的 `include=`、
   gtk bookmarks 等；另有 `scripts/` 5 个、`md/` 10 个），安装器
   **不会**重写这些路径。换用户名安装不会报错，但会得到半可用的桌面；确需换名时装完自行
   `grep -rl /home/pang ~/.config ~/.local/share/applications` 逐一修正。
