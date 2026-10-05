@@ -1,15 +1,24 @@
 [Unit]
-Description=AnyRouter reverse proxy for DSH (egress via Clash 127.0.0.1:7890)
+Description=AnyRouter reverse proxy for DSH (codex wire image + channel-full retry; egress via Clash)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/node /home/pang/.local/bin/anyrouter-proxy.mjs
+ExecStart=/usr/bin/node %h/.local/bin/anyrouter-proxy.mjs
 Environment=NODE_USE_ENV_PROXY=1
 Environment=HTTPS_PROXY=http://127.0.0.1:7890
 Environment=HTTP_PROXY=http://127.0.0.1:7890
 Environment=NO_PROXY=127.0.0.1,localhost
+# 挤信道重试（客户端 DSH 空闲超时 5 分钟，这里预算留 4 分钟）
+Environment=ANYROUTER_PROXY_HEDGE=1
+Environment=ANYROUTER_PROXY_FIRST_BYTE_MS=0
+Environment=ANYROUTER_PROXY_RETRY_ATTEMPTS=5
+Environment=ANYROUTER_PROXY_RETRY_MIN_MS=2000
+Environment=ANYROUTER_PROXY_RETRY_MAX_MS=10000
+Environment=ANYROUTER_PROXY_RETRY_BUDGET_MS=90000
+Environment=ANYROUTER_PROXY_RETRY_SLOW_MIN_MS=2000
+Environment=ANYROUTER_PROXY_RETRY_SLOW_MAX_MS=10000
 Restart=on-failure
 RestartSec=3
 
