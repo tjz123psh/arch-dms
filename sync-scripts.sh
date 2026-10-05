@@ -127,6 +127,14 @@ fi
 # secret gate: scan every file that would be written (fail closed)
 # ---------------------------------------------------------------------------
 secret_hits=0
+# 允许名单：命中凭据正则、但已人工确认是**测试占位符**的文件。新增条目必须写明理由并留痕
+# （这里是"值不是凭据"的断言，不是"这个文件不用扫"的挡箭牌；文件仍会被 check-extend 的
+#  secret 节按 config/ 载荷再扫一遍）。
+# 2026-10-05：package/tests/phase5-ai-http.sh 的"改 model 时保留其它字段"用例用 sk-keep 占位，
+# 命中 `key = sk-...` 形态；该用例本身就在断言 key 不被泄漏。
+declare -a SECRET_ALLOW=(
+  "package/tests/phase5-ai-http.sh"
+)
 scan_file() { # scan_file <path> <label>
   # case-insensitive: SECRET_TOKEN / ApiKey / PASSWORD all must fail closed
   if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE)|sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9]{20,})[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$1" 2>/dev/null; then
@@ -135,6 +143,10 @@ scan_file() { # scan_file <path> <label>
   fi
 }
 for rel in "${changed[@]}" "${newfiles[@]}"; do
+  if [[ " ${SECRET_ALLOW[*]} " == *" ${rel} "* ]]; then
+    echo "  [SECRET-ALLOW] ${rel}（人工确认的测试占位符，理由见脚本内注释）"
+    continue
+  fi
   scan_file "${SRC}/${rel}" "${rel}"
 done
 if (( secret_hits > 0 )); then
@@ -294,6 +306,9 @@ echo "  added ${added} mapping rows"
 post_hits=0
 while IFS= read -r -d '' f; do
   rel="${f#"${DEST}"/}"
+  if [[ " ${SECRET_ALLOW[*]} " == *" ${rel} "* ]]; then
+    continue
+  fi
   if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE))[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$f" 2>/dev/null; then
     echo "  [POST-SCAN SECRET] ${rel}"
     post_hits=$((post_hits + 1))
