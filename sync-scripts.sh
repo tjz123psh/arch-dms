@@ -2,7 +2,7 @@
 # sync-scripts.sh - keep the operator's ~/scripts in sync with the repo and
 # make sure every file is listed in config-mappings.tsv.
 #
-# 07-config deploys ONLY what config-mappings.tsv lists, so a file that
+# 06-config deploys ONLY what config-mappings.tsv lists, so a file that
 # exists in config/home/scripts/ without a mapping row silently never gets
 # installed. This tool (run on the host):
 #   1. inventories ~/scripts -> config/home/scripts/ (excluding any .git)
@@ -13,7 +13,7 @@
 #      timestamp, and only then switches; a post-switch secret scan runs
 #      again. --rollback <dir> restores a previous state from the backup.
 #
-# SAFETY (review P0-4 / 4.3):
+# SAFETY:
 #   - default is a read-only PLAN: zero writes, zero mkdir, zero mapping edits
 #   - a secret hit FAILS CLOSED during --apply: nothing is written
 #   - apply never uses --delete against the live tree; it switches from a
@@ -127,14 +127,6 @@ fi
 # secret gate: scan every file that would be written (fail closed)
 # ---------------------------------------------------------------------------
 secret_hits=0
-# 允许名单：命中凭据正则、但已人工确认是**测试占位符**的文件。新增条目必须写明理由并留痕
-# （这里是"值不是凭据"的断言，不是"这个文件不用扫"的挡箭牌；提交前仍要按 config/
-#  载荷再扫一遍）。
-# 2026-10-05：package/tests/phase5-ai-http.sh 的"改 model 时保留其它字段"用例用 sk-keep 占位，
-# 命中 `key = sk-...` 形态；该用例本身就在断言 key 不被泄漏。
-declare -a SECRET_ALLOW=(
-  "package/tests/phase5-ai-http.sh"
-)
 scan_file() { # scan_file <path> <label>
   # case-insensitive: SECRET_TOKEN / ApiKey / PASSWORD all must fail closed
   if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE)|sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9]{20,})[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$1" 2>/dev/null; then
@@ -143,10 +135,6 @@ scan_file() { # scan_file <path> <label>
   fi
 }
 for rel in "${changed[@]}" "${newfiles[@]}"; do
-  if [[ " ${SECRET_ALLOW[*]} " == *" ${rel} "* ]]; then
-    echo "  [SECRET-ALLOW] ${rel}（人工确认的测试占位符，理由见脚本内注释）"
-    continue
-  fi
   scan_file "${SRC}/${rel}" "${rel}"
 done
 if (( secret_hits > 0 )); then
@@ -190,7 +178,7 @@ mapping_plan=()
 # Mapping completeness is checked over EVERY file present in DEST (same +
 # changed + new), not just the ones this run would write: a file that lands
 # in config/home/scripts/ without a mapping row (manual cp, merge, earlier
-# sync bug) silently never gets deployed by 07-config. Found 2026-08-12:
+# sync bug) silently never gets deployed by 06-config. Found 2026-08-12:
 # 9 files copied by hand were classified "same" and the missing mapping
 # rows went undetected, so a fresh install would not restore them.
 for rel in "${same[@]}" "${changed[@]}" "${newfiles[@]}"; do
@@ -306,9 +294,6 @@ echo "  added ${added} mapping rows"
 post_hits=0
 while IFS= read -r -d '' f; do
   rel="${f#"${DEST}"/}"
-  if [[ " ${SECRET_ALLOW[*]} " == *" ${rel} "* ]]; then
-    continue
-  fi
   if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE))[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$f" 2>/dev/null; then
     echo "  [POST-SCAN SECRET] ${rel}"
     post_hits=$((post_hits + 1))

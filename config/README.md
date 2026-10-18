@@ -1,43 +1,16 @@
-# Reviewed personal deployable configuration
+# config/ — deployable payload
 
-This tree contains the explicitly reviewed payload for the same-user/same-ASUS
-restorer. Faithful machine-specific output names, display values, personal paths
-and helper behavior are allowed when required by the working workstation. It is
-not a generic public dotfile template and is never permission to copy all of
-`$HOME` or `.config`.
+This is the operator's personal configuration payload, not a generic dotfile
+template. Only the files listed in `manifests/config-mappings.tsv` are copied
+into the target HOME.
 
-Every deployed regular file must have one per-scope row in
-`manifests/config-mappings.tsv`, one selected module owner and a reviewed mode
-declared in that row (`600`, `644`, `744` or `755`); the declared mode, not the
-working-tree permission, is what gets deployed.
-`config/home/` owns the physical-v1 payload (289 rows at last reconciliation, 2026-09-18);
-VMware guests deploy the same full scope except the machine-role rows, which
-follow `MACHINE_TYPE` (vmware-host rows deploy on physical only,
-vmware-guest rows on vm only — same module selection as packages). There is no
-separate VM tree.
-Static reconciliation validates manifest schema, source-file existence and
-mode syntax. Deploy-time safety (07-config) refuses to follow symlinks anywhere
-in the target path — a symlinked target or path component is skipped instead of
-writing through to a file outside HOME — and backs up changed targets first.
-The host-asset sync workflow runs a secret scan before copying and again on the
-staged diff; Fish payload with credential assignments is never copied.
-
-Credentials, private keys, NetworkManager secrets, browser/chat/note profiles,
-cookies, tokens, caches, databases and private session state remain excluded.
-The Fish payload may optionally source the user-maintained, unmapped
-`~/.config/fish/private-env.fish`; no secret value belongs here.
-
-Portable/system templates live separately under `config/templates/` and are
-never silently substituted for user payload. The archlinuxcn and AUR pacman
-templates are manual reference copies only: nothing in the installer reads
-them (07-config deploys `config/home/` exclusively, and `config/templates/`
-is structurally excluded), so they are not wired into any automated adapter
-or hash-binding scheme.
-
-The mapped `scripts/desktop/gsudo` payload never changes the privilege route:
-production adapters call only that wrapper, which dispatches `sudo -A`. It does
-not pre-require the later AUR Fuzzel provider, so the scoped-sudo clean-base
-bootstrap can proceed. Its adjacent askpass helper prefers Fuzzel and otherwise
-warns before using fixed `/usr/bin/systemd-ask-password`; if neither prompt
-provider is available it exits `127`. No password or prompt output belongs in
-repository or validation logs.
+- `config/home/` — user files. Target paths are HOME-relative and the mode
+  comes from the mapping row, not from the working-tree permission.
+- `config/etc/` — system files deployed directly by the steps (greetd +
+  nwg-hello, paru.conf, GRUB theme). They are not part of the mappings.
+- `config/templates/` — manual reference copies (archlinuxcn/pacman hooks);
+  the installer never reads them.
+- Credentials, private profiles and caches are excluded; see
+  `manifests/excluded.tsv`.
+- Add a file: put it under `config/home/...`, run
+  `./sync-config-mappings.sh <path>`, and commit both the file and the row.

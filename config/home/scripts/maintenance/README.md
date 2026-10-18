@@ -344,13 +344,4 @@ Fish 块，并准确恢复这些旧值；若状态文件不在，脚本只移除
 ```bash
 find . -maxdepth 2 -type f -perm -u+x -exec bash -n {} +
 shellcheck -x backup-restore btrfs-scrub storage-health term-menu
-MAINTENANCE_NO_NOTIFY=1 tests/run
-```
-
-`tests/run` 使用临时目录和命令桩测试更新、清理、快照、迁移、恢复和存储状态，不会
-执行真实系统升级、快照恢复、深度清理或磁盘 scrub。端到端用例会隔离 `HOME`，`test_syntax`
-会跳过 `review*/` 归档目录。只跑其中一部分可以使用正则过滤：
-
-```bash
-TESTS_FILTER='snapshot|lock' MAINTENANCE_NO_NOTIFY=1 tests/run
 ```

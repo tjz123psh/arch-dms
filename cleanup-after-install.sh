@@ -10,7 +10,6 @@
 #   3. ~/.cache/go-build        - Go build cache (Go-based AUR builds)
 #   4. ~/.cache/paru            - AUR git clones
 #   5. <repo>/.install-progress - installer resume state (install is done)
-#      <repo>/.install_logs     - installer logs
 #
 # Everything outside this list is left alone. The script is idempotent: paths
 # that are already gone are skipped, so re-running it is harmless.
@@ -82,7 +81,7 @@ echo "  pacman 缓存  /var/cache/pacman/pkg  ${pac_cache:-0B}（保留每包最
 echo "  cargo 缓存   ~/.cargo/registry      ${cargo_size:-不存在}"
 echo "  go 缓存      ~/.cache/go-build      ${go_size:-不存在}"
 echo "  paru 克隆    ~/.cache/paru          ${paru_size:-不存在}"
-echo "  安装器状态   .install-progress / .install_logs（几 KB）"
+echo "  安装器状态   .install-progress（几 KB）"
 echo
 
 # ---- confirm ---------------------------------------------------------------
@@ -109,7 +108,6 @@ rm_path "$HOME/.cache/paru"       "paru AUR 克隆"
 # ---- installer leftovers ------------------------------------------------------
 echo "-- 安装器残留"
 rm_path "${SCRIPT_DIR}/.install-progress" "安装进度文件"
-rm_path "${SCRIPT_DIR}/.install_logs"     "安装日志目录"
 
 echo
 echo "完成。脚本清理释放约 $(fmt "$freed")（另有 pacman 缓存释放见上方 paccache 输出）。"

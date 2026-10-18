@@ -20,8 +20,6 @@ __pycache__/
 # Editor and OS noise.
 .DS_Store
 
-# Validation artifacts: never committed.
-artifacts/
 
 # sync-scripts.sh 的 rollback 备份（防误提交）
 .sync-backup-*/

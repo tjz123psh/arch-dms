@@ -6,7 +6,7 @@
 #     --module  对"没有既有映射可继承"的新目录使用的默认模块（缺省 desktop-shared）
 #     路径      只处理指定文件/目录（缺省扫描 config/home 全部）
 #
-# 规则（与 07-config / reconciliation 对齐）:
+# 规则（与 06-config 对齐）:
 #   - 只处理 config/home/（config/etc 由脚本直接部署，不走映射）
 #   - source = 相对仓库根（config/home/...）；target = 去掉 config/home/ 前缀
 #     （.config/...、.local/bin/...、md/...）

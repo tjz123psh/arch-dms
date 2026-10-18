@@ -49,8 +49,6 @@ physical-v1	desktop-shared	config/home/scripts/desktop/fuzzel-askpass	scripts/de
 physical-v1	desktop-shared	config/home/scripts/desktop/gsudo	scripts/desktop/gsudo	755
 physical-v1	desktop-shared	config/home/scripts/desktop/screenshot-sound	scripts/desktop/screenshot-sound	755
 physical-v1	desktop-shared	config/home/scripts/maintenance/lib/ui.sh	scripts/maintenance/lib/ui.sh	644
-physical-v1	wm-niri	config/home/scripts/desktop/niri-keys	scripts/desktop/niri-keys	755
-physical-v1	wm-niri	config/home/scripts/desktop/niri-quit	scripts/desktop/niri-quit	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/.gitignore	scripts/maintenance/.gitignore	644
 physical-v1	personal-scripts	config/home/scripts/maintenance/HANDOFF-ui-refactor.md	scripts/maintenance/HANDOFF-ui-refactor.md	644
 physical-v1	personal-scripts	config/home/scripts/maintenance/README.md	scripts/maintenance/README.md	644
@@ -80,8 +78,6 @@ physical-v1	personal-scripts	config/home/scripts/maintenance/storage-health	scri
 physical-v1	personal-scripts	config/home/scripts/maintenance/sysup	scripts/maintenance/sysup	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/term-menu	scripts/maintenance/term-menu	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/terminal-tools	scripts/maintenance/terminal-tools	755
-physical-v1	personal-scripts	config/home/scripts/maintenance/tests/DESTRUCTIVE-VM.md	scripts/maintenance/tests/DESTRUCTIVE-VM.md	644
-physical-v1	personal-scripts	config/home/scripts/maintenance/tests/run	scripts/maintenance/tests/run	755
 physical-v1	personal-scripts	config/home/scripts/media/b23	scripts/media/b23	755
 physical-v1	personal-scripts	config/home/scripts/package/pacd	scripts/package/pacd	755
 physical-v1	personal-scripts	config/home/scripts/package/pacr	scripts/package/pacr	755
@@ -102,7 +98,6 @@ physical-v1	desktop-shared	config/home/.config/user-dirs.locale	.config/user-dir
 physical-v1	desktop-shared	config/home/md/vmware/VMware-使用与运维笔记.md	md/vmware/VMware-使用与运维笔记.md	644
 physical-v1	cli-tools	config/home/.config/gh/config.yml	.config/gh/config.yml	644
 physical-v1	desktop-apps	config/home/.config/nomacs/Image Lounge.conf	.config/nomacs/Image Lounge.conf	644
-physical-v1	maintenance	config/home/scripts/desktop/README.md	scripts/desktop/README.md	644
 physical-v1	maintenance	config/home/scripts/media/README.md	scripts/media/README.md	644
 physical-v1	maintenance	config/home/scripts/package/README.md	scripts/package/README.md	644
 physical-v1	maintenance	config/home/scripts/share/README.md	scripts/share/README.md	644
@@ -115,7 +110,6 @@ physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我JHMS
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/一键恢复.sh	scripts/MusicFree-歌单和插件/一键恢复.sh	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/qUjJ9rDU1d53RT8fLL0XQ.js	scripts/MusicFree-歌单和插件/qUjJ9rDU1d53RT8fLL0XQ.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/README.md	scripts/MusicFree-歌单和插件/README.md	644
-physical-v1	personal-scripts	config/home/scripts/desktop/clipboard-x11-bridge	scripts/desktop/clipboard-x11-bridge	755
 physical-v1	personal-scripts	config/home/scripts/desktop/screenshot-clipboard	scripts/desktop/screenshot-clipboard	755
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-expand-ranges.mjs	scripts/dsh/dsh-session-expand-ranges.mjs	644
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-migrate.mjs	scripts/dsh/dsh-session-migrate.mjs	644
@@ -136,7 +130,6 @@ physical-v1	build-foundation	config/home/md/供应商配置/ccswitch-codex-any-a
 physical-v1	developer-editor	config/home/md/linux/Obsidian-GoogleDrive云端自动同步配置.md	md/linux/Obsidian-GoogleDrive云端自动同步配置.md	644
 physical-v1	developer-editor	config/home/md/linux/WiFi热点修复记录.md	md/linux/WiFi热点修复记录.md	644
 physical-v1	build-foundation	config/home/md/zed/Zed安装与使用说明.md	md/zed/Zed安装与使用说明.md	644
-physical-v1	maintenance	config/home/scripts/desktop/niri-touchpad-toggle	scripts/desktop/niri-touchpad-toggle	755
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.service	.config/systemd/user/obsidian-sync.service	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.timer	.config/systemd/user/obsidian-sync.timer	644
 physical-v1	desktop-shared	config/home/.local/share/applications/dbx-handler.desktop	.local/share/applications/dbx-handler.desktop	644
@@ -148,13 +141,6 @@ physical-v1	build-foundation	config/home/md/供应商配置/dsh-provider-kit/any
 physical-v1	developer-editor	config/home/md/linux/Clash-TUN模式不生效-虚拟网卡未创建排查.md	md/linux/Clash-TUN模式不生效-虚拟网卡未创建排查.md	644
 physical-v1	maintenance	config/home/scripts/.gitignore	scripts/.gitignore	644
 physical-v1	maintenance	config/home/scripts/package/lib/pac-ai.sh	scripts/package/lib/pac-ai.sh	644
-physical-v1	maintenance	config/home/scripts/package/tests/phase1-review-gate.sh	scripts/package/tests/phase1-review-gate.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/phase2-leftover.sh	scripts/package/tests/phase2-leftover.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/phase3-flatpak.sh	scripts/package/tests/phase3-flatpak.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/phase4-review-score.sh	scripts/package/tests/phase4-review-score.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/phase5-ai-http.sh	scripts/package/tests/phase5-ai-http.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/phase6-ai-leftover.sh	scripts/package/tests/phase6-ai-leftover.sh	755
-physical-v1	maintenance	config/home/scripts/package/tests/run-all.sh	scripts/package/tests/run-all.sh	755
 physical-v1	maintenance	config/home/scripts/package/UPGRADE.md	scripts/package/UPGRADE.md	644
 physical-v1	maintenance	config/home/scripts/share/prompts/aur-review.legacy.md	scripts/share/prompts/aur-review.legacy.md	755
 physical-v1	maintenance	config/home/scripts/share/prompts/leftover-scan.md	scripts/share/prompts/leftover-scan.md	644

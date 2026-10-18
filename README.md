@@ -65,7 +65,7 @@ sudo bash strap.sh
 - 官方包：`manifests/workstation-packages.tsv` 加一行
 - 个人配置：`config/` 放文件 + `manifests/config-mappings.tsv` 加一行
   （新目录用 `./sync-config-mappings.sh` 自动补行）
-- AUR：`third_party/aur/<包名>/` 放审阅过的 recipe 与 REVIEW，清单登记包行
+- AUR：在 `manifests/workstation-packages.tsv` 加一行即可（在线 `paru` 构建；只有 `paru` 自身保留 `third_party/aur/paru` 兜底 recipe）
 - 提交前跑 `./dev-check.sh`（bash -n + 可执行位 + shellcheck + `--help`）
 - 详细套路、验证纪律与红线见 [docs/how-to-extend.md](docs/how-to-extend.md)
 

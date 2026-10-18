@@ -128,11 +128,9 @@ if [[ "${DESKTOP_ENV}" != "none" ]]; then
       ln -s "${target}" "${link_path}" && log "${link_name} -> ${target}"
     fi
   done <<'ENTRIES'
-niri-keys|desktop/niri-keys
 b23|media/b23
 gsudo|desktop/gsudo
 fuzzel-askpass|desktop/fuzzel-askpass
-niri-touchpad-toggle|desktop/niri-touchpad-toggle
 ENTRIES
 fi
 

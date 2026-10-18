@@ -6,7 +6,7 @@
 | 想改什么 | 动哪里 |
 |---|---|
 | 加/删官方包 | `manifests/workstation-packages.tsv` |
-| 加/删 AUR 包 | `third_party/aur/<包>/` + `manifests/aur-recipes.tsv` + 包清单行 |
+| 加/删 AUR 包 | `manifests/workstation-packages.tsv` 一行（在线 paru） |
 | 加/改个人配置 | `config/` + `manifests/config-mappings.tsv` |
 | 加/改服务 | `steps/07-services.sh` |
 | 加/改系统设置 | `steps/08-settings.sh` |
@@ -29,13 +29,14 @@
 
 ## 二、加一个 AUR 包
 
-1. `third_party/aur/<包名>/` 放审阅过的 `PKGBUILD`（+ 补丁 / `.install` /
-   `Cargo.lock` 等），并写 `REVIEW.md`：AUR 来源、AUR commit、pkgver、本地改动。
-2. `manifests/aur-recipes.tsv` 加包名（recipe 登记）。
-3. `manifests/workstation-packages.tsv` 加一行：
-   `包名	aur	aur	aur-build	<module>	package-only	install	current-explicit	用途`。
-4. AUR 走**在线** `paru` 构建（`steps/05-aur.sh`），所以 recipe 主要用于复核与兜底；
-   包升级时同步 REVIEW.md 里的版本、来源 URL 与哈希。
+在 `manifests/workstation-packages.tsv` 加一行（Tab 分隔，9 列）：
+
+```
+包名	aur	aur	aur-build	<module>	package-only	install	current-explicit	一句话用途
+```
+
+- AUR 走**在线** `paru` 构建（`steps/05-aur.sh`），不需要本地 recipe。
+- 只有 `paru` 自身保留 `third_party/aur/paru/` 作为 archlinuxcn 不可用时的兜底。
 
 ## 三、加一条配置映射
 
@@ -56,7 +57,7 @@ physical-v1	<module>	config/home/.config/xxx	.config/xxx	644
 
 - 任何提交前：`./dev-check.sh`（`bash -n` + 可执行位 + `shellcheck` +
   `install.sh --help`）。
-- 只改数据（清单 / 配置 / recipe 注释）：dev-check 通过 + 人工复核 diff 即可。
+- 只改数据（清单 / 配置）：dev-check 通过 + 人工复核 diff 即可。
 - **红线改动**（安装主流程、manifests schema、`DESKTOP_ENV` 过滤）：在一台一次性
   虚拟机（或恢复前的宿主快照）里完整跑 `./install.sh -d niri`，8 步全过再提交；
   VM 里驱动只是安装、不生效，安装流程可以完整验收。

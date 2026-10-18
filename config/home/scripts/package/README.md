@@ -144,7 +144,6 @@ pac ai models                  # 可选：从端点的 /models 拉列表，用 f
 ~/scripts/package/
   pac  pacr  pacd       三个命令（~/.local/bin 里有同名链接）
   lib/pac-ai.sh         AI 后端共享库：配置解析、HTTP 请求、模型列表
-  tests/                六套验收脚本，run-all.sh 一把跑完
   README.md             本文件
   UPGRADE.md            升级方案、每期改动、决策记录与回退办法
 ```
@@ -162,8 +161,6 @@ pac ai models                  # 可选：从端点的 /models 拉列表，用 f
 
 ---
 
-## 验收与升级记录
-
-改完东西想确认没坏：`./tests/run-all.sh` 一把跑完六套（当前 134 条断言）。
+## 升级记录
 
 想了解这套东西是怎么一步步改成现在这样的（每一期做了什么、踩了什么坑、为什么这么定），看 [UPGRADE.md](./UPGRADE.md)。

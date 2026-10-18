@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # niri-vmtest-gen — 重新生成测试配置（~/.config/niri/config.kdl.vmtest）
-# VM 版：适配 conf.d 结构（主机版在宿主机 ~/scripts/desktop/niri-vmtest-gen）。
+# VM 版：适配 conf.d 结构。
 # 用途：改过 ~/.config/niri/config.kdl / conf.d 后运行一次，刷新测试配置副本。
 # 测试配置 = config.kdl 的副本，但：全部快捷键被禁用，只保留开关键 Win+Shift+D。
 #
