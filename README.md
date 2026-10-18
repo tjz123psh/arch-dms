@@ -7,12 +7,13 @@
 
 ## 基础安装前置（手工，不在本仓库范围）
 
-下面 12 个包是恢复前提（清单里标为 `manual-precondition`，安装器不安装它们）：
+下面 14 个包是恢复前提（清单里标为 `manual-precondition`，安装器不安装它们）：
 
-`base bash btrfs-progs coreutils gawk grub linux-lts linux-zen mkinitcpio networkmanager sed sudo`
+`base bash btrfs-progs coreutils gawk grub linux-lts linux-lts-headers linux-zen linux-zen-headers mkinitcpio networkmanager sed sudo`
 
-- `linux-zen`（日常内核）与 `linux-lts`（回退内核）并存；内核、initramfs 与 GRUB 由手工完成：
-  `pacman -S linux-zen linux-lts && grub-mkconfig -o /boot/grub/grub.cfg`
+- archinstall 里同时选中 `linux-zen`（日常）和 `linux-lts`（回退），以及**各自的 headers**
+  （`linux-zen-headers`、`linux-lts-headers`）；内核、initramfs 与 GRUB 由手工完成，
+  例如补装：`pacman -S linux-zen linux-lts linux-zen-headers linux-lts-headers && grub-mkconfig -o /boot/grub/grub.cfg`
 - 分区、GRUB 安装、内核 / initramfs 生成、用户与密码、首次联网全部手工完成，
   安装器不代劳。
 

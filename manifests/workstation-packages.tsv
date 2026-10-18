@@ -71,7 +71,7 @@ libvirt	pacman	extra	pacman	virtualization	deferred	deferred	current-explicit	AP
 linux-lts	pacman	core	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The LTS Linux kernel and modules
 linux-firmware	pacman	core	pacman	hardware-tools	package-only	install	current-explicit	Firmware files for Linux - Default set
 linux-zen	pacman	extra	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The Linux ZEN kernel and modules
-linux-zen-headers	pacman	extra	pacman	kernel-support	package-only	install	current-explicit	Headers and scripts for building modules for the Linux ZEN kernel
+linux-zen-headers	pacman	extra	verify-only	base-preconditions	manual-precondition	verify	current-explicit	Headers and scripts for building modules for the Linux ZEN kernel
 linuxqq	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	New Linux QQ based on Electron
 linuxqq-wayland-fix	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	QQ Wayland fixes (screenshare, audio, clipboard, screenshot)
 lsof	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	Lists open files for running Unix processes
@@ -156,7 +156,7 @@ pi-coding-agent-bin	aur	aur	aur-build	cli-tools	package-only	install	current-exp
 yt-dlp-ejs	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	External JavaScript for yt-dlp (bilibili b23 downloader)
 nvtop	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	GPU process monitoring TUI for AMD/Intel/NVIDIA
 7zip	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	File archiver with high compression (p7zip replacement)
-linux-lts-headers	pacman	extra	pacman	kernel-support	package-only	install	current-explicit	LTS kernel headers (standalone; linux-lts itself is not installed - harmless if the LTS kernel is added later)
+linux-lts-headers	pacman	extra	verify-only	base-preconditions	manual-precondition	verify	current-explicit	Headers and scripts for building modules for the LTS Linux kernel
 net-tools	pacman	core	pacman	cli-tools	package-only	install	current-explicit	ifconfig/netstat/route - legacy net utilities some scripts still call
 python	pacman	core	pacman	cli-tools	package-only	install	current-explicit	python3 alias package (build scripts and AUR helpers expect the name)
 rclone	pacman	extra	pacman	base-tools	package-only	install	current-explicit	cloud sync CLI - dependency of the Obsidian GoogleDrive sync workflow
