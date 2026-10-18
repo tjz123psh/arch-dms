@@ -1,1 +1,1 @@
-GOPROXY=https://goproxy.cn,direct
+GOPROXY=https://mirrors.aliyun.com/goproxy/,direct

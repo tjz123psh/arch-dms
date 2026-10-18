@@ -82,9 +82,16 @@ fi
 command -v paru >/dev/null 2>&1 || die "paru unavailable; cannot install AUR packages"
 
 # Go-built recipes (greetd-dms-greeter-git) fetch modules through GOPROXY.
-# proxy.golang.org is unreachable from CN networks and Go hangs instead of
-# failing over, so default to a mirror when the environment sets nothing.
-export GOPROXY="${GOPROXY:-https://goproxy.cn,direct}"
+# The proxy lives in one place: the payload's go/env file, which 06-config
+# deploys. Step 05 runs before that, so read the repo copy here; the fallback
+# only covers a missing file.
+if [[ -z "${GOPROXY:-}" ]]; then
+  go_env="${CONFIG_DIR}/home/.config/go/env"
+  if [[ -f "${go_env}" ]]; then
+    GOPROXY="$(sed -n 's/^GOPROXY=//p' "${go_env}" | tail -1)"
+  fi
+fi
+export GOPROXY="${GOPROXY:-https://mirrors.aliyun.com/goproxy/,direct}"
 
 # Root path: quote the target list once and hand a single command string to the
 # user's login shell. paru resolves AUR dependencies itself, so one -S is enough.
