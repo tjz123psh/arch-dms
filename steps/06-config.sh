@@ -85,10 +85,10 @@ fi
 
 # Regenerate the niri VM test config (keybinds off, switch key kept) so the
 # toggle in config.kdl never points at a missing file.
-if [[ "${DESKTOP_ENV}" != "none" ]] \
-   && [[ -f "${TARGET_HOME}/.config/niri/scripts/niri-vmtest-gen" ]] \
+if [[ "${DESKTOP_ENV}" == "niri" || "${DESKTOP_ENV}" == "both" ]] \
+   && [[ -f "${TARGET_HOME}/scripts/desktop/niri-vmtest-gen" ]] \
    && [[ -f "${TARGET_HOME}/.config/niri/config.kdl" ]]; then
-  as_user bash "${TARGET_HOME}/.config/niri/scripts/niri-vmtest-gen" \
+  as_user bash "${TARGET_HOME}/scripts/desktop/niri-vmtest-gen" \
     || warn "niri-vmtest-gen failed; VM test config not generated"
   if [[ -f "${TARGET_HOME}/.config/niri/config.kdl.vmtest" ]]; then
     log "niri VM test config present: config.kdl.vmtest"
@@ -114,6 +114,9 @@ if [[ "${DESKTOP_ENV}" != "none" ]]; then
   fi
   while IFS='|' read -r link_name script_rel; do
     [[ -z "${link_name}" ]] && continue
+    # hypr-keys exists only in a Hyprland install (module wm-hyprland); a
+    # niri-only install must not get a dangling entry point.
+    [[ "${link_name}" != "hypr-keys" || "${DESKTOP_ENV}" == "both" ]] || continue
     target="${TARGET_HOME}/scripts/${script_rel}"
     link_path="${local_bin}/${link_name}"
     if [[ ! -f "${target}" ]]; then
@@ -128,9 +131,13 @@ if [[ "${DESKTOP_ENV}" != "none" ]]; then
       ln -s "${target}" "${link_path}" && log "${link_name} -> ${target}"
     fi
   done <<'ENTRIES'
+niri-keys|desktop/niri-keys
+hypr-keys|desktop/hypr-keys
 b23|media/b23
 gsudo|desktop/gsudo
 fuzzel-askpass|desktop/fuzzel-askpass
+niri-touchpad-toggle|desktop/niri-touchpad-toggle
+hypr-touchpad-toggle|desktop/hypr-touchpad-toggle
 ENTRIES
 fi
 

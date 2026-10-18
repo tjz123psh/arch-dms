@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# rice-menu.py — Nautilus 中文右键增强（niri + Noctalia 桌面自制）
+# rice-menu.py — Nautilus 中文右键增强（niri + DMS 桌面自制）
 import os
 import subprocess
 from urllib.parse import unquote, urlparse
@@ -8,7 +8,6 @@ from gi.repository import Nautilus, GObject
 
 IMAGE_EXT = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".tif", ".tiff",
              ".avif", ".jxl", ".svg", ".ico", ".heic"}
-NOCTALIA = "/usr/bin/noctalia"
 KITTY = "/usr/bin/kitty"
 WLCOPY = "/usr/bin/wl-copy"
 NOMACS = "/usr/bin/nomacs"
@@ -80,9 +79,6 @@ class RiceMenu(GObject.GObject, Nautilus.MenuProvider):
         if paths:
             spawn([NOMACS] + paths)
 
-    def cb_wallpaper(self, menu, path):
-        spawn([NOCTALIA, "msg", "wallpaper-set", path])
-
     def cb_copy_path(self, menu, paths):
         copy_text("\n".join(paths))
 
@@ -107,11 +103,6 @@ class RiceMenu(GObject.GObject, Nautilus.MenuProvider):
         if all_images:
             items.append(self._item("nomacs", "用 nomacs 打开", "图片查看器",
                                     "image-x-generic", self.cb_nomacs, paths))
-            if len(paths) == 1:
-                items.append(self._item("wall", "设为桌面壁纸",
-                                        "Noctalia 立刻换壁纸（带过渡动画）",
-                                        "preferences-desktop-wallpaper",
-                                        self.cb_wallpaper, paths[0]))
         items.append(self._item("copy", "复制完整路径", "复制到剪贴板",
                                 "edit-copy", self.cb_copy_path, paths))
         if dirs:

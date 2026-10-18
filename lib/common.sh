@@ -78,7 +78,7 @@ module_selected() { # module_selected <module> [package|config]
     graphics-amd|graphics-nvidia|hardware-tools|asus-hardware)
       [[ "${ctx}" == "config" ]] ;;
     wm-niri) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
-    greeter) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
+    wm-hyprland) [[ "${DESKTOP_ENV:-niri}" == "both" ]] ;;
     *) return 0 ;;
   esac
 }

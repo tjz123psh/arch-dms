@@ -22,7 +22,8 @@
 - 个人专用的 Arch 恢复工具：重装 Arch 并手工完成基础安装后，一条命令恢复 ASUS 工作站
   的桌面环境。remote `origin` 为 `git@github.com:tjz123psh/arch-dms.git`（公开仓库）。
 - 流程：`strap.sh`（root 克隆到 `/opt/arch-dms`）+ `install.sh`（选桌面）+
-  `steps/01..08`；桌面是 Niri + Noctalia + nwg-hello，AUR 只走在线 `paru`。
+  `steps/01..08`；桌面是 DMS（DankMaterialShell，Niri 默认，可选 Hyprland `both`），
+  AUR 只走在线 `paru`。
 - **数据资产是核心价值**：`config/`（个人配置）、`manifests/`（包/映射清单）、
   `third_party/aur/paru/`（仅 paru 的兜底 recipe；AUR 一律在线安装）。优先改数据，其次才改脚本。
 - **安装器必须保持可读**：`lib/common.sh` + 8 个步骤脚本，短小直白；不引入审阅引擎、

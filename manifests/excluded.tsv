@@ -18,7 +18,7 @@ aur-package	openai-codex	physical	用户决定不纳入
 aur-package	cc-switch	physical	用户决定不纳入
 aur-package	clash-verge-rev	physical	用户决定不纳入
 pacman-package	open-vm-tools	physical	仅 VM guest 需要；仓库只装物理机
-pacman-package	hyprpicker	physical	Hyprland 残留，桌面已切到 Niri + Noctalia
+pacman-package	hyprpicker	physical	用户决定不纳入
 
 # --- 凭据：禁止入库 ---
 secret	~/.config/rclone/rclone.conf	physical	Google Drive OAuth token

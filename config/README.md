@@ -7,7 +7,7 @@ into the target HOME.
 - `config/home/` — user files. Target paths are HOME-relative and the mode
   comes from the mapping row, not from the working-tree permission.
 - `config/etc/` — system files deployed directly by the steps (greetd +
-  nwg-hello, paru.conf, GRUB theme). They are not part of the mappings.
+  dms-greeter, paru.conf, GRUB theme). They are not part of the mappings.
 - `config/templates/` — manual reference copies (archlinuxcn/pacman hooks);
   the installer never reads them.
 - Credentials, private profiles and caches are excluded; see
