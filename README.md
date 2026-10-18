@@ -1,7 +1,7 @@
 # arch-dms
 
 Arch Linux 恢复工具：手工完成基础安装后，一条命令恢复 **DMS（DankMaterialShell）**
-桌面（Niri 默认，可选 Niri + Hyprland）、软件包、AUR、个人配置与系统服务。
+桌面（Niri）、软件包、AUR、个人配置与系统服务。
 只面向这台 ASUS AMD + NVIDIA 工作站。**本仓库只维护 DMS 桌面。**
 
 ## 前置（手工，安装器不安装）
@@ -20,8 +20,7 @@ git clone https://github.com/tjz123psh/arch-dms.git
 cd arch-dms && ./install.sh        # 或 sudo bash strap.sh（root，克隆到 /opt/arch-dms）
 ```
 
-- 桌面：`niri`（默认，DMS on Niri）/ `both`（DMS + Hyprland）/ `none`；
-  `-d niri|both|none` 可免交互。
+- 桌面：`niri`（默认，DMS on Niri）/ `none`；`-d niri|none` 可免交互。
 - 中断后重跑续跑（`.install-progress`）；AUR 仅在线 `paru`。
 - 所有包从滚动仓库/AUR 拉取最新版本；仓库不保存版本 pin 或本地 recipe。
 - 验收可在一台一次性 VM 里跑 `./install.sh -d niri`：驱动只安装、不生效。

@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 195 exact current-explicit rows plus 29 reviewed confirmed-desired
-# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 195 exact current-explicit rows plus 26 reviewed confirmed-desired
+# (non-explicit) rows - 221 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -33,7 +33,7 @@ cups-pk-helper	pacman	extra	pacman	desktop-shared	package-only	install	current-e
 dbx-bin	aur	aur	aur-build	development-toolchain	package-only	install	current-explicit	Open-source, lightweight, cross-platform database client
 devtools	pacman	extra	pacman	build-foundation	package-only	install	confirmed-desired	Official Arch clean-chroot tooling for isolated fixed AUR package builds
 dgop	pacman	extra	pacman	desktop-shared	config-backed	install	current-explicit	System monitoring CLI + REST API
-dms-shell	pacman	extra	pacman	dms-shell	package-only	install	confirmed-desired	DankMaterialShell Quickshell shell (replaces dms-shell-niri/hyprland)
+dms-shell	pacman	extra	pacman	dms-shell	package-only	install	confirmed-desired	DankMaterialShell Quickshell shell for Niri
 docker	pacman	extra	pacman	container-tools	package-only	install	current-explicit	Pack, ship and run any application as a lightweight container
 docker-compose	pacman	extra	pacman	container-tools	package-only	install	current-explicit	Fast, isolated development environments using Docker
 dosfstools	pacman	core	pacman	base-tools	package-only	install	confirmed-desired	DOS filesystem utilities
@@ -77,7 +77,6 @@ grub-btrfs	pacman	extra	pacman	storage-maintenance	package-only	install	current-
 gst-plugin-pipewire	pacman	extra	pacman	audio	package-only	install	current-explicit	Multimedia graph framework - pipewire plugin
 gtk-layer-shell	pacman	extra	pacman	recording	package-only	install	current-explicit	Library to create Wayland desktop components using the Layer Shell protocol
 gtk4-layer-shell	pacman	extra	pacman	recording	package-only	install	current-explicit	Library to create panels and other desktop components for Wayland
-hyprland	pacman	extra	pacman	wm-hyprland	config-backed	install	confirmed-desired	a highly customizable dynamic tiling Wayland compositor
 inotify-tools	pacman	extra	pacman	storage-maintenance	package-only	install	current-explicit	inotify-tools is a C library and a set of command-line programs for Linux providing a simple interface to inotify.
 inter-font	pacman	extra	pacman	fonts	package-only	install	current-explicit	A typeface specially designed for user interfaces
 jdk21-openjdk	pacman	extra	pacman	development-toolchain	package-only	install	current-explicit	OpenJDK Java 21 development kit
@@ -187,8 +186,6 @@ xclip	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	C
 xdg-desktop-portal	pacman	extra	pacman	desktop-shared	package-only	install	confirmed-desired	Desktop integration portals for sandboxed apps
 xdg-desktop-portal-gnome	pacman	extra	pacman	wm-niri	package-only	install	current-explicit	Backend implementation for xdg-desktop-portal for the GNOME desktop environment
 xdg-desktop-portal-gtk	pacman	extra	pacman	desktop-shared	package-only	install	confirmed-desired	A backend implementation for xdg-desktop-portal using GTK
-xdg-desktop-portal-hyprland	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	xdg-desktop-portal backend for hyprland
-hyprpicker	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	Wayland color picker for Hyprland
 xorg-server-xvfb	pacman	extra	pacman	development-toolchain	package-only	install	current-explicit	Virtual framebuffer X server
 xwayland-satellite	pacman	extra	pacman	wm-niri	package-only	install	current-explicit	Xwayland outside your Wayland
 yazi	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	Blazing fast terminal file manager written in Rust, based on async I/O

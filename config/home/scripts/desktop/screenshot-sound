@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# screenshot-sound — 截图快门音效服务（合成器无关，niri / hyprland 通用）
+# screenshot-sound — 截图快门音效服务（合成器无关）
 #
 # 用法：
 #   screenshot-sound            启动守护进程（监听剪贴板，命中即播放快门声）
@@ -22,7 +22,7 @@ set -uo pipefail
 # =================配置区域=================
 # 音效文件：可用 SCREENSHOT_SOUND 环境变量覆盖；未设置时按候选列表自动探测。
 SOUND="${SCREENSHOT_SOUND:-}"
-# 触发文件，存于内存中 (/dev/shm)，读写极快。合成器无关，niri/hyprland 通用。
+# 触发文件，存于内存中 (/dev/shm)，读写极快。合成器无关。
 TRIGGER_FILE="${SCREENSHOT_SOUND_TRIGGER:-/dev/shm/screenshot_sound_armed}"
 # 有效期：按下截图键后，多少秒内产生了图片才响？(防止取消截图后，下次复制图片误响)
 TIMEOUT_SEC="${SCREENSHOT_SOUND_TIMEOUT:-15}"
@@ -107,7 +107,7 @@ fi
 # 当前剪贴板的 MIME 类型判断是否图片——这是不依赖 stdin 的方式。
 # （早期尝试从回调 stdin 读内容判断 magic number：当守护进程的 stdin 非 tty
 # 时 wl-paste 不会把内容喂到回调 stdin，回调读到 0 字节而漏判；niri
-# spawn-at-startup / hypr exec_cmd 启动时 stdin 都不是 tty，故彻底弃用 stdin。）
+# spawn-at-startup 启动时 stdin 不是 tty，故彻底弃用 stdin。）
 # 变量用 export 传给回调，回调体用单引号，避免转义地狱。
 export _SS_SOUND="$SOUND"
 export _SS_TRIGGER="$TRIGGER_FILE"

@@ -11,16 +11,9 @@ case "${DESKTOP_ENV}" in
   none)
     log "No desktop selected; skipping compositor packages"
     ;;
-  niri|both)
+  niri)
     log "Installing Niri..."
     run pacman -S --needed --noconfirm niri xdg-desktop-portal-gnome xwayland-satellite
-    ;;
-esac
-
-case "${DESKTOP_ENV}" in
-  both)
-    log "Installing Hyprland..."
-    run pacman -S --needed --noconfirm hyprland xdg-desktop-portal-hyprland
     ;;
 esac
 

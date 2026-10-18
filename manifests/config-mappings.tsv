@@ -24,13 +24,6 @@ physical-v1	desktop-shared	config/home/.config/gtk-3.0/dank-colors.css	.config/g
 physical-v1	desktop-shared	config/home/.config/gtk-3.0/nemo.css	.config/gtk-3.0/nemo.css	644
 physical-v1	desktop-shared	config/home/.config/gtk-4.0/gtk.css	.config/gtk-4.0/gtk.css	644
 physical-v1	desktop-shared	config/home/.config/gtk-4.0/dank-colors.css	.config/gtk-4.0/dank-colors.css	644
-physical-v1	wm-hyprland	config/home/.config/hypr/hyprland.lua	.config/hypr/hyprland.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/monitors.lua	.config/hypr/conf/monitors.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/appearance.lua	.config/hypr/conf/appearance.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/input.lua	.config/hypr/conf/input.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/keybinds.lua	.config/hypr/conf/keybinds.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/windowrules.lua	.config/hypr/conf/windowrules.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/dms/colors.lua	.config/hypr/dms/colors.lua	644
 physical-v1	desktop-shared	config/home/.config/kitty/kitty.conf	.config/kitty/kitty.conf	644
 physical-v1	desktop-shared	config/home/.config/kitty/dank-tabs.conf	.config/kitty/dank-tabs.conf	644
 physical-v1	desktop-shared	config/home/.config/kitty/dank-theme.conf	.config/kitty/dank-theme.conf	644
@@ -81,13 +74,6 @@ physical-v1	desktop-shared	config/home/.config/DankMaterialShell/plugins/ShorinS
 physical-v1	desktop-shared	config/home/.config/DankMaterialShell/plugins/ShorinScreenrec/ShorinScreenrecSettings.qml	.config/DankMaterialShell/plugins/ShorinScreenrec/ShorinScreenrecSettings.qml	644
 physical-v1	desktop-shared	config/home/.config/DankMaterialShell/plugins/ShorinScreenrec/ShorinScreenrecWidget.qml	.config/DankMaterialShell/plugins/ShorinScreenrec/ShorinScreenrecWidget.qml	644
 physical-v1	desktop-shared	config/home/.config/DankMaterialShell/plugins/ShorinScreenrec/StartupCheck.qml	.config/DankMaterialShell/plugins/ShorinScreenrec/StartupCheck.qml	644
-physical-v1	wm-hyprland	config/home/.config/hypr/conf/autostart.lua	.config/hypr/conf/autostart.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/dms/layout.lua	.config/hypr/dms/layout.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/dms/outputs.lua	.config/hypr/dms/outputs.lua	644
-physical-v1	wm-hyprland	config/home/.config/hypr/keybinds.list	.config/hypr/keybinds.list	644
-physical-v1	wm-hyprland	config/home/.config/hypr/scripts/fake-overview.sh	.config/hypr/scripts/fake-overview.sh	755
-physical-v1	wm-hyprland	config/home/.config/hypr/scripts/hypr-force-kill-window	.config/hypr/scripts/hypr-force-kill-window	755
-physical-v1	wm-hyprland	config/home/.config/hypr/scripts/hypr-keys	.config/hypr/scripts/hypr-keys	755
 physical-v1	wm-niri	config/home/.config/niri/dms/binds.kdl	.config/niri/dms/binds.kdl	644
 physical-v1	wm-niri	config/home/.config/niri/dms/outputs.kdl	.config/niri/dms/outputs.kdl	644
 physical-v1	wm-niri	config/home/.config/niri/dms/wpblur.kdl	.config/niri/dms/wpblur.kdl	644
@@ -101,8 +87,6 @@ physical-v1	desktop-shared	config/home/scripts/desktop/fuzzel-askpass	scripts/de
 physical-v1	desktop-shared	config/home/scripts/desktop/gsudo	scripts/desktop/gsudo	755
 physical-v1	desktop-shared	config/home/scripts/desktop/screenshot-sound	scripts/desktop/screenshot-sound	755
 physical-v1	desktop-shared	config/home/scripts/maintenance/lib/ui.sh	scripts/maintenance/lib/ui.sh	644
-physical-v1	wm-hyprland	config/home/scripts/desktop/hypr-keys	scripts/desktop/hypr-keys	755
-physical-v1	wm-hyprland	config/home/scripts/desktop/hypr-magnifier	scripts/desktop/hypr-magnifier	755
 physical-v1	wm-niri	config/home/scripts/desktop/niri-keys	scripts/desktop/niri-keys	755
 physical-v1	wm-niri	config/home/scripts/desktop/niri-quit	scripts/desktop/niri-quit	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/.gitignore	scripts/maintenance/.gitignore	644
@@ -146,9 +130,6 @@ physical-v1	wm-niri	config/home/scripts/desktop/niri-vmtest-gen	scripts/desktop/
 physical-v1	cli-tools	config/home/.config/gh/config.yml	.config/gh/config.yml	644
 physical-v1	desktop-apps	config/home/.config/nomacs/Image Lounge.conf	.config/nomacs/Image Lounge.conf	644
 physical-v1	personal-user-services	config/home/.local/bin/shorin-screenrec-menu	.local/bin/shorin-screenrec-menu	755
-physical-v1	maintenance	config/home/scripts/desktop/hypr-quit	scripts/desktop/hypr-quit	755
-physical-v1	maintenance	config/home/scripts/desktop/hypr-vmtest-gen	scripts/desktop/hypr-vmtest-gen	755
-physical-v1	maintenance	config/home/scripts/desktop/hypr-vmtest-toggle	scripts/desktop/hypr-vmtest-toggle	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/歌单.json	scripts/MusicFree-歌单和插件/歌单.json	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我_念心.js	scripts/MusicFree-歌单和插件/酷我_念心.js	644
@@ -172,11 +153,8 @@ physical-v1	desktop-shared	config/home/.config/environment.d/20-ime.conf	.config
 physical-v1	personal-user-services	config/home/.local/bin/agentrouter-proxy.mjs	.local/bin/agentrouter-proxy.mjs	755
 physical-v1	personal-user-services	config/home/.config/systemd/user/agentrouter-proxy.service	.config/systemd/user/agentrouter-proxy.service	644
 physical-v1	desktop-shared	config/home/.config/gtk-3.0/bookmarks	.config/gtk-3.0/bookmarks	644
-physical-v1	wm-hyprland	config/home/.config/hypr/dms/windowrules.lua	.config/hypr/dms/windowrules.lua	644
 physical-v1	development-toolchain	config/home/.config/go/env	.config/go/env	644
-physical-v1	maintenance	config/home/scripts/desktop/hypr-touchpad-toggle	scripts/desktop/hypr-touchpad-toggle	755
 physical-v1	maintenance	config/home/scripts/desktop/niri-touchpad-toggle	scripts/desktop/niri-touchpad-toggle	755
-physical-v1	wm-hyprland	config/home/.config/hypr/touchpad-state.lua	.config/hypr/touchpad-state.lua	644
 physical-v1	wm-niri	config/home/.config/niri/touchpad-state.kdl	.config/niri/touchpad-state.kdl	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.service	.config/systemd/user/obsidian-sync.service	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.timer	.config/systemd/user/obsidian-sync.timer	644

@@ -230,7 +230,7 @@ binds {
     Alt+A hotkey-overlay-title="屏幕放大镜" { spawn "wooz" "--mouse-track" "--zoom-in" "50%"; }
 
     // --- 录屏（shorin-screenrec-menu：全屏/区域/GIF 三模式，toggle 开始/停止） ---
-    // Alt+F5: 打开录屏菜单；录制中再按一次停止（与 Hyprland 一致）
+    // Alt+F5: 打开录屏菜单；录制中再按一次停止
     Alt+F5 hotkey-overlay-title="录屏菜单" { spawn-sh "$HOME/.local/bin/shorin-screenrec-menu toggle"; }
 
     // ===== 焦点移动（使用 Alt 键，Vim 风格） =====

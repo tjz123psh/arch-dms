@@ -34,7 +34,7 @@ usage() {
   cat <<'EOF'
 Usage: ./install.sh [options]
 
-  -d, --desktop niri|both|none   niri | niri+hyprland | no desktop
+  -d, --desktop niri|none        niri | no desktop
   -r, --force-refresh            repair mode: pacman -Syyu instead of -Syu
   -y, --assume-yes               reboot without asking at the end
   -h, --help
@@ -83,11 +83,10 @@ pick() { # pick <header> <option>... -> prints the selected option
 select_desktop() {
   [[ -n "${DESKTOP_ENV}" ]] && return
   local sel
-  sel="$(pick "Select desktop" "Niri (recommended)" "Niri + Hyprland (both)" "No desktop (packages and config only)")"
+  sel="$(pick "Select desktop" "Niri (recommended)" "No desktop (packages and config only)")"
   case "${sel}" in
-    *Hyprland*) DESKTOP_ENV=both ;;
-    No*)        DESKTOP_ENV=none ;;
-    *)          DESKTOP_ENV=niri ;;
+    No*) DESKTOP_ENV=none ;;
+    *)   DESKTOP_ENV=niri ;;
   esac
   log "Desktop: ${DESKTOP_ENV}"
 }
@@ -148,7 +147,7 @@ main() {
     command -v fzf >/dev/null 2>&1 || { FZF_OK=0; log "fzf not installed; using numbered prompts"; }
   fi
   select_desktop
-  case "${DESKTOP_ENV}" in niri|both|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|both|none)" ;; esac
+  case "${DESKTOP_ENV}" in niri|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|none)" ;; esac
   [[ "${TARGET_USER}" == "pang" ]] \
     || warn "TARGET_USER=${TARGET_USER} != pang: parts of the config hardcode /home/pang (see README)"
 

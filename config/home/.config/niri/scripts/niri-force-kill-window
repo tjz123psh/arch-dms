@@ -154,7 +154,7 @@ if [[ "$KILL_FAMILY" == true ]]; then
         read -r _ ppid _ <<< "$rest"
         
         if [[ -z "$ppid" || "$ppid" == "1" || "$ppid" == "0" ]]; then break; fi
-        if [[ "$pname" =~ ^(systemd|niri|bash|zsh|fish|tmux|screen|dms|xwayland.*|sshd|login|init|sway|hyprland)$ ]]; then
+        if [[ "$pname" =~ ^(systemd|niri|bash|zsh|fish|tmux|screen|dms|xwayland.*|sshd|login|init|sway)$ ]]; then
             break
         fi
         

@@ -83,7 +83,7 @@ environment {
 // U 盘自动挂载托盘
 spawn-at-startup "udiskie" "-t"
 
-// 截图音效守护：监听剪贴板，配合截图键的 SIGUSR1 "上膛" 播放快门声（Hyprland 会话同样启用）
+// 截图音效守护：监听剪贴板，配合截图键的 SIGUSR1 "上膛" 播放快门声
 spawn-at-startup "/home/pang/scripts/desktop/screenshot-sound"
 
 // polkit 认证代理：GUI 应用（如 rjsupplicant-gui 的开机自启/重启服务）通过 pkexec 提权时需要弹窗

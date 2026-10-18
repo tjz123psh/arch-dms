@@ -14,8 +14,7 @@
           "scale": 1,
           "transform": "Normal",
           "vrr": false,
-          "disabled": false,
-          "hyprland": {}
+          "disabled": false
         }
       }
     }

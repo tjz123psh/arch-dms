@@ -453,7 +453,6 @@ list_outputs() {
   local raw=""
   if has niri && has jq; then raw="$(niri msg -j outputs 2>/dev/null | jq -r 'keys[]')"
   elif has niri; then raw="$(niri msg outputs 2>/dev/null | awk -F '[()]' '/^Output/ {print $2}')"
-  elif has hyprctl && has jq; then raw="$(hyprctl monitors -j 2>/dev/null | jq -r '.[].name')"
   elif has swaymsg && has jq; then raw="$(swaymsg -t get_outputs 2>/dev/null | jq -r '.[].name')"
   elif has wlr-randr; then raw="$(wlr-randr 2>/dev/null | awk '/^[^ ]/{print $1}')"
   fi

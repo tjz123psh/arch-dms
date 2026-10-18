@@ -69,21 +69,6 @@ reload_niri() {
   niri msg action load-config-file >/dev/null 2>&1 || true
 }
 
-# 与 Hyprland 侧共用开关状态：同步改写它的 touchpad-state.lua（由
-# ~/.config/hypr/conf/input.lua 在启动时读取并应用），使两个会话状态一致。
-# 文件不存在时跳过——用户可能没在用 Hyprland 那套配置。
-sync_hypr_state() {
-  local want="$1" lit hypr_state
-  [[ "$want" == "on" ]] && lit=true || lit=false
-  hypr_state="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/touchpad-state.lua"
-  [[ -f "$hypr_state" ]] || return 0
-  cat > "$hypr_state" <<EOF
--- 触摸板开关状态 —— 由 niri-touchpad-toggle / hypr-touchpad-toggle（Fn+F10）维护，
--- 一般不用手改。conf/input.lua 启动时读本文件并应用。
-return { enabled = $lit }
-EOF
-}
-
 # 翻转状态文件里的 off 行；校验通过后才原子替换。
 # 返回 0 成功，Python 自查失败时原样返回它的退出码（3）。
 set_state() {
@@ -171,7 +156,6 @@ if (( rc != 0 )); then
 fi
 
 reload_niri
-sync_hypr_state "$want"
 
 if [[ "$want" == "off" ]]; then
   printf '触摸板已关闭（再按一次 Fn+F10 恢复）\n'
