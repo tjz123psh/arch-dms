@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+# 07-services.sh — enable the user and system services the desktop needs.
+set -Eeuo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck source=../lib/common.sh
+source "${ROOT}/lib/common.sh"
+
+DESKTOP_ENV="${DESKTOP_ENV:-niri}"
+MACHINE_TYPE="${MACHINE_TYPE:-physical}"
+GREETER_USER=greeter
+GREETER_CMD="dms-greeter --command niri --cache-dir /var/cache/dms-greeter -C /etc/greetd/niri/config.kdl"
+
+# systemctl --user for the target user. On the root/strap path that user may
+# never have logged in, so create /run/user/<uid>, turn on linger and start the
+# user manager first; XDG_CONFIG_HOME is pinned so enable writes the same
+# ~/.config/systemd/user the units are deployed to.
+userctl() {
+  if [[ "$(id -u)" -ne 0 ]]; then
+    # A plain SSH shell may lack XDG_RUNTIME_DIR; derive it from the live
+    # session so systemctl --user can find the user bus.
+    local ruid
+    ruid="$(id -u)"
+    if [[ -z "${XDG_RUNTIME_DIR:-}" && -d "/run/user/${ruid}" ]]; then
+      export XDG_RUNTIME_DIR="/run/user/${ruid}"
+    fi
+    systemctl --user "$@"
+    return
+  fi
+  local uid
+  uid="$(id -u "${TARGET_USER}")"
+  [[ -d "/run/user/${uid}" ]] \
+    || install -d -o "${TARGET_USER}" -g "$(id -gn "${TARGET_USER}")" -m 0700 "/run/user/${uid}" 2>/dev/null || true
+  if ! systemctl is-active "user@${uid}.service" >/dev/null 2>&1; then
+    loginctl enable-linger "${TARGET_USER}" 2>/dev/null || true
+    systemctl start "user@${uid}.service" 2>/dev/null || true
+  fi
+  runuser -u "${TARGET_USER}" -- env XDG_RUNTIME_DIR="/run/user/${uid}" \
+    XDG_CONFIG_HOME="${TARGET_HOME}/.config" systemctl --user "$@"
+}
+
+section "User services"
+
+userctl daemon-reload >/dev/null 2>&1 || warn "user daemon-reload failed"
+
+if [[ "${DESKTOP_ENV}" != "none" ]]; then
+  # dms is the desktop shell: a failed enable leaves the machine without a GUI.
+  for unit in dms.service dsearch.service; do
+    if userctl enable "${unit}" >/dev/null 2>&1; then
+      log "User service: ${unit}"
+    elif [[ "${unit}" == "dms.service" ]]; then
+      die "could not enable ${unit} (required for the desktop shell)"
+    else
+      warn "could not enable ${unit}"
+    fi
+  done
+
+  # Units deployed by the config step (vellum, obsidian-sync, ...). A service
+  # without [Install] is driven by its timer, so staying disabled is fine.
+  for u in "${TARGET_HOME}/.config/systemd/user/"*.service "${TARGET_HOME}/.config/systemd/user/"*.timer; do
+    [[ -e "${u}" ]] || continue
+    if userctl enable "${u##*/}" >/dev/null 2>&1; then
+      log "User unit: ${u##*/}"
+    elif grep -q '^\[Install\]' "${u}"; then
+      warn "could not enable user unit: ${u##*/}"
+    else
+      log "User unit: ${u##*/} (no [Install]; driven by another unit)"
+    fi
+  done
+
+  # greetd login. --command niri picks the compositor that renders the greeter;
+  # the user's own session is chosen later in the greeter UI.
+  getent passwd "${GREETER_USER}" >/dev/null 2>&1 \
+    || run useradd --system --home-dir / --shell /bin/bash "${GREETER_USER}" \
+    || die "could not create greeter user ${GREETER_USER}"
+  run install -d -m 0755 /etc/greetd/niri
+  printf '[terminal]\nvt = 1\n\n[default_session]\ncommand = "/usr/bin/%s"\nuser = "%s"\n' \
+    "${GREETER_CMD}" "${GREETER_USER}" | run tee /etc/greetd/config.toml >/dev/null
+  run install -o root -g "${GREETER_USER}" -m 0644 -t /etc/greetd/niri \
+    "${CONFIG_DIR}/etc/greetd/niri/config.kdl" "${CONFIG_DIR}/etc/greetd/niri/dms.kdl"
+  run systemctl enable greetd >/dev/null 2>&1 || die "could not enable greetd.service"
+  log "Service: greetd"
+
+  # /tmp/.X11-unix guard: a greeter-owned dir makes niri disable Xwayland for
+  # the user session. Deploy + enable only; the unit waits for a real login.
+  run install -o root -g root -m 0644 \
+    "${CONFIG_DIR}/etc/systemd/system/fix-x11-unix-dir.service" \
+    /etc/systemd/system/fix-x11-unix-dir.service
+  run systemctl daemon-reload >/dev/null 2>&1 || warn "system daemon-reload failed"
+  run systemctl enable fix-x11-unix-dir.service >/dev/null 2>&1 \
+    || warn "could not enable fix-x11-unix-dir.service (X11 apps may lose the display)"
+else
+  # TTY login: undo an earlier desktop install, best effort.
+  for unit in dms.service dsearch.service; do
+    userctl disable "${unit}" >/dev/null 2>&1 || warn "could not disable ${unit}"
+  done
+  run systemctl disable greetd >/dev/null 2>&1 || warn "could not disable greetd.service"
+  log "Desktop services disabled (${DESKTOP_ENV})"
+fi
+
+section "System services"
+
+run systemctl daemon-reload >/dev/null 2>&1 || warn "system daemon-reload failed"
+
+# Same set on both machine types; NetworkManager is the one that must not fail.
+SERVICES=(bluetooth.service power-profiles-daemon.service docker.service \
+          NetworkManager.service grub-btrfsd.service systemd-timesyncd.service)
+for s in "${SERVICES[@]}"; do
+  if run systemctl enable --now "${s}" >/dev/null 2>&1; then
+    log "Service: ${s}"
+  elif [[ "${s}" == "NetworkManager.service" ]]; then
+    die "could not enable ${s} (required for networking)"
+  else
+    warn "could not enable ${s}"
+  fi
+done
+
+# snapper-timeline is what actually creates the TIMELINE_CREATE snapshots.
+for t in paccache.timer snapper-cleanup.timer snapper-timeline.timer; do
+  if run systemctl enable --now "${t}" >/dev/null 2>&1; then
+    log "Timer: ${t}"
+  else
+    warn "could not enable ${t}"
+  fi
+done
+
+# btrfs-scrub@- has no unit file of its own, so probe the template; btrfs only.
+if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]] \
+  && systemctl list-unit-files 'btrfs-scrub@.timer' >/dev/null 2>&1; then
+  run systemctl enable --now 'btrfs-scrub@-.timer' >/dev/null 2>&1 \
+    || warn "could not enable btrfs-scrub@-.timer"
+fi
+
+# VMware host units on a physical machine; vmtoolsd is the guest core.
+if [[ "${MACHINE_TYPE}" == "physical" ]]; then
+  for s in vmware-networks.service vmware-usbarbitrator.service; do
+    if [[ ! -f "/usr/lib/systemd/system/${s}" ]]; then
+      warn "unit missing: ${s} (is vmware-workstation installed?)"
+    elif run systemctl enable --now "${s}" >/dev/null 2>&1; then
+      log "Service: ${s}"
+    else
+      warn "could not enable ${s}"
+    fi
+  done
+else
+  [[ -f /usr/lib/systemd/system/vmtoolsd.service ]] \
+    || die "vmtoolsd.service missing (open-vm-tools not installed?)"
+  run systemctl enable --now vmtoolsd.service >/dev/null 2>&1 \
+    || die "could not enable vmtoolsd.service"
+  log "Service: vmtoolsd.service"
+  if [[ -f /usr/lib/systemd/system/vmware-vmblock-fuse.service ]]; then
+    run systemctl enable --now vmware-vmblock-fuse.service >/dev/null 2>&1 \
+      || warn "could not enable vmware-vmblock-fuse.service"
+  fi
+fi
+
+section "User groups"
+
+# dms reads evdev devices through 'input' for its plugins; 'docker' makes the
+# daemon usable without sudo after the next login.
+for g in input docker; do
+  if ! getent group "${g}" >/dev/null 2>&1; then
+    run groupadd "${g}" 2>/dev/null || warn "could not create group ${g}"
+  fi
+  if id -nG "${TARGET_USER}" 2>/dev/null | grep -qw "${g}"; then
+    continue
+  fi
+  if run usermod -aG "${g}" "${TARGET_USER}" 2>/dev/null; then
+    log "Added ${TARGET_USER} to group ${g}"
+  else
+    warn "could not add ${TARGET_USER} to group ${g}"
+  fi
+done
+
+section "GRUB theme"
+
+GRUB_THEME_DIR=/boot/grub/themes/Elegant-mountain-blur-left-dark
+log "Deploying GRUB theme (${GRUB_THEME_DIR})"
+# cp -r, not -a: /boot is often a vfat ESP that cannot preserve ownership.
+run bash -c "mkdir -p /boot/grub/themes && cp -r '${CONFIG_DIR}/etc/grub/themes/Elegant-mountain-blur-left-dark' /boot/grub/themes/"
+
+if [[ ! -f /etc/default/grub ]]; then
+  warn "/etc/default/grub missing; GRUB theme not configured"
+else
+  grep -q '^GRUB_THEME=' /etc/default/grub \
+    || printf 'GRUB_THEME="%s/theme.txt"\n' "${GRUB_THEME_DIR}" | run tee -a /etc/default/grub >/dev/null
+  # The legacy GRUB_TERMINAL overrides the output, and the theme is only
+  # applied on gfxterm.
+  run sed -i '/^GRUB_TERMINAL=/d' /etc/default/grub
+  if grep -q '^GRUB_TERMINAL_OUTPUT=' /etc/default/grub; then
+    grep -q '^GRUB_TERMINAL_OUTPUT="gfxterm"' /etc/default/grub \
+      || run sed -i 's|^GRUB_TERMINAL_OUTPUT=.*|GRUB_TERMINAL_OUTPUT="gfxterm"|' /etc/default/grub
+  else
+    printf 'GRUB_TERMINAL_OUTPUT="gfxterm"\n' | run tee -a /etc/default/grub >/dev/null
+  fi
+fi
+
+if command -v grub-mkconfig >/dev/null 2>&1; then
+  run cp -f /boot/grub/grub.cfg "/boot/grub/grub.cfg.bak-$(date +%Y%m%d%H%M%S)" 2>/dev/null \
+    || warn "could not back up /boot/grub/grub.cfg"
+  if run grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1; then
+    success "GRUB theme applied (grub.cfg regenerated)"
+  else
+    warn "grub-mkconfig failed; run it manually"
+  fi
+else
+  warn "grub-mkconfig not found; theme not regenerated"
+fi
+
+log "Deploying paru.conf"
+run install -o root -g root -m 0644 "${CONFIG_DIR}/etc/paru.conf" /etc/paru.conf
+
+success "Service configuration complete"

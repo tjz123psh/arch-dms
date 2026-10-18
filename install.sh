@@ -1,61 +1,44 @@
 #!/usr/bin/env bash
-# install.sh - main installer.
+# install.sh — restore the operator's Arch desktop from this repository.
 #
-#   select desktop -> select machine type -> diagnostics -> update
-#   -> stepwise modules (resume via .install_progress) -> done
+#   select machine + desktop -> run the steps in order -> reboot prompt
 #
-# Runs as a normal user; privileged steps prompt for sudo when needed.
+# Re-running resumes after the last completed step; delete .install-progress
+# to start from the beginning.
 
 set -Eeuo pipefail
 
-BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SCRIPTS_DIR="${BASE_DIR}/scripts"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/common.sh
+source "${ROOT}/lib/common.sh"
 
-# shellcheck source=scripts/00-utils.sh
-source "${SCRIPTS_DIR}/00-utils.sh"
+PROGRESS_FILE="${ROOT}/.install-progress"
+SUDOERS_DROPIN=/etc/sudoers.d/99-install-nopasswd
+STEPS=(
+  01-system.sh
+  02-packages.sh
+  03-drivers.sh
+  04-desktop.sh
+  05-aur.sh
+  06-config.sh
+  07-services.sh
+  08-settings.sh
+)
 
 DESKTOP_ENV="${DESKTOP_ENV:-}"
 MACHINE_TYPE="${MACHINE_TYPE:-}"
-TEST_PROFILE="${TEST_PROFILE:-}"
-ASSUME_YES="${ASSUME_YES:-false}"
+ASSUME_YES=false
 FORCE_REFRESH="${FORCE_REFRESH:-0}"
-FZF_AVAILABLE=1
-MODULES=()
-
-# Temporary scoped sudo drop-in used during the install. Scoped to pacman
-# only (see main pre-flight); removed on EVERY exit path via the EXIT trap
-# AND by 99-cleanup, so an interrupted/failed run never leaves a
-# passwordless grant behind (review C-01).
-SUDOERS_DROPIN=/etc/sudoers.d/99-install-nopasswd
-
-cleanup_install_sudoers() {
-  if [[ -f "${SUDOERS_DROPIN}" ]]; then
-    if [[ "$(id -u)" -eq 0 ]]; then
-      rm -f "${SUDOERS_DROPIN}"
-    else
-      sudo rm -f "${SUDOERS_DROPIN}" 2>/dev/null || true
-    fi
-  fi
-}
-trap cleanup_install_sudoers EXIT
+FZF_OK=1
 
 usage() {
   cat <<'EOF'
-Usage: install.sh [options]
+Usage: ./install.sh [options]
 
-One-click Arch desktop restore (Niri/Hyprland). Interactively select desktop and machine type;
-flags can specify them directly to skip the prompts.
-
-Options:
-  -d, --desktop niri|both|none
-            (pure hyprland is intentionally removed: Hyprland only runs as
-             part of "both", selectable from the greetd/dms-greeter session menu)
-  -t, --machine vm|physical
-      --test-profile physical-sim-vmware   run the physical branch in a VMware guest,
-                                           marking hardware-only effects NOT_APPLICABLE_SIMULATED
-      --force-refresh    repair mode: full database refresh (-Syyu) instead of -Syu
-                         in the single 02-system upgrade (NOT the default)
-  -y, --assume-yes   auto-reboot without prompting after install
+  -d, --desktop niri|both|none   niri | niri+hyprland | no desktop
+  -t, --machine physical|vm
+  -r, --force-refresh            repair mode: pacman -Syyu instead of -Syu
+  -y, --assume-yes               reboot without asking at the end
   -h, --help
 EOF
 }
@@ -63,279 +46,156 @@ EOF
 parse_args() {
   while (( $# > 0 )); do
     case "$1" in
-      -d|--desktop)
-        [[ $# -ge 2 ]] || die "missing value for $1 (niri|both|none)"
-        case "$2" in
-          niri|both|none) DESKTOP_ENV="$2" ;;
-          hyprland) die "invalid --desktop value: hyprland (no longer supported; use 'both' and pick Hyprland from the greetd session menu)" ;;
-          *) die "invalid --desktop value: $2 (niri|both|none)" ;;
-        esac
-        shift 2 ;;
-      -t|--machine)
-        [[ $# -ge 2 ]] || die "missing value for $1 (vm|physical)"
-        case "$2" in
-          vm|physical) MACHINE_TYPE="$2" ;;
-          *) die "invalid --machine value: $2 (vm|physical)" ;;
-        esac
-        shift 2 ;;
-      --test-profile)
-        [[ $# -ge 2 ]] || die "missing value for $1 (physical-sim-vmware)"
-        case "$2" in
-          physical-sim-vmware)
-            TEST_PROFILE="$2"
-            # The simulated-physical profile forces the physical branch even
-            # when running inside a VMware guest; it must be combined with
-            # -t physical (checked in main).
-            ;;
-          *) die "invalid --test-profile value: $2 (physical-sim-vmware)" ;;
-        esac
-        shift 2 ;;
+      -d|--desktop)  DESKTOP_ENV="${2:?missing value for --desktop}"; shift 2 ;;
+      -t|--machine)  MACHINE_TYPE="${2:?missing value for --machine}"; shift 2 ;;
+      -r|--force-refresh) FORCE_REFRESH=1; shift ;;
+      -y|--assume-yes)    ASSUME_YES=true; shift ;;
       -h|--help) usage; exit 0 ;;
-      # flag args take no value: shift exactly once. Without the shift the
-      # while loop re-matches $1 forever (100% CPU spin) - caught by the
-      # fresh-VM install run (2026-08-10) and regression-tested in
-      # installer-behavior-test.sh (parse_args with -y / --force-refresh).
-      --force-refresh) FORCE_REFRESH="1"; shift ;;
-      -y|--assume-yes) ASSUME_YES="true"; shift ;;
       *) die "unknown argument: $1 (see --help)" ;;
     esac
   done
 }
 
-ensure_fzf_ui() {
-  # fzf is only needed for interactive selection; if missing we fall back to
-  # plain prompts (no pacman sync before mirror config, download-mode D-05).
-  FZF_AVAILABLE=1
-  if [[ -z "${DESKTOP_ENV}" || -z "${MACHINE_TYPE}" ]]; then
-    if ! ensure_fzf; then
-      FZF_AVAILABLE=0
-    fi
-  fi
+# fzf when available; numbered prompt otherwise (a fresh base has no fzf).
+pick_numbered() { # pick_numbered <prompt> <option>...
+  local prompt="$1"; shift
+  local i=1 opt choice
+  for opt in "$@"; do printf '%d) %s\n' "${i}" "${opt}" >&2; i=$((i + 1)); done
+  printf '%s [1-%d]: ' "${prompt}" "$#" >&2
+  read -r choice || die "no input"
+  [[ "${choice}" =~ ^[0-9]+$ ]] && (( choice >= 1 && choice <= $# )) || die "invalid choice: ${choice}"
+  echo "${choice}"
 }
 
-select_desktop() {
-  [[ -n "${DESKTOP_ENV}" ]] && return
-  section "Select desktop environment"
-  local selected
-  if [[ "${FZF_AVAILABLE:-1}" == "1" ]]; then
-    selected="$(printf 'Niri (recommended)\nNiri + Hyprland (both)\nNo desktop (packages and config only)\n' \
-      | fzf --layout=reverse --border=rounded \
-          --header=' Select desktop (J/K move, Enter confirm) ' \
-          --bind 'j:down,k:up,esc:abort,ctrl-c:abort')" || true
+pick() { # pick <header> <option>... -> prints the selected option
+  local header="$1"; shift
+  if (( FZF_OK )); then
+    local out
+    out="$(printf '%s\n' "$@" | fzf --layout=reverse --border=rounded \
+      --header=" ${header} " --bind 'j:down,k:up,esc:abort,ctrl-c:abort')" || true
+    [[ -n "${out}" ]] || die "selection cancelled"
+    echo "${out}"
   else
-    printf '1) Niri (recommended)\n2) Niri + Hyprland (both)\n3) No desktop (packages and config only)\n'
-    printf 'Select [1-3]: '
-    if ! read -r selected; then
-      die "Selection cancelled (EOF / no input)"
-    fi
-    case "${selected}" in
-      1) selected="Niri" ;;
-      2) selected="Hyprland (both)" ;;
-      3) selected="No desktop" ;;
-      *) die "Invalid selection: ${selected}" ;;
-    esac
+    local n
+    n="$(pick_numbered "${header}" "$@")" || exit 1
+    shift $((n - 1))
+    echo "$1"
   fi
-  [[ -z "${selected}" ]] && die "Cancelled"
-  case "${selected}" in
-    *"Hyprland (both)"*) DESKTOP_ENV="both" ;;
-    *"No desktop"*) DESKTOP_ENV="none" ;;
-    *) DESKTOP_ENV="niri" ;;
-  esac
-  log "Desktop: ${DESKTOP_ENV}"
 }
 
 select_machine() {
   [[ -n "${MACHINE_TYPE}" ]] && return
-  section "Select machine type"
-  local selected
-  if [[ "${FZF_AVAILABLE:-1}" == "1" ]]; then
-    selected="$(printf 'Physical machine (ASUS, full config)\nVirtual machine (same config, drivers skipped)\n' \
-      | fzf --layout=reverse --border=rounded \
-          --header=' Select machine type (J/K move, Enter confirm) ' \
-          --bind 'j:down,k:up,esc:abort,ctrl-c:abort')" || true
-  else
-    printf '1) Physical machine (ASUS, full config)\n2) Virtual machine (same config, drivers skipped)\n'
-    printf 'Select [1-2]: '
-    if ! read -r selected; then
-      die "Selection cancelled (EOF / no input)"
-    fi
-    case "${selected}" in
-      1) selected="Physical machine" ;;
-      2) selected="Virtual machine" ;;
-      *) die "Invalid selection: ${selected}" ;;
-    esac
-  fi
-  [[ -z "${selected}" ]] && die "Cancelled"
-  case "${selected}" in
-    *"Virtual machine"*) MACHINE_TYPE="vm" ;;
-    *) MACHINE_TYPE="physical" ;;
+  local sel
+  sel="$(pick "Select machine type" "Physical machine (ASUS, full config)" "Virtual machine (same config, drivers skipped)")"
+  case "${sel}" in
+    Virtual*) MACHINE_TYPE=vm ;;
+    *)        MACHINE_TYPE=physical ;;
   esac
   log "Machine: ${MACHINE_TYPE}"
 }
 
-build_modules() {
-  MODULES=(01-mirror.sh 02-system.sh 03-packages.sh)
-  # drivers before desktop (physical only; the script itself skips on vm)
-  MODULES+=(04-drivers.sh)
-  case "${DESKTOP_ENV}" in
-    niri) MODULES+=(05-niri.sh) ;;
-    both) MODULES+=(05-niri.sh 05-hyprland.sh) ;;
-    none) log "Skipping desktop environment" ;;
+select_desktop() {
+  [[ -n "${DESKTOP_ENV}" ]] && return
+  local sel
+  sel="$(pick "Select desktop" "Niri (recommended)" "Niri + Hyprland (both)" "No desktop (packages and config only)")"
+  case "${sel}" in
+    *Hyprland*) DESKTOP_ENV=both ;;
+    No*)        DESKTOP_ENV=none ;;
+    *)          DESKTOP_ENV=niri ;;
   esac
-  MODULES+=(06-aur.sh 07-config.sh 08-services.sh 09-settings.sh 99-cleanup.sh)
+  log "Desktop: ${DESKTOP_ENV}"
+}
+
+# --- resume state -----------------------------------------------------------
+# A plain list of finished steps. The header binds it to the machine/desktop
+# choice, so a stale file from a different selection starts over instead of
+# silently skipping steps.
+progress_begin() {
+  local ctx="desktop=${DESKTOP_ENV} machine=${MACHINE_TYPE}"
+  if [[ -f "${PROGRESS_FILE}" ]]; then
+    if [[ "$(head -1 "${PROGRESS_FILE}")" == "# context: ${ctx}" ]]; then
+      log "Resuming (finished: $(grep -v '^#' "${PROGRESS_FILE}" | tr '\n' ' '))"
+      return
+    fi
+    warn "progress file belongs to another install; starting over"
+    rm -f "${PROGRESS_FILE}"
+  fi
+  printf '# context: %s\n' "${ctx}" > "${PROGRESS_FILE}"
+}
+
+is_done() { grep -qx "$1" "${PROGRESS_FILE}" 2>/dev/null; }
+mark_done() { echo "$1" >> "${PROGRESS_FILE}"; }
+
+# --- sudo -------------------------------------------------------------------
+# makepkg runs every pacman call as 'sudo -k', which clears the timestamp; a
+# scoped NOPASSWD for pacman keeps the AUR step prompt-free. Removed on every
+# exit path.
+cleanup_sudoers() {
+  [[ -f "${SUDOERS_DROPIN}" ]] || return 0
+  if [[ "$(id -u)" -eq 0 ]]; then rm -f "${SUDOERS_DROPIN}"; else sudo rm -f "${SUDOERS_DROPIN}" 2>/dev/null || true; fi
+}
+trap cleanup_sudoers EXIT
+
+setup_sudo() {
+  local line="${TARGET_USER} ALL=(ALL) NOPASSWD: /usr/bin/pacman"
+  if [[ "$(id -u)" -eq 0 ]]; then
+    printf 'Defaults timestamp_timeout=240\n%s\n' "${line}" > "${SUDOERS_DROPIN}"
+  else
+    printf 'Defaults timestamp_timeout=240\n%s\n' "${line}" | sudo tee "${SUDOERS_DROPIN}" >/dev/null
+  fi
+  run chmod 440 "${SUDOERS_DROPIN}"
+  run visudo -cf "${SUDOERS_DROPIN}" >/dev/null || die "invalid sudoers drop-in"
+  log "Scoped sudo grant active (pacman only)"
+}
+
+dashboard() {
+  section "System"
+  echo "  Kernel  : $(uname -r)"
+  echo "  User    : ${TARGET_USER} (${TARGET_HOME})"
+  echo "  Desktop : ${DESKTOP_ENV}"
+  echo "  Machine : ${MACHINE_TYPE}"
+  echo "  Steps   : ${#STEPS[@]}"
 }
 
 main() {
   parse_args "$@"
-  check_root
-  # Desktop whitelist (fail closed): pure hyprland is removed; a stale
-  # DESKTOP_ENV=hyprland from the environment (or an unknown value) must
-  # never be silently accepted as "both". Resume is additionally guarded by
-  # the progress context binding (desktop is part of the context hash).
-  case "${DESKTOP_ENV}" in
-    ""|niri|both|none) ;;
-    hyprland) die "DESKTOP_ENV=hyprland is no longer supported; use 'both' and pick Hyprland from the greetd session menu" ;;
-    *) die "unknown DESKTOP_ENV=${DESKTOP_ENV} (niri|both|none)" ;;
-  esac
-  if [[ -n "${TEST_PROFILE}" ]] && [[ "${MACHINE_TYPE}" != "physical" ]]; then
-    die "--test-profile physical-sim-vmware requires -t physical"
+  if [[ -z "${DESKTOP_ENV}" || -z "${MACHINE_TYPE}" ]]; then
+    command -v fzf >/dev/null 2>&1 || { FZF_OK=0; log "fzf not installed; using numbered prompts"; }
   fi
-  # P0-2 (review): physical-sim-vmware must ONLY run inside a real VMware
-  # guest. A bare `-t physical` on the physical host (or in KVM/QEMU) must
-  # never be able to masquerade as a simulated-physical acceptance run.
-  if [[ "${TEST_PROFILE}" == "physical-sim-vmware" ]]; then
-    if [[ "$(systemd-detect-virt 2>/dev/null || true)" != "vmware" ]]; then
-      die "--test-profile physical-sim-vmware requires systemd-detect-virt == vmware (detected: $(systemd-detect-virt 2>/dev/null || echo unknown))"
-    fi
-    log "physical-sim-vmware preflight: systemd-detect-virt=vmware confirmed"
-  fi
-  # 2026-09-18：payload 里约 29 个配置硬编码 /home/pang（niri 键位/spawn、fish PATH、
-  # systemd user 服务、桌面 Exec 等），安装器不做路径重写。换用户名不会失败，但会得到
-  # 半可用的桌面 —— 显式告警，避免排障到最后才发现。
-  if [[ "${TARGET_USER}" != "pang" ]]; then
-    warn "TARGET_USER=${TARGET_USER} != 'pang'（payload 假设的用户名）：~/.config 下多处硬编码 /home/pang 的配置会失效，详见 README「手工准备项」"
-  fi
-  ensure_fzf_ui
   select_machine
   select_desktop
-  build_modules
-  sys_dashboard
+  case "${DESKTOP_ENV}" in niri|both|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|both|none)" ;; esac
+  case "${MACHINE_TYPE}" in physical|vm) ;; *) die "invalid --machine ${MACHINE_TYPE} (physical|vm)" ;; esac
+  [[ "${TARGET_USER}" == "pang" ]] \
+    || warn "TARGET_USER=${TARGET_USER} != pang: parts of the config hardcode /home/pang (see README)"
 
-  # Module scripts run as child processes; export the selections so they
-  # can read MACHINE_TYPE/DESKTOP_ENV without re-prompting. TARGET_USER/
-  # TARGET_HOME (resolved in 00-utils) are exported for the root/strap path.
-  export MACHINE_TYPE DESKTOP_ENV TARGET_USER TARGET_HOME
-  [[ -n "${TEST_PROFILE}" ]] && export TEST_PROFILE
+  export MACHINE_TYPE DESKTOP_ENV FORCE_REFRESH
+  dashboard
+  progress_begin
+  setup_sudo
 
-  # Bind the resume file to this install context (desktop/machine/user/
-  # commit/manifest hashes); a mismatched stale progress file aborts here
-  # instead of resume-skipping modules (review H-02).
-  setup_progress
-
-  # Step 2 (download-mode-lab D-00): apply mirror config BEFORE the first
-  # sync/upgrade so the first pacman transaction uses the optimized
-  # mirrorlist. 01-mirror.sh is idempotent and performs NO pacman sync or
-  # package install by itself; 02-system.sh owns the single official sync/
-  # upgrade (-Syu, or -Syyu only under --force-refresh). The old default
-  # `pacman -Syyu` here is gone (D-03): it forced a full db refresh and
-  # re-synced the database before the mirror config existed.
-  section "Pre-Flight" "Mirror configuration"
-  bash "${PROJECT_DIR}/scripts/01-mirror.sh"
-  # Step 2 (follow-up 1): 01-mirror.sh already ran in pre-flight; mark it
-  # done so the module loop below skips it instead of running it twice.
-  mark_done 01-mirror.sh
-
-  export FORCE_REFRESH
-
-  # One password for the whole install: extend the sudo timestamp AND grant a
-  # SCOPED NOPASSWD for /usr/bin/pacman only. makepkg deliberately runs every
-  # pacman call as `sudo -k` (clearing the timestamp cache), so the AUR step
-  # would otherwise re-prompt for every missing dependency. Scoping the grant
-  # to pacman (instead of ALL) keeps the blast radius to package management;
-  # every other privileged step (systemctl/useradd/grub-mkconfig/...) still
-  # needs the timestamp. The drop-in is removed by the EXIT trap above AND by
-  # 99-cleanup, restoring stock sudo on every exit path.
-  #
-  # The grant is created in the strap.sh (root) path too: 06-aur runs makepkg
-  # via `runuser -u TARGET_USER`, and `makepkg -s` calls `sudo -k pacman` to
-  # install missing runtime deps. Without a NOPASSWD grant and with no tty,
-  # sudo dies with "a terminal is required to read the password" and every
-  # recipe needing an extra runtime dep fails (found 2026-08-10 fresh VM
-  # install: fuzzel-ime-git needs fcft+tllist, google-chrome needs
-  # ttf-liberation, linuxqq-appimage/wechat-appimage need fuse2).
-  if [[ -f "${SUDOERS_DROPIN}" ]]; then
-    # Stale drop-in from an interrupted previous run: validate its syntax and
-    # remove it before creating a fresh one. Never reuse an untested sudoers
-    # file, and never leave an old ALL grant lying around.
-    if [[ "$(id -u)" -eq 0 ]]; then
-      visudo -cf "${SUDOERS_DROPIN}" && rm -f "${SUDOERS_DROPIN}" \
-        || warn "could not remove stale ${SUDOERS_DROPIN}; remove it manually: rm -f ${SUDOERS_DROPIN}"
-    else
-      log "Removing stale ${SUDOERS_DROPIN} from a previous run..."
-      run bash -c "visudo -cf '${SUDOERS_DROPIN}' && rm -f '${SUDOERS_DROPIN}'" \
-        || warn "could not remove stale ${SUDOERS_DROPIN}; remove it manually: sudo rm -f ${SUDOERS_DROPIN}"
-    fi
-  fi
-  if [[ "$(id -u)" -eq 0 ]]; then
-    printf 'Defaults timestamp_timeout=240\n%s ALL=(ALL) NOPASSWD: /usr/bin/pacman\n' "${TARGET_USER}" > "${SUDOERS_DROPIN}"
-    chmod 440 "${SUDOERS_DROPIN}"
-    visudo -cf "${SUDOERS_DROPIN}" || { error "could not create scoped sudoers drop-in"; exit 1; }
-  else
-    run bash -c "printf 'Defaults timestamp_timeout=240\n${TARGET_USER} ALL=(ALL) NOPASSWD: /usr/bin/pacman\n' > '${SUDOERS_DROPIN}' && chmod 440 '${SUDOERS_DROPIN}' && visudo -cf '${SUDOERS_DROPIN}'" \
-      || { error "could not create scoped sudoers drop-in"; exit 1; }
-  fi
-  log "Scoped sudo grant active (pacman only, auto-removed on exit)"
-
-  local total="${#MODULES[@]}" current=0
-  for module in "${MODULES[@]}"; do
-    [[ -z "${module}" ]] && continue
-    current=$((current + 1))
-    local script_path="${SCRIPTS_DIR}/${module}"
-    if [[ ! -f "${script_path}" ]]; then
-      error "Missing required script: ${module}"
-      exit 1
-    fi
-    if is_done "${module}"; then
-      log "Module ${module} already done, skipping"
-      continue
-    fi
-    section "Step ${current}/${total}" "${module}"
-    # shellcheck disable=SC1090
-    # 模块状态必须用 `|| rc=$?` 捕获：直接 `bash "$script"` 后接 `local rc=$?`
-    # 在 set -e 下会在赋值前就退出，失败提示与 mark_done 分支都不可达
-    # （2026-09-18 修复：此前 "rerun install.sh to resume" 是死代码）。
-    local rc=0
-    bash "${script_path}" || rc=$?
-    if (( rc == 0 )); then
-      mark_done "${module}"
-      success "Done: ${module}"
-    else
-      error "Module ${module} failed (exit ${rc}); rerun install.sh to resume"
-      exit "${rc}"
-    fi
+  local i=0 n=${#STEPS[@]} step rc
+  for step in "${STEPS[@]}"; do
+    i=$((i + 1))
+    if is_done "${step}"; then log "skip ${step} (done)"; continue; fi
+    section "Step ${i}/${n}" "${step}"
+    rc=0
+    bash "${ROOT}/steps/${step}" || rc=$?
+    (( rc == 0 )) || die "step ${step} failed (exit ${rc}); rerun ./install.sh to resume"
+    mark_done "${step}"
   done
 
   section "Done"
-  success "Installation complete. A reboot is recommended."
-  echo
-  echo -e "${H_YELLOW}>>> A system reboot is required.${NC}"
-  echo
-  # Auto-reboot: -y skips the prompt and reboots immediately; otherwise ask
-  # on an interactive tty. Never reboot when stdin is not a tty (e.g. CI/log).
+  success "Installation complete; a reboot is recommended."
   if [[ "${ASSUME_YES}" == "true" ]]; then
-    log "Auto-rebooting (--assume-yes)..."
-    sleep 3
-    run systemctl reboot
+    log "Rebooting (--assume-yes)..."; sleep 3; run systemctl reboot
   elif [[ -t 0 ]]; then
-    printf '%s' '[install] Reboot now? [Y/n]: '
-    local answer
-    read -r answer
-    if [[ -z "${answer}" || "${answer,,}" == "y" || "${answer,,}" == "yes" ]]; then
-      log "Rebooting..."
-      sleep 3
-      run systemctl reboot
+    printf '%s' 'Reboot now? [Y/n]: '
+    local answer; read -r answer
+    if [[ -z "${answer}" || "${answer,,}" == y* ]]; then
+      log "Rebooting..."; sleep 3; run systemctl reboot
     else
-      log "Skipping reboot; run 'sudo systemctl reboot' when ready."
+      log "Skipped; run 'sudo systemctl reboot' when ready."
     fi
   else
     log "Non-interactive session; run 'sudo systemctl reboot' when ready."
