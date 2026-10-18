@@ -114,6 +114,9 @@ if [[ "${DESKTOP_ENV}" != "none" ]]; then
   fi
   while IFS='|' read -r link_name script_rel; do
     [[ -z "${link_name}" ]] && continue
+    # hypr-keys exists only in a Hyprland install (module wm-hyprland); a
+    # niri-only install must not get a dangling entry point.
+    [[ "${link_name}" != "hypr-keys" || "${DESKTOP_ENV}" == "both" ]] || continue
     target="${TARGET_HOME}/scripts/${script_rel}"
     link_path="${local_bin}/${link_name}"
     if [[ ! -f "${target}" ]]; then
