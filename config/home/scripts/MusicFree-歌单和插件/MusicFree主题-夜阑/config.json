@@ -1,0 +1,11 @@
+{
+  "name": "夜阑",
+  "author": "本地生成",
+  "description": "跟随本机 niri · Noctalia 桌面：Material You 深夜配色 + 玻璃胶囊界面 + 动态花瓣光斑。底图由当前壁纸生成，换壁纸后跑一次 build.sh 即可同步。",
+  "version": "2.0.1",
+  "preview": "@/imgs/preview.jpg",
+  "iframe": {
+    "app": "@/iframes/app.html"
+  },
+  "id": "Hy9nT4kQ2mZx7LpR5wVc3"
+}

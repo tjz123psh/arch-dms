@@ -179,23 +179,57 @@ function readAsar(asarPath, rel) {
   } finally { fs.closeSync(fd); }
 }
 
-let hostSrc = "", primText = null;
-if (PRIM.startsWith("asar:")) {
-  const asarPath = PRIM.slice(5);
-  primText = readAsar(asarPath, ASAR_REL);
-  hostSrc = asarPath + "!" + ASAR_REL;
-} else {
-  primText = fs.readFileSync(PRIM, "utf8");
-  hostSrc = PRIM;
-}
-if (primText === null) {
-  process.stdout.write("ERR|宿主导出表读取失败（asar 内找不到 " + ASAR_REL + "）：" + PRIM + "\n");
-  process.exit(0);
+/** 列 app.asar 内某一层级目录里的文件名（Electron asar 头就是 JSON 目录树） */
+function listAsarDir(asarPath, rel) {
+  let fd;
+  try {
+    fd = fs.openSync(asarPath, "r");
+    const head = Buffer.alloc(16);
+    fs.readSync(fd, head, 0, 16, 0);
+    const jsonLen = head.readUInt32LE(12);
+    if (jsonLen <= 0 || jsonLen > 512 * 1024 * 1024) return [];
+    const meta = Buffer.alloc(jsonLen);
+    fs.readSync(fd, meta, 0, jsonLen, 16);
+    let cur = JSON.parse(meta.toString("utf8"));
+    for (const part of rel.split("/")) { cur = cur && cur.files && cur.files[part]; if (!cur) return []; }
+    return Object.keys(cur.files || {});
+  } catch { return []; } finally { if (fd !== undefined) fs.closeSync(fd); }
 }
 
-const m = primText.match(/export \{([^}]*)\}/);
-if (m === null) { process.stdout.write("ERR|宿主导出表解析失败（无 export 块）：" + hostSrc + "\n"); process.exit(0); }
-const host = new Set(m[1].split(",").map((s) => s.split(" as ").pop().trim()).filter(Boolean));
+const iconNames = (txt, into) => {
+  const re = /Icon[A-Za-z0-9]+/g; let mm;
+  while ((mm = re.exec(txt)) !== null) into.add(mm[0]);
+};
+
+let hostSrc = "", host = new Set();
+if (PRIM.startsWith("asar:")) {
+  const asarPath = PRIM.slice(5);
+  const primText = readAsar(asarPath, ASAR_REL);
+  if (primText !== null) {
+    hostSrc = asarPath + "!" + ASAR_REL;
+    const m = primText.match(/export \{([^}]*)\}/);
+    if (m !== null) for (const s of m[1].split(",")) { const n = s.split(" as ").pop().trim(); if (n) host.add(n); }
+  } else {
+    // 0.2.1-rc.2 起 primitives 不再单独发包：它成了 web shell 的 seed 模块
+    // （shell bundle 里 `"@deepseek-ai/dsh-client-ui-primitives": <module>`），
+    // asar 内旧的 primitives 文件路径已不存在。改从 shell bundle 抽 Icon* 名：
+    // 2026-10-17 实测 rc.2 的 shell bundle 有 99 个 Icon*Regular / 99 个 Icon*Medium、
+    // 0 个带数字后缀的名，与旧口径（尺寸后缀 → 字重档）一致。
+    const dir = "dsh/node_modules/@deepseek-ai/dsh-web-frontend/dist/assets";
+    for (const n of listAsarDir(asarPath, dir).filter((x) => x.endsWith(".js"))) {
+      iconNames(readAsar(asarPath, dir + "/" + n) || "", host);
+    }
+    if (host.size > 0) hostSrc = asarPath + "!" + dir + "/*.js（shell seed 表 — rc.2 起 primitives 内联）";
+  }
+} else {
+  hostSrc = PRIM;
+  const m = fs.readFileSync(PRIM, "utf8").match(/export \{([^}]*)\}/);
+  if (m !== null) for (const s of m[1].split(",")) { const n = s.split(" as ").pop().trim(); if (n) host.add(n); }
+}
+if (host.size === 0) {
+  process.stdout.write("ERR|宿主导出表读取失败（asar 内既无 " + ASAR_REL + "，shell seed 也没抽到 Icon 名）：" + PRIM + "\n");
+  process.exit(0);
+}
 
 /** 枚举所有装机插件的候选客户端 bundle：<pkg>/lib/*.js 与 <pkg>/client/*.js */
 function bundles() {
