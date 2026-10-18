@@ -49,16 +49,6 @@ EOF'
 run systemctl daemon-reload
 success "zram configured (zstd, size=ram)"
 
-# --- VMware guest graphics ---
-# vmwgfx dma-bufs do not import into GL clients under niri; llvmpipe does, so
-# guests are forced to software GL while physical keeps hardware GL.
-if is_vmware_guest; then
-  log "VMware guest: forcing software GL (LIBGL_ALWAYS_SOFTWARE=1)"
-  apply_vmware_graphics_workaround
-else
-  log "Not a VMware guest; keeping hardware GL"
-fi
-
 # --- standard user directories ---
 log "Creating standard user directories"
 STD_DIRS=(Desktop Documents Downloads Music Public Templates Videos)

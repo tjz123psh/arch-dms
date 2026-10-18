@@ -2,8 +2,8 @@
 
 本人 ASUS AMD + NVIDIA 工作站的 Arch Linux 恢复工具。重装 Arch、手工做完基础安装
 （分区 / GRUB / 首次启动 / 联网）之后，一条命令把整套桌面装回来：软件包、驱动、
-桌面环境、AUR、个人配置与系统服务。物理机与虚拟机（VMware guest）走同一条流水线，
-只在驱动步骤与模块过滤上不同。
+桌面环境、AUR、个人配置与系统服务。仓库只面向这台物理机（ASUS AMD + NVIDIA），
+不再维护虚拟机分支。
 
 ## 基础安装前置（手工，不在本仓库范围）
 
@@ -32,9 +32,8 @@ cd arch-dms && ./install.sh
 sudo bash strap.sh
 ```
 
-两个交互选择（也可用 `-t physical|vm`、`-d niri|none` 免交互指定）：
+一个交互选择（也可用 `-d niri|none` 免交互指定）：
 
-- **机器类型**：`physical`（ASUS 工作站，装驱动）或 `vm`（VMware guest，跳过物理驱动）
 - **桌面**：`niri`（Niri + Noctalia + nwg-hello，默认）/ `none`（只装包和配置）
 
 中断后直接重跑 `./install.sh`：完成的步骤记在 `.install-progress`，从断点继续；
@@ -48,7 +47,7 @@ sudo bash strap.sh
 |---|---|
 | `01-system` | 镜像源、`pacman -Syu`、base-devel / git / python / curl |
 | `02-packages` | 按清单装官方包（含 archlinuxcn） |
-| `03-drivers` | 物理机驱动：AMD / NVIDIA、ASUS、硬件工具（虚拟机跳过） |
+| `03-drivers` | 驱动：AMD / NVIDIA、ASUS、硬件工具 |
 | `04-desktop` | Niri 与 portal 等桌面包（Noctalia 由清单安装） |
 | `05-aur` | `paru` 在线安装清单里的 AUR 包 |
 | `06-config` | 按 `manifests/config-mappings.tsv` 部署 `config/` |

@@ -8,7 +8,7 @@ source "${ROOT}/lib/common.sh"
 
 MANIFEST="${MANIFESTS_DIR}/workstation-packages.tsv"
 
-section "Packages (${MACHINE_TYPE:-physical}, desktop=${DESKTOP_ENV:-niri})"
+section "Packages (desktop=${DESKTOP_ENV:-niri})"
 
 OFFICIAL=()
 AUR_COUNT=0

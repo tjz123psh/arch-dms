@@ -1,7 +1,6 @@
 # schema=1
 # package
 # 本地 recipe（third_party/aur/<pkg>）仅作复核/兜底，安装走在线 paru。
-# 含 AUR→AUR 引导依赖（非安装目标）：vmware-keymaps
 dbx-bin
 google-chrome
 linuxqq
@@ -10,9 +9,13 @@ obsidian-bin
 opencode-bin
 paru
 wechat-bin
-vmware-workstation
 pi-coding-agent-bin
 musicfree-desktop-wayland-bin
 anime4k-git
 mpv-thumbfast-git
 mpv-uosc
+visual-studio-code-bin
+wps-office-cn
+wps-office-mime-cn
+wps-office-mui-zh-cn
+ttf-wps-fonts

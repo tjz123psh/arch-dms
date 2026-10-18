@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # install.sh — restore the operator's Arch desktop from this repository.
 #
-#   select machine + desktop -> run the steps in order -> reboot prompt
+#   select desktop -> run the steps in order -> reboot prompt
 #
 # Re-running resumes after the last completed step; delete .install-progress
 # to start from the beginning.
@@ -26,7 +26,6 @@ STEPS=(
 )
 
 DESKTOP_ENV="${DESKTOP_ENV:-}"
-MACHINE_TYPE="${MACHINE_TYPE:-}"
 ASSUME_YES=false
 FORCE_REFRESH="${FORCE_REFRESH:-0}"
 FZF_OK=1
@@ -36,7 +35,6 @@ usage() {
 Usage: ./install.sh [options]
 
   -d, --desktop niri|none        niri | no desktop
-  -t, --machine physical|vm
   -r, --force-refresh            repair mode: pacman -Syyu instead of -Syu
   -y, --assume-yes               reboot without asking at the end
   -h, --help
@@ -47,7 +45,6 @@ parse_args() {
   while (( $# > 0 )); do
     case "$1" in
       -d|--desktop)  DESKTOP_ENV="${2:?missing value for --desktop}"; shift 2 ;;
-      -t|--machine)  MACHINE_TYPE="${2:?missing value for --machine}"; shift 2 ;;
       -r|--force-refresh) FORCE_REFRESH=1; shift ;;
       -y|--assume-yes)    ASSUME_YES=true; shift ;;
       -h|--help) usage; exit 0 ;;
@@ -83,17 +80,6 @@ pick() { # pick <header> <option>... -> prints the selected option
   fi
 }
 
-select_machine() {
-  [[ -n "${MACHINE_TYPE}" ]] && return
-  local sel
-  sel="$(pick "Select machine type" "Physical machine (ASUS, full config)" "Virtual machine (same config, drivers skipped)")"
-  case "${sel}" in
-    Virtual*) MACHINE_TYPE=vm ;;
-    *)        MACHINE_TYPE=physical ;;
-  esac
-  log "Machine: ${MACHINE_TYPE}"
-}
-
 select_desktop() {
   [[ -n "${DESKTOP_ENV}" ]] && return
   local sel
@@ -106,11 +92,11 @@ select_desktop() {
 }
 
 # --- resume state -----------------------------------------------------------
-# A plain list of finished steps. The header binds it to the machine/desktop
-# choice, so a stale file from a different selection starts over instead of
-# silently skipping steps.
+# A plain list of finished steps. The header binds it to the desktop choice,
+# so a stale file from a different selection starts over instead of silently
+# skipping steps.
 progress_begin() {
-  local ctx="desktop=${DESKTOP_ENV} machine=${MACHINE_TYPE}"
+  local ctx="desktop=${DESKTOP_ENV}"
   if [[ -f "${PROGRESS_FILE}" ]]; then
     if [[ "$(head -1 "${PROGRESS_FILE}")" == "# context: ${ctx}" ]]; then
       log "Resuming (finished: $(grep -v '^#' "${PROGRESS_FILE}" | tr '\n' ' '))"
@@ -152,23 +138,20 @@ dashboard() {
   echo "  Kernel  : $(uname -r)"
   echo "  User    : ${TARGET_USER} (${TARGET_HOME})"
   echo "  Desktop : ${DESKTOP_ENV}"
-  echo "  Machine : ${MACHINE_TYPE}"
   echo "  Steps   : ${#STEPS[@]}"
 }
 
 main() {
   parse_args "$@"
-  if [[ -z "${DESKTOP_ENV}" || -z "${MACHINE_TYPE}" ]]; then
+  if [[ -z "${DESKTOP_ENV}" ]]; then
     command -v fzf >/dev/null 2>&1 || { FZF_OK=0; log "fzf not installed; using numbered prompts"; }
   fi
-  select_machine
   select_desktop
   case "${DESKTOP_ENV}" in niri|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|none)" ;; esac
-  case "${MACHINE_TYPE}" in physical|vm) ;; *) die "invalid --machine ${MACHINE_TYPE} (physical|vm)" ;; esac
   [[ "${TARGET_USER}" == "pang" ]] \
     || warn "TARGET_USER=${TARGET_USER} != pang: parts of the config hardcode /home/pang (see README)"
 
-  export MACHINE_TYPE DESKTOP_ENV FORCE_REFRESH
+  export DESKTOP_ENV FORCE_REFRESH
   dashboard
   progress_begin
   setup_sudo

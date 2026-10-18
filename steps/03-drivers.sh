@@ -1,15 +1,10 @@
 #!/usr/bin/env bash
-# 03-drivers.sh — GPU and platform drivers, physical machines only.
+# 03-drivers.sh — GPU and platform drivers.
 # supergfxctl comes from archlinuxcn, which step 02 configures.
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../lib/common.sh
 source "${ROOT}/lib/common.sh"
-
-if [[ "${MACHINE_TYPE:-physical}" != "physical" ]]; then
-  log "VM: skipping GPU/platform drivers (no real GPU)"
-  exit 0
-fi
 
 MANIFEST="${MANIFESTS_DIR}/workstation-packages.tsv"
 DRIVER_MODULES=" graphics-amd graphics-nvidia hardware-tools asus-hardware "

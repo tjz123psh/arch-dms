@@ -6,7 +6,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "${ROOT}/lib/common.sh"
 
 DESKTOP_ENV="${DESKTOP_ENV:-niri}"
-MACHINE_TYPE="${MACHINE_TYPE:-physical}"
 GREETER_USER=greeter
 NWG_HELLO_DIR=/etc/nwg-hello
 
@@ -117,32 +116,11 @@ for t in snapper-cleanup.timer snapper-timeline.timer; do
   fi
 done
 
-# Physical host: scrub timer and the VMware network bridge are enabled, the
-# USB arbitrator is not. Only a guest gets vmtoolsd.
-if [[ "${MACHINE_TYPE}" == "physical" ]]; then
-  if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]] \
-     && systemctl list-unit-files 'btrfs-scrub@.timer' >/dev/null 2>&1; then
-    run systemctl enable --now 'btrfs-scrub@-.timer' >/dev/null 2>&1 \
-      || warn "could not enable btrfs-scrub@-.timer"
-  fi
-  if [[ ! -f /usr/lib/systemd/system/vmware-networks.service ]]; then
-    warn "unit missing: vmware-networks.service (is vmware-workstation installed?)"
-  elif run systemctl enable --now vmware-networks.service >/dev/null 2>&1; then
-    log "Service: vmware-networks.service"
-  else
-    warn "could not enable vmware-networks.service"
-  fi
-  log "Not enabled: vmware-usbarbitrator (host parity); flclash-helper/rjsupplicant are host-local units"
-else
-  [[ -f /usr/lib/systemd/system/vmtoolsd.service ]] \
-    || die "vmtoolsd.service missing (open-vm-tools not installed?)"
-  run systemctl enable --now vmtoolsd.service >/dev/null 2>&1 \
-    || die "could not enable vmtoolsd.service"
-  log "Service: vmtoolsd.service"
-  if [[ -f /usr/lib/systemd/system/vmware-vmblock-fuse.service ]]; then
-    run systemctl enable --now vmware-vmblock-fuse.service >/dev/null 2>&1 \
-      || warn "could not enable vmware-vmblock-fuse.service"
-  fi
+# btrfs scrub timer: only meaningful on a btrfs root.
+if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]] \
+   && systemctl list-unit-files 'btrfs-scrub@.timer' >/dev/null 2>&1; then
+  run systemctl enable --now 'btrfs-scrub@-.timer' >/dev/null 2>&1 \
+    || warn "could not enable btrfs-scrub@-.timer"
 fi
 
 section "User groups"

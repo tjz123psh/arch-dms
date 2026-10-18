@@ -21,7 +21,7 @@
 
 - 个人专用的 Arch 恢复工具：重装 Arch 并手工完成基础安装后，一条命令恢复 ASUS 工作站
   的桌面环境。remote `origin` 为 `git@github.com:tjz123psh/arch-dms.git`（公开仓库）。
-- 流程：`strap.sh`（root 克隆到 `/opt/arch-dms`）+ `install.sh`（选题型/桌面）+
+- 流程：`strap.sh`（root 克隆到 `/opt/arch-dms`）+ `install.sh`（选桌面）+
   `steps/01..08`；桌面是 Niri + Noctalia + nwg-hello，AUR 只走在线 `paru`。
 - **数据资产是核心价值**：`config/`（个人配置）、`manifests/`（包/映射清单）、
   `third_party/aur/`（审阅过的 AUR recipe）。优先改数据，其次才改脚本。
@@ -33,9 +33,9 @@
 - 提交前必跑 `./dev-check.sh`（`bash -n` + 可执行位 + `shellcheck` +
   `install.sh --help`），任一失败即禁止提交。
 - **红线改动**：改安装主流程（`install.sh` / `lib/common.sh` / 步骤顺序）、改
-  `manifests` 的 schema（列含义）、改 `DESKTOP_ENV` / `MACHINE_TYPE` 的模块过滤——
-  必须在一个**一次性测试 VM** 里完整跑一遍（`./install.sh -t vm -d niri`）再提交，
-  不能在宿主上试。
+  `manifests` 的 schema（列含义）、改 `DESKTOP_ENV` 的模块过滤——
+  必须在一个**一次性测试机**（或恢复前的宿主快照）里完整跑一遍
+  （`./install.sh -d niri`）再提交，不能在正在使用的宿主上试。
 - 加包 / 加配置 / 加 AUR 的固定套路见 `docs/how-to-extend.md`。
 - 提交信息用 Conventional Commits（`feat:` / `fix:` / `docs:` / `refactor:` /
   `chore:`），一次提交只做一件事。

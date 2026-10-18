@@ -70,36 +70,15 @@ chown_user() {
 
 # --- module selection -------------------------------------------------------
 # Shared by the package and config steps: one rule set decides which manifest
-# rows a given machine/desktop installs. Hardware modules are the driver
-# step's job for packages, but their configs deploy on physical machines.
+# rows a given desktop installs. Hardware modules are the driver step's job
+# for packages; their configs deploy normally.
 module_selected() { # module_selected <module> [package|config]
   local module="$1" ctx="${2:-package}"
   case "${module}" in
-    virtualization-vmware-host) [[ "${MACHINE_TYPE:-physical}" == "physical" ]] ;;
-    virtualization-vmware-guest) [[ "${MACHINE_TYPE:-physical}" == "vm" ]] ;;
     graphics-amd|graphics-nvidia|hardware-tools|asus-hardware)
-      [[ "${ctx}" == "config" && "${MACHINE_TYPE:-physical}" == "physical" ]] ;;
+      [[ "${ctx}" == "config" ]] ;;
     wm-niri) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
     greeter) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
     *) return 0 ;;
   esac
-}
-
-# --- VMware guest graphics workaround ---------------------------------------
-# Wayland clients cannot import mesa/vmwgfx dma-bufs (upstream issue), so GL
-# clients die with "wl_surface.attach: invalid arguments" inside a VMware
-# guest. Software GL routes them through llvmpipe, which works.
-is_vmware_guest() {
-  [[ "${SYSTEMD_DETECT_VIRT:-$(systemd-detect-virt 2>/dev/null || true)}" == "vmware" ]]
-}
-
-apply_vmware_graphics_workaround() {
-  local envf="${1:-/etc/environment}"
-  is_vmware_guest || return 0
-  grep -q '^LIBGL_ALWAYS_SOFTWARE=1' "${envf}" 2>/dev/null && return 0
-  if [[ -w "${envf}" ]]; then
-    printf 'LIBGL_ALWAYS_SOFTWARE=1\n' >> "${envf}"
-  else
-    run bash -c "grep -q '^LIBGL_ALWAYS_SOFTWARE=1' '${envf}' 2>/dev/null || printf 'LIBGL_ALWAYS_SOFTWARE=1\n' >> '${envf}'"
-  fi
 }
