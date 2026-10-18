@@ -299,17 +299,3 @@ physical-v1	developer-editor	config/home/.config/nvim/tests/sidekick_panel.lua	.
 physical-v1	developer-editor	config/home/.config/nvim/tests/spring_runtime_smoke.lua	.config/nvim/tests/spring_runtime_smoke.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/tests/spring_wizard.lua	.config/nvim/tests/spring_wizard.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/tests/whichkey_scopes.lua	.config/nvim/tests/whichkey_scopes.lua	644
-physical-v1	desktop-shared	config/home/.config/btop/btop.conf	.config/btop/btop.conf	644
-physical-v1	desktop-shared	config/home/.config/btop/themes/noctalia.theme	.config/btop/themes/noctalia.theme	644
-physical-v1	desktop-shared	config/home/.config/fastfetch/arch-logo.png	.config/fastfetch/arch-logo.png	644
-physical-v1	desktop-shared	config/home/.config/fastfetch/config.jsonc	.config/fastfetch/config.jsonc	644
-physical-v1	desktop-shared	config/home/.config/fastfetch/logo.png	.config/fastfetch/logo.png	644
-physical-v1	desktop-shared	config/home/.config/fastfetch/themes/noctalia.jsonc	.config/fastfetch/themes/noctalia.jsonc	644
-physical-v1	desktop-shared	config/home/.config/zellij/config.kdl	.config/zellij/config.kdl	644
-physical-v1	desktop-shared	config/home/.config/environment.d/10-desktop.conf	.config/environment.d/10-desktop.conf	644
-physical-v1	desktop-shared	config/home/.config/fontconfig/fonts.conf	.config/fontconfig/fonts.conf	644
-physical-v1	desktop-shared	config/home/.config/nwg-look/config	.config/nwg-look/config	644
-physical-v1	desktop-shared	config/home/.config/papirus-folders/keep	.config/papirus-folders/keep	644
-physical-v1	desktop-shared	config/home/.config/qt5ct/colors/noctalia.conf	.config/qt5ct/colors/noctalia.conf	644
-physical-v1	desktop-shared	config/home/.config/qt6ct/colors/noctalia.conf	.config/qt6ct/colors/noctalia.conf	644
-physical-v1	desktop-shared	config/home/.config/qt6ct/qt6ct.conf	.config/qt6ct/qt6ct.conf	644
