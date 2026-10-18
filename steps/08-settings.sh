@@ -51,7 +51,7 @@ success "zram configured (zstd, size=ram)"
 
 # --- standard user directories ---
 log "Creating standard user directories"
-STD_DIRS=(Desktop Documents Downloads Music Public Templates Videos)
+STD_DIRS=(Desktop Documents Downloads Music Pictures Public Templates Videos)
 if [[ "$(id -u)" -eq 0 ]]; then
   for d in "${STD_DIRS[@]}"; do
     mkdir -p "${TARGET_HOME}/${d}"

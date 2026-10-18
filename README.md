@@ -82,6 +82,9 @@ sudo bash strap.sh
   （安装器设为 fish）；`theme.toml` 与 `flavors/noctalia.yazi/` 由 **Noctalia** 生成，
   Noctalia 重渲染主题时可能覆盖这两个文件。
 - **涉及 shell 的配置**：nvim 的 `:!` 与 Java 构建固定走 **bash**（不是登录 shell fish）。
+- **壁纸由 Noctalia 管理**：`~/Pictures/wallpapers/`（13 张，约 35MB）与 Noctalia 的
+  `settings.toml`（整份 shell 配置）和 `wallpaper_shuffle.json` 随配置恢复；
+  Noctalia 换壁纸时会改写这两份状态文件。
 - **不纳入的敏感/大体积配置**：`~/.config/dbx/secret.key`（密钥）、transmission（含 rpc 密码哈希）、
   VS Code（420M 运行数据）、obsidian（68M）、rclone/opencode（凭据/隐私）。
 - **`spring` CLI 不随仓库分发**（只有 nvim 的 Spring Boot 向导用到）。
