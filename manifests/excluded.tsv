@@ -89,3 +89,9 @@ payload-file	~/.config/cava/shaders/*	physical	用户 2026-10-05 决定不收（
 payload-file	~/.config/vellum/{shortcuts.json,tray.json}	both	用户 2026-10-05 决定不收；vellum 已改由其自带版本管理器安装（见第 8 节），其用户配置不属恢复范围
 runtime-state	~/.config/fish/conf.d/rustup.fish、completions/grok.fish	physical	生成物：rustup.fish 由 rustup 生成，grok.fish 为 150KB 自动生成补全；均不收
 
+
+# --- 10. 2026-10-18 re-baseline：host 已装但有意不纳入 ---
+pacman-package	linux-lts	内核由手工基础安装决定（安装器只装 headers）
+pacman-package	hyprpicker	Hyprland 残留；桌面已切到 Niri + Noctalia
+aur-package	mpv-uosc-debug	调试分包，不随恢复安装
+aur-package	ttf-wps-fonts	WPS 未纳入恢复（见 wps-office-*）
