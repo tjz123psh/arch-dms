@@ -145,7 +145,6 @@ pac ai models                  # 可选：从端点的 /models 拉列表，用 f
   pac  pacr  pacd       三个命令（~/.local/bin 里有同名链接）
   lib/pac-ai.sh         AI 后端共享库：配置解析、HTTP 请求、模型列表
   README.md             本文件
-  UPGRADE.md            升级方案、每期改动、决策记录与回退办法
 ```
 
 ```
@@ -158,9 +157,3 @@ pac ai models                  # 可选：从端点的 /models 拉列表，用 f
                         .json.scored（定级结果）、.dossier.json（证据包）、.log，以及构建目录
   pacr/  pacd/          pacr 与 pacd 各自的软件源列表缓存
 ```
-
----
-
-## 升级记录
-
-想了解这套东西是怎么一步步改成现在这样的（每一期做了什么、踩了什么坑、为什么这么定），看 [UPGRADE.md](./UPGRADE.md)。

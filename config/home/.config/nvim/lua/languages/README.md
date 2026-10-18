@@ -40,7 +40,7 @@
 1. 在语言目录内修改或添加实现；新增语言则创建它的入口，并加入[注册表](<init.lua>)的 names。
 2. 一个配置只声明一次。C/C++ 共用 clangd，C/C++/Rust 共用 codelldb，但彼此不 require 另一种语言。
 3. require 入口时只创建声明：不启动服务、调试器、终端、网络请求，也不读取过早的 runtimepath。
-4. 运行[结构测试](<../../tests/languages.lua>)与相关语言回归。重复普通/自管 LSP、冲突共享配置、漏声明调试适配器、重复命令/按键会明确报错。
+4. 重复普通/自管 LSP、冲突共享配置、漏声明调试适配器、重复命令/按键会在启动时明确报错。
 5. 新键同步[速查](</home/pang/.config/nvim/lua/core/ui/reference.lua>)及[菜单](<../plugins/whichkey.lua>)，更新[用户架构文档](</home/pang/md/nvim/nvim配置架构.md>)。不要用兼容转接文件长期保留旧路径。
 
 配置改动后重启 Neovim；重新执行某个 Lua 文件不等于完整重载整个语言层。

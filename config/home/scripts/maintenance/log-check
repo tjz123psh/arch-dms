@@ -223,8 +223,7 @@ main() {
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
   # 旧实现只在正常路径 rm 临时文件：中途 Ctrl+C 会把它留在 /tmp。陷阱只在
-  # 本脚本被直接执行时安装；被 source（如 tests/run）时安装会顶替调用方自己
-  # 的 EXIT 陷阱，套件的夹具目录就再也不会被清理。
+  # 本脚本被直接执行时安装；被 source 时安装会顶替调用方自己的 EXIT 陷阱。
   trap 'ui_tmp_cleanup' EXIT
   trap 'ui_tmp_cleanup; exit 130' INT
   trap 'ui_tmp_cleanup; exit 143' TERM
