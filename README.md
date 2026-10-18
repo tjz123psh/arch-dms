@@ -1,8 +1,8 @@
 # arch-dms
 
-ASUS AMD + NVIDIA 工作站的 Arch 恢复工具：手工完成基础安装后，一条命令恢复
-**DMS（DankMaterialShell）** 桌面（Niri 默认，可选 Niri + Hyprland）、软件包、AUR、
-个人配置与系统服务。只服务这台物理机。
+Arch Linux 恢复工具：手工完成基础安装后，一条命令恢复 **DMS（DankMaterialShell）**
+桌面（Niri 默认，可选 Niri + Hyprland）、软件包、AUR、个人配置与系统服务。
+只面向这台 ASUS AMD + NVIDIA 工作站。**本仓库只维护 DMS 桌面。**
 
 ## 前置（手工，安装器不安装）
 
@@ -20,7 +20,7 @@ git clone https://github.com/tjz123psh/arch-dms.git
 cd arch-dms && ./install.sh        # 或 sudo bash strap.sh（root，克隆到 /opt/arch-dms）
 ```
 
-- 桌面：`niri`（默认，DMS on Niri）/ `both`（另装 Hyprland）/ `none`；
+- 桌面：`niri`（默认，DMS on Niri）/ `both`（DMS + Hyprland）/ `none`；
   `-d niri|both|none` 可免交互。
 - 中断后重跑续跑（`.install-progress`）；AUR 仅在线 `paru`。
 - 验收可在一台一次性 VM 里跑 `./install.sh -d niri`：驱动只安装、不生效。
@@ -39,11 +39,9 @@ cd arch-dms && ./install.sh        # 或 sudo bash strap.sh（root，克隆到 /
 ## 注意
 
 - **用户名必须是 `pang`**：`config/` 多处硬编码 `/home/pang`，安装器不改写。
-- **DMS 桌面**：greetd 用 `dms-greeter`，用户级 `dms.service`/`dsearch.service`；
+- **DMS 登录**：greetd 用 `dms-greeter`，用户级 `dms.service`/`dsearch.service`；
   DMS 的设置、配色与壁纸在 `config/`（壁纸图片在 `~/Pictures/wallpapers/`）。
-- **shell 相关**：nvim 的 `:!` 与 Java 构建固定走 **bash**，不是登录 shell fish。
-- Nautilus 扩展、yazi、`~/Templates` 都在 `config/`，由 06 部署。
+- 配置包含 nvim、yazi、Nautilus 与 `~/Templates`，由 06 步部署。
 - 凭据/大体积配置不入库（dbx 密钥、transmission、VS Code、obsidian、rclone/opencode），
   见 `manifests/excluded.tsv`。
-- `spring` CLI 不随仓库分发；Go 的 AUR 包用 `goproxy.cn`（`config/home/.config/go/env`）。
 - 装完可选 `./cleanup-after-install.sh` 清 pacman/cargo/go 缓存（先确认，删除不可恢复）。
