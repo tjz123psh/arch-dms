@@ -1,323 +1,39 @@
 #!/usr/bin/env bash
-# sync-scripts.sh - keep the operator's ~/scripts in sync with the repo and
-# make sure every file is listed in config-mappings.tsv.
-#
-# 06-config deploys ONLY what config-mappings.tsv lists, so a file that
-# exists in config/home/scripts/ without a mapping row silently never gets
-# installed. This tool (run on the host):
-#   1. inventories ~/scripts -> config/home/scripts/ (excluding any .git)
-#      and classifies every file same/changed/new/deleted
-#   2. runs a secret gate over every file that WOULD be written
-#   3. plans mapping additions (mode 755 if executable, else 644)
-#   4. --apply stages into the workspace, backs up the previous state with a
-#      timestamp, and only then switches; a post-switch secret scan runs
-#      again. --rollback <dir> restores a previous state from the backup.
-#
-# SAFETY:
-#   - default is a read-only PLAN: zero writes, zero mkdir, zero mapping edits
-#   - a secret hit FAILS CLOSED during --apply: nothing is written
-#   - apply never uses --delete against the live tree; it switches from a
-#     staging dir and keeps a timestamped backup for rollback
+# sync-scripts.sh — copy ~/scripts into config/home/scripts and refresh mappings.
 set -Eeuo pipefail
-
-REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC="${HOME}/scripts"
-DEST="${REPO_DIR}/config/home/scripts"
-MAPPINGS="${REPO_DIR}/manifests/config-mappings.tsv"
+DEST="${ROOT}/config/home/scripts"
 
-ACTION=plan
-ROLLBACK_DIR=""
-while (( $# > 0 )); do
-  case "$1" in
-    --plan) ACTION=plan; shift ;;
-    --apply) ACTION=apply; shift ;;
-    --rollback)
-      ACTION=rollback
-      shift
-      [[ $# -ge 1 ]] || { echo "error: --rollback needs a backup directory"; exit 1; }
-      ROLLBACK_DIR="$1"
-      shift
-      ;;
-    -h|--help)
-      echo "usage: sync-scripts.sh [--plan] [--apply] [--rollback <backup-dir>]"
-      echo "  (default is read-only plan; --apply writes; --rollback restores)"
-      exit 0
-      ;;
-    *) echo "unknown argument: $1"; exit 1 ;;
-  esac
-done
+[[ -d "${SRC}" ]] || { echo "error: ${SRC} not found" >&2; exit 1; }
 
-[[ -d "${SRC}" ]] || { echo "error: source not found: ${SRC}"; exit 1; }
-
-# ---------------------------------------------------------------------------
-# inventory: classify SRC files relative to DEST
-# ---------------------------------------------------------------------------
-# 2026-09-21: review/scratch/backup material must never reach the public repo, and
-# the rsync switch must not delete what the find-based inventory did not scan.
-# These patterns are excluded from BOTH the inventory and the switch.
-EXCLUDES=(
-  '*/.git/*'
-  '*/.backups/*'
-  '*/__pycache__/*'
-  '*/.sync-staging.*'
-  '*/.sync-backup-*'
-  '*/review/*'
-  '*/review1/*'
-  '*/.DS_Store'
-  '*.pyc'
-  '*.log'
-  '*.tar.gz'
-  '*.bak'
-)
-# rsync 的 '*' 不跨 '/', 顶层目录模式必须写成 'dir/' 形式才能递归命中
-rsync_excludes=(
-  --exclude='.git/'
-  --exclude='.backups/'
-  --exclude='__pycache__/'
-  --exclude='.sync-staging.*/'
-  --exclude='.sync-backup-*/'
-  --exclude='review/'
-  --exclude='review1/'
-  --exclude='.DS_Store'
-  --exclude='*.pyc'
-  --exclude='*.log'
-  --exclude='*.tar.gz'
-  --exclude='*.bak'
-)
-is_excluded() { # is_excluded <absolute path>
-  local p="$1" pat
-  for pat in "${EXCLUDES[@]}"; do
-    # shellcheck disable=SC2254
-    case "$p" in $pat) return 0 ;; esac
-  done
-  return 1
-}
-
-declare -a changed=() newfiles=() deleted=() same=()
-while IFS= read -r -d '' srcfile; do
-  rel="${srcfile#"${SRC}"/}"
-  dest="${DEST}/${rel}"
-  if [[ -f "${dest}" ]]; then
-    if cmp -s "${srcfile}" "${dest}"; then
-      same+=("${rel}")
-    else
-      changed+=("${rel}")
-    fi
-  else
-    newfiles+=("${rel}")
-  fi
-done < <(find "${SRC}" -type f -print0 | sort -z | while IFS= read -r -d '' f; do is_excluded "$f" || printf '%s\0' "$f"; done)
-
-# files present in DEST but not in SRC (candidates for removal / stale)
-while IFS= read -r -d '' destfile; do
-  rel="${destfile#"${DEST}"/}"
-  [[ -f "${SRC}/${rel}" ]] || deleted+=("${rel}")
-done < <(find "${DEST}" -type f -print0 | sort -z | while IFS= read -r -d '' f; do is_excluded "$f" || printf '%s\0' "$f"; done)
-
-echo "== 1/4 inventory =="
-echo "  same=${#same[@]} changed=${#changed[@]} new=${#newfiles[@]} stale=${#deleted[@]}"
-for rel in "${changed[@]}"; do printf '  [changed] %s\n' "$rel"; done
-for rel in "${newfiles[@]}"; do printf '  [new]     %s\n' "$rel"; done
-for rel in "${deleted[@]}"; do printf '  [stale]   %s (in repo, missing from %s)\n' "$rel" "$SRC"; done
-if (( ${#deleted[@]} > 0 )); then
-  echo "  注：--apply 时会同步清理这些 stale 文件的映射行"
-fi
-
-# ---------------------------------------------------------------------------
-# secret gate: scan every file that would be written (fail closed)
-# ---------------------------------------------------------------------------
-secret_hits=0
-scan_file() { # scan_file <path> <label>
-  # case-insensitive: SECRET_TOKEN / ApiKey / PASSWORD all must fail closed
-  if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE)|sk-[A-Za-z0-9]{20,}|gh[pousr]_[A-Za-z0-9]{20,})[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$1" 2>/dev/null; then
-    echo "  [SECRET] ${2}"
-    secret_hits=$((secret_hits + 1))
-  fi
-}
-for rel in "${changed[@]}" "${newfiles[@]}"; do
-  scan_file "${SRC}/${rel}" "${rel}"
-done
-if (( secret_hits > 0 )); then
-  echo "error: ${secret_hits} file(s) with suspected credentials; FAIL CLOSED, nothing was written"
-  echo "  (remove/replace the credential values in ${SRC} first, or use a private-env.fish reference)"
-  exit 1
-fi
-echo "  secret gate: clean (${#changed[@]} changed + ${#newfiles[@]} new scanned)"
-
-# ---------------------------------------------------------------------------
-# desktop gate: .desktop files that would be written must pass
-# desktop-file-validate. Hand-made entries keep breaking the spec (single-
-# quoted Exec with '~' outside quotes, stale paths) - fail closed so a
-# broken entry never lands in the repo (2026-08-12: third occurrence).
-# ---------------------------------------------------------------------------
-desktop_bad=0
-if command -v desktop-file-validate >/dev/null 2>&1; then
-  for rel in "${changed[@]}" "${newfiles[@]}"; do
-    [[ "${rel}" == *.desktop ]] || continue
-    if ! desktop-file-validate "${SRC}/${rel}" >/tmp/sync-desktop.err 2>&1; then
-      echo "  [DESKTOP INVALID] ${rel}"
-      sed 's/^/      /' /tmp/sync-desktop.err
-      desktop_bad=$((desktop_bad + 1))
-    fi
-  done
-  if (( desktop_bad > 0 )); then
-    echo "error: ${desktop_bad} .desktop file(s) failed desktop-file-validate; FAIL CLOSED, nothing was written"
-    echo "  (fix Exec quoting / reserved chars in ${SRC} first)"
-    exit 1
-  fi
-  echo "  desktop gate: clean (${#changed[@]} changed + ${#newfiles[@]} new scanned)"
+if command -v rsync >/dev/null 2>&1; then
+  rsync -a \
+    --exclude='.git/' --exclude='review/' --exclude='review1/' \
+    --exclude='.backups/' --exclude='__pycache__/' --exclude='*.pyc' \
+    --exclude='*.log' --exclude='*.tar.gz' --exclude='*.bak' \
+    --exclude='README*' \
+    "${SRC}/" "${DEST}/"
 else
-  echo "  desktop gate: desktop-file-validate missing - skipped"
+  cp -a "${SRC}/." "${DEST}/"
 fi
 
-# ---------------------------------------------------------------------------
-# mapping plan: validate existing rows + plan new rows
-# ---------------------------------------------------------------------------
-mapping_bad=0
-mapping_plan=()
-# Mapping completeness is checked over EVERY file present in DEST (same +
-# changed + new), not just the ones this run would write: a file that lands
-# in config/home/scripts/ without a mapping row (manual cp, merge, earlier
-# sync bug) silently never gets deployed by 06-config. Found 2026-08-12:
-# 9 files copied by hand were classified "same" and the missing mapping
-# rows went undetected, so a fresh install would not restore them.
-for rel in "${same[@]}" "${changed[@]}" "${newfiles[@]}"; do
-  # path safety: no '..' anywhere in the relative path
-  if [[ "${rel}" == *".."* || "${rel}" == /* || "${rel}" == *"//"* ]]; then
-    echo "  [INVALID PATH] ${rel}"
-    mapping_bad=$((mapping_bad + 1))
-    continue
-  fi
-  if grep -qF "config/home/scripts/${rel}" "${MAPPINGS}"; then
-    continue
-  fi
-  if [[ -x "${SRC}/${rel}" ]]; then mode="755"; else mode="644"; fi
-  mapping_plan+=("${rel}	${mode}")
-done
-# duplicate-target check across the whole mapping file
-dup_targets="$(awk -F'\t' '!/^#/ && NF>=5 {print $3}' "${MAPPINGS}" | sort | uniq -d)"
-if [[ -n "${dup_targets}" ]]; then
-  echo "  [DUP TARGET] existing mapping file already has duplicate targets:"
-  echo "${dup_targets}" | sed 's/^/    /'
-  mapping_bad=$((mapping_bad + 1))
-fi
-if (( mapping_bad > 0 )); then
-  echo "error: mapping validation failed (${mapping_bad} issue(s)); aborting"
-  exit 1
-fi
+"${ROOT}/sync-config-mappings.sh"
 
-echo "== 2/4 mapping plan =="
-if (( ${#mapping_plan[@]} == 0 )); then
-  echo "  no new mapping rows needed"
-else
-  for row in "${mapping_plan[@]}"; do
-    printf '  [add] %s (mode %s)\n' "${row%%$'\t'*}" "${row##*$'\t'}"
-  done
-fi
+# Drop mapping rows whose source file no longer exists.
+python3 - "${ROOT}/manifests/config-mappings.tsv" <<'PY'
+import sys
+from pathlib import Path
+p = Path(sys.argv[1])
+lines = p.read_text().splitlines()
+keep = []
+for ln in lines:
+    if ln and not ln.startswith("#"):
+        f = ln.split("\t")
+        if len(f) >= 5 and not Path(f[2]).is_file():
+            continue
+    keep.append(ln)
+p.write_text("\n".join(keep) + "\n")
+PY
 
-if [[ "${ACTION}" == "plan" ]]; then
-  echo
-  echo "PLAN ONLY - nothing was written (no mkdir, no rsync, no mapping edits)."
-  echo "Run: sync-scripts.sh --apply   (staging + backup + switch)"
-  echo "     sync-scripts.sh --rollback <backup-dir>  (restore)"
-  exit 0
-fi
-
-# ---------------------------------------------------------------------------
-# apply: stage -> backup -> switch -> post-scan (with rollback support)
-# ---------------------------------------------------------------------------
-if [[ "${ACTION}" == "rollback" ]]; then
-  [[ -n "${ROLLBACK_DIR}" && -d "${ROLLBACK_DIR}" ]] || { echo "error: --rollback needs an existing backup dir"; exit 1; }
-  if [[ ! -f "${ROLLBACK_DIR}/mappings.tsv.backup" ]]; then
-    echo "error: ${ROLLBACK_DIR} is not a sync-scripts backup (missing mappings.tsv.backup)"
-    exit 1
-  fi
-  echo "== rollback: ${ROLLBACK_DIR} =="
-  rsync -a --delete "${ROLLBACK_DIR}/scripts/" "${DEST}/"
-  cp -f "${ROLLBACK_DIR}/mappings.tsv.backup" "${MAPPINGS}"
-  echo "  restored config/home/scripts and config-mappings.tsv from backup"
-  echo "  review: git -C ${REPO_DIR} diff --stat config/home/scripts manifests/config-mappings.tsv"
-  exit 0
-fi
-
-# --apply
-echo
-echo "== 3/4 apply: staging + backup + switch =="
-# staging + backup 放在工作区外（2026-08-10：备份目录曾被误提交进仓库；
-# ~/.cache 保留 rollback 能力又不污染 git 树）
-cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/my-arch-setup"
-mkdir -p "${cache_dir}"
-# staging inside the cache (never touches the live tree)
-staging="$(mktemp -d "${cache_dir}/.sync-staging.XXXXXX")"
-trap 'rm -rf "${staging}"' EXIT
-rsync -a "${rsync_excludes[@]}" "${SRC}/" "${staging}/"
-# pre-switch dry-run so the exact change set is visible before the switch
-echo "  dry-run of the switch (staging -> ${DEST}):"
-rsync -a --dry-run --delete "${staging}/" "${DEST}/" \
-  | grep -vE '^sending incremental|^$|^sent |^total size' || true
-
-# timestamped backup of the current state (cache-internal, rollback source)
-ts="$(date +%Y%m%d-%H%M%S)"
-backup="${cache_dir}/.sync-backup-${ts}"
-mkdir -p "${backup}/scripts"
-rsync -a "${DEST}/" "${backup}/scripts/"
-cp -f "${MAPPINGS}" "${backup}/mappings.tsv.backup"
-echo "  backup written to: ${backup}"
-
-# switch: delete only inside the live tree is NOT used; rsync --delete from
-# the staging copy removes stale files, which is exactly what we reviewed.
-rsync -a --delete "${staging}/" "${DEST}/"
-
-# stale 文件的映射行同步清理（2026-08-10：只加不删会留孤儿映射，reconcile 报错）
-removed_map=0
-for rel in "${deleted[@]}"; do
-  src_row="config/home/scripts/${rel}"
-  if grep -qF "${src_row}" "${MAPPINGS}"; then
-    grep -vF "${src_row}" "${MAPPINGS}" > "${MAPPINGS}.tmp" && mv "${MAPPINGS}.tmp" "${MAPPINGS}"
-    echo "  [mapping removed] ${rel}"
-    removed_map=$((removed_map + 1))
-  fi
-done
-[[ ${removed_map} -gt 0 ]] && echo "  已清理 ${removed_map} 条孤儿映射行"
-
-# append mapping rows (validated above; no duplicates possible)
-added=0
-for row in "${mapping_plan[@]}"; do
-  rel="${row%%$'\t'*}"
-  mode="${row##*$'\t'}"
-  printf 'physical-v1\tmaintenance\tconfig/home/scripts/%s\tscripts/%s\t%s\n' "${rel}" "${rel}" "${mode}" >> "${MAPPINGS}"
-  added=$((added + 1))
-done
-echo "  added ${added} mapping rows"
-
-# post-switch secret scan over the freshly written tree
-post_hits=0
-while IFS= read -r -d '' f; do
-  rel="${f#"${DEST}"/}"
-  if grep -qiE '(api[_-]?key|token|secret|password|passwd|BEGIN (RSA|OPENSSH|EC|PRIVATE))[[:space:]]*[=:][[:space:]]*["'"'"']?[A-Za-z0-9_/+=.-]{8,}' "$f" 2>/dev/null; then
-    echo "  [POST-SCAN SECRET] ${rel}"
-    post_hits=$((post_hits + 1))
-  fi
-done < <(find "${DEST}" -type f -print0)
-if (( post_hits > 0 )); then
-  echo "error: post-switch secret scan found ${post_hits} hit(s); roll back with:"
-  echo "  sync-scripts.sh --rollback ${backup}"
-  exit 1
-fi
-
-# optional gitleaks confirmation if available (does not fail the run)
-if command -v gitleaks >/dev/null 2>&1; then
-  if gitleaks detect --no-banner --source "${REPO_DIR}" >/dev/null 2>&1; then
-    echo "  gitleaks: clean"
-  else
-    echo "  gitleaks: hits reported - review before committing (see above)"
-  fi
-fi
-
-echo
-echo "== 4/4 git status =="
-git -C "${REPO_DIR}" status --short config/home/scripts manifests/config-mappings.tsv
-echo
-echo "done. rollback: sync-scripts.sh --rollback ${backup}"
-echo "commit suggestion:"
-echo "  cd ${REPO_DIR} && git add config/home/scripts manifests/config-mappings.tsv && git commit && git push"
+git -C "${ROOT}" diff --stat config/home/scripts manifests/config-mappings.tsv

@@ -10,7 +10,7 @@
 | 加/改个人配置 | `config/` + `manifests/config-mappings.tsv` |
 | 加/改服务 | `steps/07-services.sh` |
 | 加/改系统设置 | `steps/08-settings.sh` |
-| 加/改 `~/scripts` | 本机 `~/scripts` + `./sync-scripts.sh --apply` |
+| 加/改 `~/scripts` | 本机 `~/scripts` + `./sync-scripts.sh`（复制并补映射） |
 
 ## 一、加一个官方包
 

@@ -108,7 +108,6 @@ physical-v1	wm-hyprland	config/home/scripts/desktop/hypr-magnifier	scripts/deskt
 physical-v1	wm-niri	config/home/scripts/desktop/niri-keys	scripts/desktop/niri-keys	755
 physical-v1	wm-niri	config/home/scripts/desktop/niri-quit	scripts/desktop/niri-quit	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/.gitignore	scripts/maintenance/.gitignore	644
-physical-v1	personal-scripts	config/home/scripts/maintenance/README.md	scripts/maintenance/README.md	644
 physical-v1	personal-scripts	config/home/scripts/maintenance/backup-restore	scripts/maintenance/backup-restore	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/boot-check	scripts/maintenance/boot-check	755
 physical-v1	personal-scripts	config/home/scripts/maintenance/btrfs-scrub	scripts/maintenance/btrfs-scrub	755
@@ -141,19 +140,10 @@ physical-v1	personal-scripts	config/home/scripts/package/pacr	scripts/package/pa
 physical-v1	personal-scripts	config/home/scripts/share/prompts/aur-review.md	scripts/share/prompts/aur-review.md	744
 physical-v1	personal-autostart	config/home/.config/autostart/FlClash.desktop	.config/autostart/FlClash.desktop	644
 physical-v1	asus-hardware	config/home/.config/rog/rog-control-center.cfg	.config/rog/rog-control-center.cfg	644
-physical-v1	developer-editor	config/home/md/linux/Shorin-ArchLinux-Guide-合集.md	md/linux/Shorin-ArchLinux-Guide-合集.md	644
-physical-v1	developer-editor	config/home/md/linux/.gitignore	md/linux/.gitignore	644
-physical-v1	developer-editor	config/home/md/linux/Btrfs快照与滚挂恢复流程.md	md/linux/Btrfs快照与滚挂恢复流程.md	644
-physical-v1	developer-editor	config/home/md/linux/b站视频弹窗播放.md	md/linux/b站视频弹窗播放.md	644
-physical-v1	developer-editor	config/home/md/nvim/nvim命令.md	md/nvim/nvim命令.md	644
-physical-v1	developer-editor	config/home/md/nvim/nvim插件介绍.md	md/nvim/nvim插件介绍.md	644
-physical-v1	developer-editor	config/home/md/nvim/nvim自定义命令.md	md/nvim/nvim自定义命令.md	644
-physical-v1	developer-editor	config/home/md/nvim/nvim配置架构.md	md/nvim/nvim配置架构.md	644
 physical-v1	desktop-shared	config/home/.config/mako/config	.config/mako/config	644
 physical-v1	desktop-apps	config/home/.config/mimeapps.list	.config/mimeapps.list	644
 physical-v1	desktop-shared	config/home/.config/user-dirs.dirs	.config/user-dirs.dirs	644
 physical-v1	desktop-shared	config/home/.config/user-dirs.locale	.config/user-dirs.locale	644
-physical-v1	desktop-shared	config/home/md/vmware/VMware-使用与运维笔记.md	md/vmware/VMware-使用与运维笔记.md	644
 physical-v1	wm-niri	config/home/scripts/desktop/niri-vmtest-gen	scripts/desktop/niri-vmtest-gen	755
 physical-v1	cli-tools	config/home/.config/gh/config.yml	.config/gh/config.yml	644
 physical-v1	desktop-apps	config/home/.config/nomacs/Image Lounge.conf	.config/nomacs/Image Lounge.conf	644
@@ -161,11 +151,6 @@ physical-v1	personal-user-services	config/home/.local/bin/shorin-screenrec-menu	
 physical-v1	maintenance	config/home/scripts/desktop/hypr-quit	scripts/desktop/hypr-quit	755
 physical-v1	maintenance	config/home/scripts/desktop/hypr-vmtest-gen	scripts/desktop/hypr-vmtest-gen	755
 physical-v1	maintenance	config/home/scripts/desktop/hypr-vmtest-toggle	scripts/desktop/hypr-vmtest-toggle	755
-physical-v1	maintenance	config/home/scripts/desktop/README.md	scripts/desktop/README.md	644
-physical-v1	maintenance	config/home/scripts/media/README.md	scripts/media/README.md	644
-physical-v1	maintenance	config/home/scripts/package/README.md	scripts/package/README.md	644
-physical-v1	maintenance	config/home/scripts/share/README.md	scripts/share/README.md	644
-physical-v1	developer-editor	config/home/md/linux/通知没声音-DMS修复记录.md	md/linux/通知没声音-DMS修复记录.md	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/歌单.json	scripts/MusicFree-歌单和插件/歌单.json	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我_念心.js	scripts/MusicFree-歌单和插件/酷我_念心.js	644
@@ -173,7 +158,6 @@ physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我-竹
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我JHMS.js	scripts/MusicFree-歌单和插件/酷我JHMS.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/一键恢复.sh	scripts/MusicFree-歌单和插件/一键恢复.sh	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/qUjJ9rDU1d53RT8fLL0XQ.js	scripts/MusicFree-歌单和插件/qUjJ9rDU1d53RT8fLL0XQ.js	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/README.md	scripts/MusicFree-歌单和插件/README.md	644
 physical-v1	personal-scripts	config/home/scripts/desktop/clipboard-x11-bridge	scripts/desktop/clipboard-x11-bridge	755
 physical-v1	personal-scripts	config/home/scripts/desktop/dms-wait-network	scripts/desktop/dms-wait-network	755
 physical-v1	personal-scripts	config/home/scripts/desktop/screenshot-clipboard	scripts/desktop/screenshot-clipboard	755
@@ -181,23 +165,17 @@ physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-expand-ranges.m
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-migrate.mjs	scripts/dsh/dsh-session-migrate.mjs	644
 physical-v1	personal-scripts	config/home/scripts/dsh/dsh-session-repair.mjs	scripts/dsh/dsh-session-repair.mjs	644
 physical-v1	personal-scripts	config/home/scripts/dsh/patch-plugin-icon-renames.sh	scripts/dsh/patch-plugin-icon-renames.sh	755
-physical-v1	personal-scripts	config/home/scripts/dsh/README.md	scripts/dsh/README.md	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/GD音乐台.js	scripts/MusicFree-歌单和插件/GD音乐台.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/W音乐.js	scripts/MusicFree-歌单和插件/W音乐.js	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/patch_lrc.py	scripts/MusicFree-歌单和插件/patch_lrc.py	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/歌单-念心版.json	scripts/MusicFree-歌单和插件/歌单-念心版.json	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/plugins/snacks.lua	.config/nvim/lua/plugins/snacks.lua	644
-physical-v1	developer-editor	config/home/md/linux/MusicFree安装与问题修复.md	md/linux/MusicFree安装与问题修复.md	644
 physical-v1	desktop-shared	config/home/.config/environment.d/20-ime.conf	.config/environment.d/20-ime.conf	644
 physical-v1	personal-user-services	config/home/.local/bin/agentrouter-proxy.mjs	.local/bin/agentrouter-proxy.mjs	755
 physical-v1	personal-user-services	config/home/.config/systemd/user/agentrouter-proxy.service	.config/systemd/user/agentrouter-proxy.service	644
 physical-v1	desktop-shared	config/home/.config/gtk-3.0/bookmarks	.config/gtk-3.0/bookmarks	644
 physical-v1	wm-hyprland	config/home/.config/hypr/dms/windowrules.lua	.config/hypr/dms/windowrules.lua	644
 physical-v1	development-toolchain	config/home/.config/go/env	.config/go/env	644
-physical-v1	build-foundation	config/home/md/供应商配置/ccswitch-codex-any-age.md	md/供应商配置/ccswitch-codex-any-age.md	644
-physical-v1	developer-editor	config/home/md/linux/Obsidian-GoogleDrive云端自动同步配置.md	md/linux/Obsidian-GoogleDrive云端自动同步配置.md	644
-physical-v1	developer-editor	config/home/md/linux/WiFi热点修复记录.md	md/linux/WiFi热点修复记录.md	644
-physical-v1	build-foundation	config/home/md/zed/Zed安装与使用说明.md	md/zed/Zed安装与使用说明.md	644
 physical-v1	maintenance	config/home/scripts/desktop/hypr-touchpad-toggle	scripts/desktop/hypr-touchpad-toggle	755
 physical-v1	maintenance	config/home/scripts/desktop/niri-touchpad-toggle	scripts/desktop/niri-touchpad-toggle	755
 physical-v1	wm-hyprland	config/home/.config/hypr/touchpad-state.lua	.config/hypr/touchpad-state.lua	644
@@ -205,15 +183,8 @@ physical-v1	wm-niri	config/home/.config/niri/touchpad-state.kdl	.config/niri/tou
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.service	.config/systemd/user/obsidian-sync.service	644
 physical-v1	personal-user-services	config/home/.config/systemd/user/obsidian-sync.timer	.config/systemd/user/obsidian-sync.timer	644
 physical-v1	desktop-shared	config/home/.local/share/applications/dbx-handler.desktop	.local/share/applications/dbx-handler.desktop	644
-physical-v1	build-foundation	config/home/md/供应商配置/dsh-供应商链路恢复文档.md	md/供应商配置/dsh-供应商链路恢复文档.md	644
-physical-v1	build-foundation	config/home/md/供应商配置/dsh-provider-kit/agentrouter-proxy.mjs	md/供应商配置/dsh-provider-kit/agentrouter-proxy.mjs	644
-physical-v1	build-foundation	config/home/md/供应商配置/dsh-provider-kit/agentrouter-proxy.service	md/供应商配置/dsh-provider-kit/agentrouter-proxy.service	644
-physical-v1	build-foundation	config/home/md/供应商配置/dsh-provider-kit/anyrouter-proxy.mjs	md/供应商配置/dsh-provider-kit/anyrouter-proxy.mjs	644
-physical-v1	build-foundation	config/home/md/供应商配置/dsh-provider-kit/anyrouter-proxy.service	md/供应商配置/dsh-provider-kit/anyrouter-proxy.service	644
-physical-v1	developer-editor	config/home/md/linux/Clash-TUN模式不生效-虚拟网卡未创建排查.md	md/linux/Clash-TUN模式不生效-虚拟网卡未创建排查.md	644
 physical-v1	maintenance	config/home/scripts/.gitignore	scripts/.gitignore	644
 physical-v1	maintenance	config/home/scripts/package/lib/pac-ai.sh	scripts/package/lib/pac-ai.sh	644
-physical-v1	maintenance	config/home/scripts/share/prompts/aur-review.legacy.md	scripts/share/prompts/aur-review.legacy.md	755
 physical-v1	maintenance	config/home/scripts/share/prompts/leftover-scan.md	scripts/share/prompts/leftover-scan.md	644
 physical-v1	personal-scripts	config/home/scripts/package/pac	scripts/package/pac	755
 physical-v1	personal-scripts	config/home/scripts/dsh/patch-plugin-preset-suffix.sh	scripts/dsh/patch-plugin-preset-suffix.sh	755
@@ -221,17 +192,6 @@ physical-v1	personal-scripts	config/home/scripts/dsh/rebuild-plugin-devhost-tree
 physical-v1	maintenance	config/home/scripts/dsh/install-agentrouter-proxy.sh	scripts/dsh/install-agentrouter-proxy.sh	755
 physical-v1	maintenance	config/home/scripts/dsh/agentrouter-proxy.mjs	scripts/dsh/agentrouter-proxy.mjs	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/夜阑-v2.0.1.mftheme	scripts/MusicFree-歌单和插件/夜阑-v2.0.1.mftheme	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/build.sh	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/build.sh	755
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/config.json	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/config.json	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/README.md	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/README.md	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/index.css	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/index.css	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/iframes/app.html	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/iframes/app.html	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/bg.jpg	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/bg.jpg	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/bg-soft.jpg	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/bg-soft.jpg	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/preview.jpg	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/imgs/preview.jpg	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/ref-bg-942x1012.png	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/ref-bg-942x1012.png	644
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/contrast.py	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/contrast.py	755
-physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	644
 physical-v1	desktop-apps	config/home/.config/nautilus/nautilus.dconf	.config/nautilus/nautilus.dconf	644
 physical-v1	desktop-apps	config/home/.local/share/nautilus-python/extensions/rice-menu.py	.local/share/nautilus-python/extensions/rice-menu.py	644
 physical-v1	desktop-shared	config/home/Templates/空白文件	Templates/空白文件	644
@@ -248,7 +208,6 @@ physical-v1	desktop-shared	config/home/Templates/JavaScript.js	Templates/JavaScr
 physical-v1	desktop-shared	config/home/Templates/JSON 文件.json	Templates/JSON 文件.json	644
 physical-v1	desktop-shared	config/home/Templates/KDL 配置.kdl	Templates/KDL 配置.kdl	644
 physical-v1	desktop-shared	config/home/Templates/Makefile	Templates/Makefile	644
-physical-v1	desktop-shared	config/home/Templates/Markdown 文档.md	Templates/Markdown 文档.md	644
 physical-v1	desktop-shared	config/home/Templates/Python 脚本.py	Templates/Python 脚本.py	755
 physical-v1	desktop-shared	config/home/Templates/Rust 程序.rs	Templates/Rust 程序.rs	644
 physical-v1	desktop-shared	config/home/Templates/Shell 脚本.sh	Templates/Shell 脚本.sh	755
@@ -295,7 +254,6 @@ physical-v1	developer-editor	config/home/.config/nvim/lua/languages/json/init.lu
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/lua/init.lua	.config/nvim/lua/languages/lua/init.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/markdown/init.lua	.config/nvim/lua/languages/markdown/init.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/markdown/render.lua	.config/nvim/lua/languages/markdown/render.lua	644
-physical-v1	developer-editor	config/home/.config/nvim/lua/languages/README.md	.config/nvim/lua/languages/README.md	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/rust/init.lua	.config/nvim/lua/languages/rust/init.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/shared/actions.lua	.config/nvim/lua/languages/shared/actions.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/languages/shared/clangd.lua	.config/nvim/lua/languages/shared/clangd.lua	644
