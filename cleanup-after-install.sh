@@ -9,9 +9,7 @@
 #   2. ~/.cargo/registry        - Rust build cache (paru/wooz builds)
 #   3. ~/.cache/go-build        - Go build cache (greetd-dms-greeter build)
 #   4. ~/.cache/paru            - AUR git clones
-#   5. <repo>/.aur-sources      - offline AUR source cache (re-extract from
-#                                 aur-sources-*.tar.gz if ever needed again)
-#   6. <repo>/.install_progress - installer resume state (install is done)
+#   5. <repo>/.install-progress - installer resume state (install is done)
 #      <repo>/.install_logs     - installer logs
 #
 # Everything outside this list is left alone. The script is idempotent: paths
@@ -59,10 +57,10 @@ rm_path() { # path label
   before_h="$(du -sh "$p" 2>/dev/null | cut -f1)"
   if ! rm -rf -- "$p" 2>/dev/null; then
     # go module cache dirs are 0555 read-only (go's cache hardening): a plain
-    # rm -rf cannot unlink their entries, so the whole tree (e.g. .aur-sources
-    # with go-mod) fails to delete. Fall back to sudo rm -rf (interactive
-    # script; sudo prompts for the password once). Found 2026-08-14 on the
-    # physical machine.
+    # rm -rf cannot unlink their entries, so the whole tree (e.g. a go-mod
+    # cache inside a build dir) fails to delete. Fall back to sudo rm -rf
+    # (interactive script; sudo prompts for the password once). Found
+    # 2026-08-14 on the physical machine.
     if sudo rm -rf -- "$p"; then
       echo "  （普通权限不足，已用 sudo 删除）"
     else
@@ -80,16 +78,14 @@ pac_cache="$(du -sh /var/cache/pacman/pkg 2>/dev/null | cut -f1)"
 cargo_size="$(du -sh "$HOME/.cargo/registry" 2>/dev/null | cut -f1)"
 go_size="$(du -sh "$HOME/.cache/go-build" 2>/dev/null | cut -f1)"
 paru_size="$(du -sh "$HOME/.cache/paru" 2>/dev/null | cut -f1)"
-src_size="$(du -sh "${SCRIPT_DIR}/.aur-sources" 2>/dev/null | cut -f1)"
 echo "  pacman 缓存  /var/cache/pacman/pkg  ${pac_cache:-0B}（保留每包最新 1 版）"
 echo "  cargo 缓存   ~/.cargo/registry      ${cargo_size:-不存在}"
 echo "  go 缓存      ~/.cache/go-build      ${go_size:-不存在}"
 echo "  paru 克隆    ~/.cache/paru          ${paru_size:-不存在}"
-echo "  离线源缓存   ${SCRIPT_DIR}/.aur-sources  ${src_size:-不存在}"
-echo "  安装器状态   .install_progress / .install_logs（几 KB）"
+echo "  安装器状态   .install-progress / .install_logs（几 KB）"
 echo
 
-# ---- confirm (the .aur-sources removal is not reversible without re-extracting) --
+# ---- confirm ---------------------------------------------------------------
 ans=""
 # EOF/非交互下 read 返回非 0，但 ans 可能已读到部分输入（如无换行的 "y"）；
 # 不清空它，最终由下面的 [y/N] 判断决定（空 = 取消）。
@@ -112,8 +108,7 @@ rm_path "$HOME/.cache/paru"       "paru AUR 克隆"
 
 # ---- installer leftovers ------------------------------------------------------
 echo "-- 安装器残留"
-rm_path "${SCRIPT_DIR}/.aur-sources"      "离线 AUR 源缓存"
-rm_path "${SCRIPT_DIR}/.install_progress" "安装进度文件"
+rm_path "${SCRIPT_DIR}/.install-progress" "安装进度文件"
 rm_path "${SCRIPT_DIR}/.install_logs"     "安装日志目录"
 
 echo

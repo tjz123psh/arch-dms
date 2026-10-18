@@ -20,5 +20,5 @@
 - dank-qml-common submodule pin 28fde731... -> 26396ce432d6c71c3f5367438f96f4a8d667e160
   (submodule SHA recorded by the dank-greeter tree at that commit).
 - Local conventions kept: reproducible commit pins instead of the floating git+ source, local sysusers +
-  tmpfiles units, real go test (failure fails the build), GOMODCACHE left to the installer's offline cache.
+  tmpfiles units, real go test (failure fails the build), GOMODCACHE handled by the build environment.
 - The AUR recipe still floats on master; the pins above are the reviewed snapshot for this update.

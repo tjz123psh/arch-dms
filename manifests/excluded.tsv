@@ -62,7 +62,7 @@ payload-file	~/.local/share/applications/io.github.pang.{mdreader,RjSupplicantGu
 payload-file	~/.local/share/applications/mimeinfo.cache	both	桌面数据库缓存，由 update-desktop-database 生成
 payload-file	~/.local/share/applications/mimeapps.list	both	空的（0 字节）；真实默认程序表在 ~/.config/mimeapps.list（已入库）
 # 注：~/.local/bin 下的 b23 / gsudo / fuzzel-askpass / niri-keys / hypr-keys /
-#     {niri,hypr}-touchpad-toggle 不是缺口——由 scripts/07-config.sh 的 P1-6 段
+#     {niri,hypr}-touchpad-toggle 不是缺口——由 steps/06-config.sh 的符号链接段
 #     自动创建为指向 ~/scripts 的符号链接（2026-09-21 已补齐至 7 条）。
 # --- 7. 依赖宿主未入库项目/包的服务与入口（2026-09-21 重扫补录）---
 payload-file	~/.config/systemd/user/grok-workbuddy-shim.service	physical	ExecStart 指向 ~/Projects/grok-workbuddy 原型仓库（未入库）；属未纳入的 workbuddy AUR 包配套
@@ -84,7 +84,7 @@ runtime-state	~/.grok/*	physical	手工下载的 grok 发行包（~/.grok/bin/gr
 #
 # --- 9. 2026-10-05 第二轮扫描：宿主独有，用户决定**不收**（不改安装行为，仅登记）---
 payload-file	~/.config/systemd/user/wb2api-guard.{service,timer} + dms.service.d/10-wait-network-backend.conf	physical	用户 2026-10-05 决定不收；wb2api-guard 的 ExecStart 指向未入库的原型仓库 ~/Projects/grok-workbuddy（与 grok-workbuddy-shim.service 同类）
-payload-file	~/.local/bin/dms-ensure-display	physical	用户 2026-10-05 决定不收（Hyprland/DMS 会话诊断 helper；排查步骤见 docs/hyprland-dms-host-remediation.md）
+payload-file	~/.local/bin/dms-ensure-display	physical	用户 2026-10-05 决定不收（Hyprland/DMS 会话诊断 helper）
 payload-file	~/.config/cava/shaders/*	physical	用户 2026-10-05 决定不收（12 个 cava 着色器文件）
 payload-file	~/.config/vellum/{shortcuts.json,tray.json}	both	用户 2026-10-05 决定不收；vellum 已改由其自带版本管理器安装（见第 8 节），其用户配置不属恢复范围
 runtime-state	~/.config/fish/conf.d/rustup.fish、completions/grok.fish	physical	生成物：rustup.fish 由 rustup 生成，grok.fish 为 150KB 自动生成补全；均不收

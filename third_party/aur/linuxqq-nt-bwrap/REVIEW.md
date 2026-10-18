@@ -17,8 +17,7 @@
 - Pinned payload (`source_x86_64`):
   `https://qqdl.gtimg.cn/qqfile/QQNT/9.9.35/beta/1763096b/linuxqq_3.2.33-52892_amd64.deb`
   with SHA-256 `502a978f2d03af9f21acefc461f9d1d1fe09b65bad620bbfcdb589a79ac53b7e`
-  (declared in the PKGBUILD; makepkg downloads and verifies it, offline from
-  `.aur-sources/` when the cache is present).
+  (declared in the PKGBUILD; makepkg downloads and verifies it at build time).
 
 ## Local changes from the AUR recipe
 
@@ -26,13 +25,12 @@
 - No other change: extraction, install script, desktop/icon edits and the
   bubblewrap launcher are the reviewed AUR content.
 
-## AUR->AUR dependency (offline bootstrap)
+## AUR->AUR dependency
 
-- `depends=(... 'snapd-xdg-open-git' ...)` is an AUR package. `makepkg -s`
-  cannot resolve an AUR dependency offline, so 06-aur bootstraps
-  `third_party/aur/snapd-xdg-open-git` before the main batch (the same
-  mechanism already used for `vmware-keymaps` -> `vmware-workstation`).
-  Online mode resolves it automatically through paru.
+- `depends=(... 'snapd-xdg-open-git' ...)` is an AUR package; `paru` resolves
+  AUR dependencies automatically, so the online AUR step needs no separate
+  bootstrap. `third_party/aur/snapd-xdg-open-git/` keeps the reviewed recipe as
+  reference (same pattern as `vmware-keymaps` -> `vmware-workstation`).
 
 ## Expected output
 

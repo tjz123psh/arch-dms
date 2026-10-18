@@ -1,8 +1,8 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
 # Reconciled ASUS target: 197 exact current-explicit rows plus 27 reviewed confirmed-desired
-# (non-explicit) rows - 224 data rows total. Counts are authoritative via ./check-extend.sh
-# reconcile output; row order is append-oriented and NOT guaranteed alphabetical.
+# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
+# alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
 adobe-source-han-sans-cn-fonts	pacman	extra	pacman	fonts	package-only	install	current-explicit	Adobe Source Han Sans Subset OTF - Simplified Chinese OpenType/CFF fonts

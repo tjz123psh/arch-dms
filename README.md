@@ -1,76 +1,75 @@
 # arch-dms
 
-面向本人 ASUS AMD + NVIDIA 工作站的 Arch Linux 一键恢复配置：重装 Arch、完成基础
-安装后，一条命令恢复完整桌面（Niri/Hyprland、软件包、AUR、个人配置与服务）。
-支持物理机（ASUS + VMware host）与虚拟机（VMware guest），两机型除硬件驱动与
-虚拟化角色外完全一致。
+本人 ASUS AMD + NVIDIA 工作站的 Arch Linux 恢复工具。重装 Arch、手工做完基础安装
+（分区 / GRUB / 首次启动 / 联网）之后，一条命令把整套桌面装回来：软件包、驱动、
+桌面环境、AUR、个人配置与系统服务。物理机与虚拟机（VMware guest）走同一条流水线，
+只在驱动步骤与模块过滤上不同。
 
-## 在线安装（可直连 GitHub）
+## 基础安装前置（手工，不在本仓库范围）
+
+下面 12 个包是恢复前提（清单里标为 `manual-precondition`，安装器不安装它们）：
+
+`base bash btrfs-progs coreutils gawk grub linux linux-zen mkinitcpio networkmanager sed sudo`
+
+- `linux` 与 `linux-zen` **必须并存**（archinstall 默认只装一个）：
+  `pacman -S linux-zen && grub-mkconfig -o /boot/grub/grub.cfg`
+- 分区、GRUB 安装、内核 / initramfs 生成、用户与密码、首次联网全部手工完成，
+  安装器不代劳。
+
+## 安装
+
+有网络时直接克隆：
 
 ```bash
 git clone https://github.com/tjz123psh/arch-dms.git
-cd arch-dms && ./install.sh    # 或 sudo bash strap.sh（root 自动克隆）
+cd arch-dms && ./install.sh
 ```
 
-交互：选机器类型（物理机/虚拟机）→ 选桌面（Niri / Niri+Hyprland / 无）→ 自动分步
-安装（断点续传）。AUR 双模式：无缓存 → **在线**（paru 装最新版）；解压离线缓存 →
-**离线**（makepkg 固定 recipe，可复现）。
-
-> **基础安装硬前置（03 步逐条硬校验，缺一即中止）**：`linux` 与 `linux-zen` 必须并存
-> （archinstall 默认只装一个内核；补装：`pacman -S linux-zen && grub-mkconfig -o /boot/grub/grub.cfg`），
-> 另需 `base bash btrfs-progs coreutils gawk grub mkinitcpio networkmanager sed sudo`（共 12 项；
-> 详见 [`docs/physical-offline-install.md`](docs/physical-offline-install.md)）。
-
-> **国内网络注意（在线模式）**：构建 Go 写的 AUR 包（`greetd-dms-greeter-git`、`snapd-xdg-open-git`、
-> `wooz-git` 等）会走 `GOPROXY`。默认 `proxy.golang.org` 在国内会卡死在依赖下载（2026-09-17 VM 实测超时），
-> 因此 payload 会部署 `~/.config/go/env`（`GOPROXY=https://goproxy.cn,direct`）；已有自定义设置请先备份。
-> `06-aur` 在线模式还会**自检**：默认代理不可达时自动切到可达镜像（goproxy.cn → goproxy.io → 阿里云），
-> 并写回目标用户的 `~/.config/go/env`；若镜像也不可达且本轮有 Go 目标，则**快速失败并给出可执行提示**，
-> 不会再无声卡死。已经卡住的现场补救：`go env -w GOPROXY=https://goproxy.cn,direct` 后重跑 `./install.sh`（断点续传）。
-
-## 离线安装（无海外网络）
-
-从 [GitHub Releases](https://github.com/tjz123psh/arch-dms/releases)
-下载两个文件到 U 盘 / 共享文件夹：
-
-| 文件 | 内容 |
-|---|---|
-| `my-arch-setup.tar` | 仓库代码（安装器，约 80M） |
-| `aur-sources-physical.tar.gz` / `aur-sources-vm.tar.gz` | AUR 离线缓存，按机器类型选（tar.gz 约 1.5G / 约 825M；解压后的 `.aur-sources/` 约 1.7G / 964M） |
+或在 base 系统上让 root 引导（自动克隆到 `/opt/arch-dms` 再执行 install.sh）：
 
 ```bash
-tar -xf my-arch-setup.tar -C ~/                        # 得到 ~/my-arch-setup-deepseek/
-tar -xzf aur-sources-vm.tar.gz -C ~/my-arch-setup-deepseek/   # 得到 .aur-sources/（物理机换 physical 包）
-cd ~/my-arch-setup-deepseek && ./install.sh
+sudo bash strap.sh
 ```
 
-> **目录名说明**：仓库已改名为 **`arch-dms`**，在线安装的 `git clone` 会得到 `arch-dms/`；
-> 而 Release 里的 `my-arch-setup.tar` 是改名前的打包，顶层目录仍是 `my-arch-setup-deepseek/`，
-> 所以离线安装按上面的路径走即可（重新打包后两者统一）。目录名不影响安装——
-> 安装器用脚本自身位置推导项目根。
+两个交互选择（也可用 `-t physical|vm`、`-d niri|both|none` 免交互指定）：
 
-完整步骤与注意事项（挂载/验证要点/常见坑）：
-[`docs/physical-offline-install.md`](docs/physical-offline-install.md)。
+- **机器类型**：`physical`（ASUS 工作站，装驱动）或 `vm`（VMware guest，跳过物理驱动）
+- **桌面**：`niri`（默认）/ `both`（Niri + Hyprland）/ `none`（只装包和配置）
 
-## 安装后清理（可选）
+中断后直接重跑 `./install.sh`：完成的步骤记在 `.install-progress`，从断点继续；
+机器/桌面选择变了会认出来并从头开始；删掉该文件等于强制全新安装。
 
-进桌面检查无误后，运行 `./cleanup-after-install.sh` 清理安装残留（pacman/cargo/go
-构建缓存、离线源缓存，可释放数 GB）；脚本会先列出清单并确认，删除后不可恢复。
+**AUR 只有在线模式**：第 05 步用 `paru` 从 AUR 现场构建最新版。
 
-## 手工准备项（不在自动恢复范围内）
+## 步骤
 
-- **目标用户名为 `pang`**：`config/` 里有 29 个文件硬编码 `/home/pang`（`~/.config` 与
-  `~/.local` 下 16 个：niri 键位与 `spawn-at-startup`、fish 的 `fish_add_path`、
-  三个 systemd user 单元、fuzzel 的 `include=`、gtk bookmarks 等；
-  另有 `scripts/` 6 个、`md/` 7 个），安装器
-  **不会**重写这些路径。换用户名安装不会报错，但会得到半可用的桌面；确需换名时装完自行
-  `grep -rl /home/pang ~/.config ~/.local/share/applications` 逐一修正。
-- **`spring` CLI**（只有 nvim 的 Spring Boot 向导调用）：仓库不分发。需要时把发行包解到
-  `~/.local/share/spring/<版本>/`，再建包装器 `~/.local/bin/spring`（`#!/bin/sh` +
-  `exec "$HOME/.local/share/spring/<版本>/bin/spring" "$@"`）。
+| 步骤 | 内容 |
+|---|---|
+| `01-system` | 镜像源、`pacman -Syu`、base-devel / git / python / curl |
+| `02-packages` | 按清单装官方包（含 archlinuxcn） |
+| `03-drivers` | 物理机驱动：AMD / NVIDIA、ASUS、硬件工具（虚拟机跳过） |
+| `04-desktop` | Niri / Hyprland 与 portal 等桌面包 |
+| `05-aur` | `paru` 在线安装清单里的 AUR 包 |
+| `06-config` | 按 `manifests/config-mappings.tsv` 部署 `config/` |
+| `07-services` | 启用系统服务、timer 与用户单元 |
+| `08-settings` | locale / 时区 / zram / 录屏 / snapper 等系统设置 |
 
-## 其他
+## 增改
 
-- 增改包/配置/脚本：走 `manifests/` 清单 + `./check-extend.sh` 门禁，
-  见 [`docs/how-to-extend.md`](docs/how-to-extend.md)
-- 验收记录与红线要求：见 [`docs/comprehensive-review-20260807.md`](docs/comprehensive-review-20260807.md)
+- 官方包：`manifests/workstation-packages.tsv` 加一行
+- 个人配置：`config/` 放文件 + `manifests/config-mappings.tsv` 加一行
+  （新目录用 `./sync-config-mappings.sh` 自动补行）
+- AUR：`third_party/aur/<包名>/` 放审阅过的 recipe 与 REVIEW，清单登记包行
+- 提交前跑 `./dev-check.sh`（bash -n + 可执行位 + shellcheck + `--help`）
+- 详细套路、验证纪律与红线见 [docs/how-to-extend.md](docs/how-to-extend.md)
+
+## 注意
+
+- **目标用户名为 `pang`**：`config/` 里多个文件硬编码 `/home/pang`（niri 键位、
+  fish 路径、systemd user 单元、fuzzel include 等），安装器不改写。换名安装不会报错，
+  但得到的是半可用桌面；确需换名要自行 `grep -rl /home/pang ~/.config ~/.local` 修正。
+- **`spring` CLI 不随仓库分发**（只有 nvim 的 Spring Boot 向导用到）。
+- Go 写的 AUR 包走 `config/home/.config/go/env` 里的 `GOPROXY`（`goproxy.cn`），
+  要换代理改这个文件。
+- 桌面验证可用后，可选跑 `./cleanup-after-install.sh` 清理 pacman / cargo / go 构建缓存
+  （先列清单再确认，删除不可恢复）。

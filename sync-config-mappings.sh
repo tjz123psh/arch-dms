@@ -13,7 +13,7 @@
 #   - mode = 可执行 755，否则 644
 #   - module = 继承最近祖先目录的既有映射 module；没有则用 --module
 #   - 已映射的文件跳过（幂等）
-#   - 追加后由 check-extend 的 reconcile 自动验证
+#   - 追加后由 ./dev-check.sh 做基础校验（部署效果靠 VM 复验）
 set -Eeuo pipefail
 
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)

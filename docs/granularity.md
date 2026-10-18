@@ -1,22 +1,21 @@
 # VM vs 物理机 安装颗粒度（代码事实）
 
-两机型共用同一模块流水线（01-mirror → 09-settings + 99-cleanup；11 步对应 `-d both`，
-`-d niri` 为 10 步、`-d none` 为 9 步），差异
-仅在模块内部按 `MACHINE_TYPE` / `module_selected()` 的过滤与模拟标记层。
-清单数字随增改变化，**以 `./check-extend.sh` 的 reconcile 输出为准**。
+两机型走**同一条 8 步流水线**（`01-system` → `08-settings`），差异只来自两处：
+步骤内的 `MACHINE_TYPE` 判断，以及 `lib/common.sh` 的 `module_selected()` 对清单行的过滤。
+清单行数随增改漂移，以 `manifests/` 文件本身为准。
 
 | 颗粒度点 | 虚拟机（`-t vm`） | 物理机（`-t physical`） |
 |---|---|---|
-| 模块流水线 | 11 步同构（-d both；niri 10 / none 9）；04-drivers 自跳过（exit 0） | 11 步同构（同左） |
-| 机型过滤（`module_selected()`） | `virtualization-vmware-guest` 仅 vm（open-vm-tools 等） | `virtualization-vmware-host` 仅 physical（vmware-workstation 等）；硬件包（graphics-*/hardware-tools/asus-hardware）在 03 两机型都排除，归 04-drivers |
-| AUR 目标 | 12（不含 vmware-workstation） | 13（含 vmware-workstation）；`vmware-keymaps`、`snapd-xdg-open-git` 是 AUR→AUR 依赖、非安装目标（offline 由 06-aur 先引导安装 / online 由 paru 解析） |
-| 驱动（04） | 跳过 | 真实安装；`physical-sim-vmware` 模拟时硬件专属效果标 `NOT_APPLICABLE_SIMULATED`（supergfxd enable、GPU mode switching、vmware-networks/usbarbitrator enable） |
-| 配置（07） | SCOPE=`physical-v1` 共用；唯一门控例外：`asus-hardware` 行（rog-control-center.cfg）在 vm 被跳过 | 全量部署 |
-| 服务（08） | 共享服务集（docker/grub-btrfsd/bluetooth 等，两机型都启用）+ `vmtoolsd`（必需）+ `vmware-vmblock-fuse`（可选） | 共享服务集 + `vmware-networks`/`vmware-usbarbitrator`（VMware host）；supergfxd 归 04-drivers |
-| 设置（09） | 软件 GL（`systemd-detect-virt==vmware` 时写 `LIBGL_ALWAYS_SOFTWARE=1`）；录屏 wf-recorder | 同上；`h264_vaapi` 录屏预置仅真实物理机（非 VMware guest）启用 |
+| 步骤流水线 | 8 步同构；`03-drivers` 自跳过 | 8 步同构；`03-drivers` 真实安装 |
+| 包过滤（`module_selected()`） | `virtualization-vmware-guest` 仅 vm（open-vm-tools 等） | `virtualization-vmware-host` 仅 physical（vmware-workstation） |
+| 硬件包 | 排除 `graphics-*` / `hardware-tools` / `asus-hardware` 的配置 | 配置照常部署（驱动在 03 步装） |
+| 桌面包 | `wm-niri`（`-d niri/both`）、`wm-hyprland`（仅 `-d both`） | 同左 |
+| AUR 目标 | 12 个（不含 vmware-workstation） | 13 个（含 vmware-workstation） |
+| 配置部署（06） | scope `physical-v1` 共用；`asus-hardware` 行跳过 | 全量部署 |
+| 服务（07） | 共享服务集 + `vmtoolsd`（必需）+ `vmware-vmblock-fuse`（可选） | 共享服务集 + `vmware-networks` / `vmware-usbarbitrator`；`supergfxd` 归 03 |
+| 设置（08） | VMware guest 写 `LIBGL_ALWAYS_SOFTWARE=1`（Hyprland 无法导入 vmwgfx dma-buf） | 不写该变量；录屏走 VAAPI |
 
-验证依据：2026-08-11/12 干净 base（快照恢复）两轮完整安装——离线挂载法
-（`mode=offline targets=12`，零网络下载）与在线（`mode=online targets=12`，
-paru 最新）均 11/11 步全绿、AUR 12/12、07 部署 253 文件（当时代码；2026-09-18 复验起为 deployed=289）；详见
-`docs/physical-offline-install.md` 验证记录。物理机最终确认仍需在真实 ASUS
-主机跑一次（仿物理 profile 不能替代硬件验收）。
+- `-d niri` 装 Niri；`-d both` 另加 Hyprland；`-d none` 跳过所有 `wm-*` 行。
+- 模块过滤规则只有一处实现（`module_selected()`），改它等于同时改 02 与 06 的行为，
+  属于红线改动，必须一次性 VM 完整重装验证。
+- 物理机专属效果的最终确认仍需在真实 ASUS 主机上跑一次，VM 复验不能替代硬件验收。

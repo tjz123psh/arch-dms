@@ -24,11 +24,10 @@
   VCS source and is compensated by the commit pin).
 - No other change.
 
-## Offline cache
+## Source acquisition
 
-- `fetch-aur-sources.sh` mirrors upstream into `.aur-sources/snapd-xdg-open`
-  (bare git mirror); with `SRCDEST` pointing at the cache, makepkg clones from
-  the mirror and never touches the network.
+- The VCS source is cloned from upstream at build time (online AUR flow); the
+  commit pin above is what makes the build reproducible.
 
 ## Expected output
 

@@ -214,7 +214,6 @@ physical-v1	maintenance	config/home/scripts/media/README.md	scripts/media/README
 physical-v1	maintenance	config/home/scripts/package/README.md	scripts/package/README.md	644
 physical-v1	maintenance	config/home/scripts/share/README.md	scripts/share/README.md	644
 physical-v1	developer-editor	config/home/md/linux/通知没声音-DMS修复记录.md	md/linux/通知没声音-DMS修复记录.md	644
-physical-v1	developer-editor	config/home/md/linux/物理机离线安装指南.md	md/linux/物理机离线安装指南.md	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/歌单.json	scripts/MusicFree-歌单和插件/歌单.json	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	scripts/MusicFree-歌单和插件/恢复MusicFree插件.desktop	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/酷我_念心.js	scripts/MusicFree-歌单和插件/酷我_念心.js	644

@@ -13,8 +13,8 @@
 - Reviewed version: `0.6.4-1` — matches the reference machine's installed
   `dbx-bin 0.6.4-1`.
 - Note: AUR HEAD is already `0.6.14-1` (2026-09-16). The recipe is deliberately
-  pinned to the installed version so offline restores reproduce the reference
-  machine; bumping it later means updating `pkgver` + the deb `sha256` together.
+  pinned to the installed version so a restore reproduces the reference machine;
+  bumping it later means updating `pkgver` + the deb `sha256` together.
 - Upstream / license: `https://github.com/t8y2/dbx` / MIT.
 - Pinned payload (`source_x86_64`, a GitHub release deb):
   `https://github.com/t8y2/dbx/releases/download/v0.6.4/dbx_0.6.4_amd64.deb`

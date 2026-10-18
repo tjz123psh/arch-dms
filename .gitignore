@@ -1,16 +1,12 @@
-# Local audit, raw model sessions, and installer state must never enter the public repository.
+# Local audit logs and raw model sessions must never enter the public repository.
 .audit/
 *.audit-private.md
 /session-ses_*.md
 
-# Installer runtime state (resume markers, build dirs).
-.install_progress
+# Installer runtime state (resume marker, AUR build dirs, logs).
+.install-progress
 .aur-build*/
 .install_logs/
-
-# Offline AUR source cache (1GB): never part of git clone, distributed via
-# GitHub Releases; extract into the repo dir on the target machine only.
-.aur-sources/
 
 # Release and build outputs.
 dist/
@@ -24,19 +20,8 @@ __pycache__/
 # Editor and OS noise.
 .DS_Store
 
-# nightly validation artifacts (review 12.5): never committed
+# Validation artifacts: never committed.
 artifacts/
 
-# download-mode-lab experiment: keep docs/scripts/results, never the
-# generated mock fixtures or bytecode (30M+ of throwaway pacman roots).
-download-mode-lab/fixtures/
-download-mode-lab/**/__pycache__/
-# archived lab (2026-08-10): same fixture/bytecode rules apply after the move
-docs/archive/download-mode-lab-20260808/fixtures/
-docs/archive/download-mode-lab-20260808/**/__pycache__/
-
-# sync-scripts.sh 的 rollback 备份（2026-08-10 起忽略，防误提交）
+# sync-scripts.sh 的 rollback 备份（防误提交）
 .sync-backup-*/
-
-# Grok 本地上下文配置（不进仓库，留在磁盘供工具使用）
-.ai/

@@ -49,16 +49,15 @@ Arch libalpm (`paru v2.1.0 - libalpm v16.0.1`).
 
 - Restricted architecture to x86_64.
 - Ships and pins `Cargo.lock` (alpm 4.0.4 / alpm-sys 4.0.5 -> libalpm 16) and
-  copies it into `$srcdir` in `prepare()`. The alpm upgrade itself happens once on
-  the cache-generating machine (`fetch-aur-sources.sh` runs `cargo update alpm
-  alpm-utils` there), never on the installing machine.
+  copies it into `$srcdir` in `prepare()`. The alpm bump is applied once by hand
+  when the pinned lock is refreshed (`cargo update alpm alpm-utils`), never on the
+  installing machine.
 - Builds with `cargo build --frozen`.
 
 ## Remaining risks
 
-- Online builds fetch crates.io in `prepare()` (normal AUR behaviour). In offline
-  mode 06-aur exports `CARGO_NET_OFFLINE=true` and uses the `.aur-sources/cargo`
-  cache, so no build-time network is required there.
+- Builds fetch crates.io in `prepare()` (normal AUR behaviour); the AUR step
+  requires network access.
 - `libfakeroot internal error: payload not recognized!` may appear during
   man-page compression; it is a known-harmless upstream fakeroot warning and
   does not affect the resulting package.

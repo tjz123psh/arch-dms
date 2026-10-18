@@ -2,27 +2,40 @@
 
 本文件是本工作区对 agent 的最高约束，任何会话都必须遵守，优先级高于一般操作惯例。
 
-## 绝对指令一：工作区边界，禁止越界修改
+## 一、工作区边界
 
-- **唯一可写范围**：本工作区 `/home/pang/Projects/arch-dms/` 之内
-  （仓库 2026-10-03 由 `my-arch-setup-deepseek` 改名为 `arch-dms`；旧路径现已空置，勿再按其判断越界）。
-- **禁止跨越工作区修改任何其他项目**，特别是：
-  - `/home/pang/Projects/` 下的任何其他项目（my-archlinux-setup、插件、k12-gmail、MD Reader、md-reader-android、qq-agent-bot、rjsupplicant-gui、SystemMaintenance-tui 等）；
-  - 任何位于本工作区之外的路径。
-- 涉及路径的操作（编辑、复制、删除、git、构建产物、运行脚本）都必须先确认目标路径在本工作区之内。
+- **唯一可写范围**：`/home/pang/Projects/arch-dms/`（2026-10-03 由
+  `my-arch-setup-deepseek` 改名）。编辑、复制、删除、git、构建产物、运行脚本，
+  都必须先确认目标路径在本仓库之内。
+- **禁止修改任何其他项目**：`/home/pang/Projects/` 下的其它仓库（my-archlinux-setup、
+  各类插件、k12-gmail、MD Reader、qq-agent-bot 等）一律不动；工作区之外的路径一律不动。
+- **禁止破坏宿主系统**：不卸载/降级宿主软件包，不启停宿主服务，不改内核模块
+  （vmmon/vmnet/kvm 等），不改 GRUB/引导与网络，不删除或移动宿主 KVM/VMware 资产
+  （domain、qcow2、XML、快照、虚拟磁盘）——它们视作用户数据。
+- **凭据纪律**：不读取、不打印、不记录任何密钥/token/密码值；凭据检查只报告位置与
+  存在性。`config/` 中不得出现明文凭据，API key 只以 `{file:...}` / `{env:...}` 引用。
+- **工作区外 VM 操作**（启动/快照/revert/guest 安装）仅在用户明确授权、且只针对其
+  指定测试 VM 时执行；不 hard stop、不改真实 VMX、不把 guest 密码写进命令行或日志。
 
-## 绝对指令二：严格禁止破坏系统
+## 二、仓库定位
 
-- **严禁破坏宿主或任何测试系统的行为**：不得卸载/降级宿主软件包、不得启停/修改宿主服务、不得改动宿主内核模块（vmmon/vmnet/kvm 等）、不得修改宿主 GRUB/引导、不得改动宿主网络、不得删除/移动宿主虚拟机（KVM domain、qcow2、XML、快照）或 VMware 虚拟磁盘。
-- **宿主 KVM/VMware 资产视为用户数据**：即使它们"看起来是项目遗留"，也不得清理、删除或重命名；KVM 历史文档在本仓库内归档到 `docs/archive/`，但绝不触碰宿主实际 VM 文件。
-- **工作区外 VM 操作（启动/快照/revert/guest 安装）仅在有用户明确授权时执行**，且只针对用户指定的专用测试 VM；未经指定不得自行选择 VM。授权范围内也禁止 hard stop、删除虚拟磁盘、修改真实 VMX、在命令行/日志/仓库保存 guest 密码。
-- **凭据纪律**：不读取、不打印、不记录任何密钥/token/密码值；凭据检查只报告位置、权限与存在性。宿主 Fish 中的凭据赋值文件严禁原样同步进本公开仓库（同步前先轮换或改为 private-env.fish 引用）。
-- 测试用 sudo/guest 密码只用于非交互执行，不写入文档、checkpoint、日志或 git 历史。
+- 个人专用的 Arch 恢复工具：重装 Arch 并手工完成基础安装后，一条命令恢复 ASUS 工作站
+  的桌面环境。remote `origin` 为 `git@github.com:tjz123psh/arch-dms.git`（公开仓库）。
+- 流程：`strap.sh`（root 克隆到 `/opt/arch-dms`）+ `install.sh`（选题型/桌面）+
+  `steps/01..08`；AUR 只走在线 `paru`。
+- **数据资产是核心价值**：`config/`（个人配置）、`manifests/`（包/映射清单）、
+  `third_party/aur/`（审阅过的 AUR recipe）。优先改数据，其次才改脚本。
+- **安装器必须保持可读**：`lib/common.sh` + 8 个步骤脚本，短小直白；不引入审阅引擎、
+  哈希 pin、模块分级等工程化机制。
 
-## 项目定位与目标
+## 三、改动规则
 
-- 本工作区是一个**个人专用的 Arch Linux 恢复工具仓库**：GitHub remote `origin` 为 `git@github.com:tjz123psh/arch-dms.git`（当前为**公开**仓库；若你希望私有，请在 GitHub Settings 中自行修改）。
-- 目标：重装 Arch、完成手工基础安装（分区/GRUB/首次启动/联网）后，一条命令恢复 ASUS 工作站的完整桌面环境（Niri/Hyprland、软件包、AUR、个人配置与系统服务）。
-- 设计原则：**简单优先、面向个人**。安装器是 strap.sh + install.sh + scripts/ 的分步流程，直接读取 manifests 中精简的清单；不做审阅引擎、不做哈希 pin、不做模块生产就绪分级等工程化机制。
-- 数据资产（config/ 配置、third_party/aur/ recipe、manifests 清单）是仓库的核心价值，修改须保持安装器可读。
-- **增改门禁**：任何增改提交前必须运行 `./check-extend.sh`（一键总检：bash 语法/shellcheck/清单一致性/配置内容语法/recipe 双向引用/secret scan/README 数字/行为测试），任一节失败即禁止提交。改 manifests schema、config-mappings scope、DESKTOP_ENV 过滤或安装器核心脚本主流程属红线改动，必须 VM 重验并换新 TEST_ID（按 clean-baseline 规则，旧 PASS 自动失效）。
+- 提交前必跑 `./dev-check.sh`（`bash -n` + 可执行位 + `shellcheck` +
+  `install.sh --help`），任一失败即禁止提交。
+- **红线改动**：改安装主流程（`install.sh` / `lib/common.sh` / 步骤顺序）、改
+  `manifests` 的 schema（列含义）、改 `DESKTOP_ENV` / `MACHINE_TYPE` 的模块过滤——
+  必须在一个**一次性测试 VM** 里完整跑一遍（`./install.sh -t vm -d both`）再提交，
+  不能在宿主上试。
+- 加包 / 加配置 / 加 AUR 的固定套路见 `docs/how-to-extend.md`。
+- 提交信息用 Conventional Commits（`feat:` / `fix:` / `docs:` / `refactor:` /
+  `chore:`），一次提交只做一件事。
