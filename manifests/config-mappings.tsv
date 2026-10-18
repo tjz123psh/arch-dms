@@ -137,7 +137,7 @@ physical-v1	personal-scripts	config/home/scripts/maintenance/terminal-tools	scri
 physical-v1	personal-scripts	config/home/scripts/media/b23	scripts/media/b23	755
 physical-v1	personal-scripts	config/home/scripts/package/pacd	scripts/package/pacd	755
 physical-v1	personal-scripts	config/home/scripts/package/pacr	scripts/package/pacr	755
-physical-v1	personal-scripts	config/home/scripts/share/prompts/aur-review.md	scripts/share/prompts/aur-review.md	744
+physical-v1	personal-scripts	config/home/scripts/share/prompts/aur-review.md	scripts/share/prompts/aur-review.md	644
 physical-v1	personal-autostart	config/home/.config/autostart/FlClash.desktop	.config/autostart/FlClash.desktop	644
 physical-v1	asus-hardware	config/home/.config/rog/rog-control-center.cfg	.config/rog/rog-control-center.cfg	644
 physical-v1	desktop-shared	config/home/.config/mako/config	.config/mako/config	644
