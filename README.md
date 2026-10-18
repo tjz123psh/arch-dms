@@ -9,10 +9,10 @@
 
 下面 12 个包是恢复前提（清单里标为 `manual-precondition`，安装器不安装它们）：
 
-`base bash btrfs-progs coreutils gawk grub linux linux-zen mkinitcpio networkmanager sed sudo`
+`base bash btrfs-progs coreutils gawk grub linux-lts linux-zen mkinitcpio networkmanager sed sudo`
 
-- `linux` 与 `linux-zen` **必须并存**（archinstall 默认只装一个）：
-  `pacman -S linux-zen && grub-mkconfig -o /boot/grub/grub.cfg`
+- `linux-zen`（日常内核）与 `linux-lts`（回退内核）并存；内核、initramfs 与 GRUB 由手工完成：
+  `pacman -S linux-zen linux-lts && grub-mkconfig -o /boot/grub/grub.cfg`
 - 分区、GRUB 安装、内核 / initramfs 生成、用户与密码、首次联网全部手工完成，
   安装器不代劳。
 
@@ -31,10 +31,10 @@ cd arch-dms && ./install.sh
 sudo bash strap.sh
 ```
 
-两个交互选择（也可用 `-t physical|vm`、`-d niri|both|none` 免交互指定）：
+两个交互选择（也可用 `-t physical|vm`、`-d niri|none` 免交互指定）：
 
 - **机器类型**：`physical`（ASUS 工作站，装驱动）或 `vm`（VMware guest，跳过物理驱动）
-- **桌面**：`niri`（默认）/ `both`（Niri + Hyprland）/ `none`（只装包和配置）
+- **桌面**：`niri`（Niri + Noctalia + nwg-hello，默认）/ `none`（只装包和配置）
 
 中断后直接重跑 `./install.sh`：完成的步骤记在 `.install-progress`，从断点继续；
 机器/桌面选择变了会认出来并从头开始；删掉该文件等于强制全新安装。
@@ -48,11 +48,11 @@ sudo bash strap.sh
 | `01-system` | 镜像源、`pacman -Syu`、base-devel / git / python / curl |
 | `02-packages` | 按清单装官方包（含 archlinuxcn） |
 | `03-drivers` | 物理机驱动：AMD / NVIDIA、ASUS、硬件工具（虚拟机跳过） |
-| `04-desktop` | Niri / Hyprland 与 portal 等桌面包 |
+| `04-desktop` | Niri 与 portal 等桌面包（Noctalia 由清单安装） |
 | `05-aur` | `paru` 在线安装清单里的 AUR 包 |
 | `06-config` | 按 `manifests/config-mappings.tsv` 部署 `config/` |
-| `07-services` | 启用系统服务、timer 与用户单元 |
-| `08-settings` | locale / 时区 / zram / 录屏 / snapper 等系统设置 |
+| `07-services` | greetd + nwg-hello、系统服务、timer 与用户单元 |
+| `08-settings` | locale / 时区 / zram / snapper 等系统设置 |
 
 ## 增改
 

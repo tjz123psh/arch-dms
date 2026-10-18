@@ -7,7 +7,7 @@
 #   1. pacman package cache, keeping the newest version of each package
 #      (paccache -rk1; the installed packages themselves are untouched)
 #   2. ~/.cargo/registry        - Rust build cache (paru/wooz builds)
-#   3. ~/.cache/go-build        - Go build cache (greetd-dms-greeter build)
+#   3. ~/.cache/go-build        - Go build cache (Go-based AUR builds)
 #   4. ~/.cache/paru            - AUR git clones
 #   5. <repo>/.install-progress - installer resume state (install is done)
 #      <repo>/.install_logs     - installer logs

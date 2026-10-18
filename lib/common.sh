@@ -80,13 +80,13 @@ module_selected() { # module_selected <module> [package|config]
     graphics-amd|graphics-nvidia|hardware-tools|asus-hardware)
       [[ "${ctx}" == "config" && "${MACHINE_TYPE:-physical}" == "physical" ]] ;;
     wm-niri) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
-    wm-hyprland) [[ "${DESKTOP_ENV:-niri}" == "both" ]] ;;
+    greeter) [[ "${DESKTOP_ENV:-niri}" != "none" ]] ;;
     *) return 0 ;;
   esac
 }
 
 # --- VMware guest graphics workaround ---------------------------------------
-# Hyprland cannot import mesa/vmwgfx dma-bufs (upstream Hyprland#7658), so GL
+# Wayland clients cannot import mesa/vmwgfx dma-bufs (upstream issue), so GL
 # clients die with "wl_surface.attach: invalid arguments" inside a VMware
 # guest. Software GL routes them through llvmpipe, which works.
 is_vmware_guest() {

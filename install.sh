@@ -35,7 +35,7 @@ usage() {
   cat <<'EOF'
 Usage: ./install.sh [options]
 
-  -d, --desktop niri|both|none   niri | niri+hyprland | no desktop
+  -d, --desktop niri|none        niri | no desktop
   -t, --machine physical|vm
   -r, --force-refresh            repair mode: pacman -Syyu instead of -Syu
   -y, --assume-yes               reboot without asking at the end
@@ -97,11 +97,10 @@ select_machine() {
 select_desktop() {
   [[ -n "${DESKTOP_ENV}" ]] && return
   local sel
-  sel="$(pick "Select desktop" "Niri (recommended)" "Niri + Hyprland (both)" "No desktop (packages and config only)")"
+  sel="$(pick "Select desktop" "Niri (recommended)" "No desktop (packages and config only)")"
   case "${sel}" in
-    *Hyprland*) DESKTOP_ENV=both ;;
-    No*)        DESKTOP_ENV=none ;;
-    *)          DESKTOP_ENV=niri ;;
+    No*) DESKTOP_ENV=none ;;
+    *)   DESKTOP_ENV=niri ;;
   esac
   log "Desktop: ${DESKTOP_ENV}"
 }
@@ -164,7 +163,7 @@ main() {
   fi
   select_machine
   select_desktop
-  case "${DESKTOP_ENV}" in niri|both|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|both|none)" ;; esac
+  case "${DESKTOP_ENV}" in niri|none) ;; *) die "invalid --desktop ${DESKTOP_ENV} (niri|none)" ;; esac
   case "${MACHINE_TYPE}" in physical|vm) ;; *) die "invalid --machine ${MACHINE_TYPE} (physical|vm)" ;; esac
   [[ "${TARGET_USER}" == "pang" ]] \
     || warn "TARGET_USER=${TARGET_USER} != pang: parts of the config hardcode /home/pang (see README)"

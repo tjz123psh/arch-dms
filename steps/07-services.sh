@@ -8,7 +8,7 @@ source "${ROOT}/lib/common.sh"
 DESKTOP_ENV="${DESKTOP_ENV:-niri}"
 MACHINE_TYPE="${MACHINE_TYPE:-physical}"
 GREETER_USER=greeter
-GREETER_CMD="dms-greeter --command niri --cache-dir /var/cache/dms-greeter -C /etc/greetd/niri/config.kdl"
+NWG_HELLO_DIR=/etc/nwg-hello
 
 # systemctl --user for the target user. On the root/strap path that user may
 # never have logged in, so create /run/user/<uid>, turn on linger and start the
@@ -38,21 +38,44 @@ userctl() {
     XDG_CONFIG_HOME="${TARGET_HOME}/.config" systemctl --user "$@"
 }
 
+# nwg-hello reads everything (niri session, css, background, user list) from
+# /etc/nwg-hello, so the repository copy is the source of truth.
+deploy_nwg_hello() {
+  local src="${CONFIG_DIR}/etc/nwg-hello" f
+  local files=()
+  [[ -d "${src}" ]] || die "missing ${src}; the greeter has no configuration"
+  shopt -s nullglob
+  files=("${src}/"*)
+  shopt -u nullglob
+  (( ${#files[@]} > 0 )) || die "${src} is empty; the greeter has no configuration"
+  run install -d -o root -g root -m 0755 "${NWG_HELLO_DIR}"
+  for f in "${files[@]}"; do
+    [[ -f "${f}" ]] || continue
+    run install -o root -g root -m 0644 "${f}" "${NWG_HELLO_DIR}/${f##*/}"
+  done
+  log "Deployed ${#files[@]} nwg-hello file(s)"
+}
+
 section "User services"
 
 userctl daemon-reload >/dev/null 2>&1 || warn "user daemon-reload failed"
 
-if [[ "${DESKTOP_ENV}" != "none" ]]; then
-  # dms is the desktop shell: a failed enable leaves the machine without a GUI.
-  for unit in dms.service dsearch.service; do
-    if userctl enable "${unit}" >/dev/null 2>&1; then
-      log "User service: ${unit}"
-    elif [[ "${unit}" == "dms.service" ]]; then
-      die "could not enable ${unit} (required for the desktop shell)"
-    else
-      warn "could not enable ${unit}"
-    fi
-  done
+if [[ "${DESKTOP_ENV}" == "none" ]]; then
+  # TTY login: undo an earlier desktop install, best effort.
+  run systemctl disable greetd >/dev/null 2>&1 || warn "could not disable greetd.service"
+  log "Desktop services disabled (${DESKTOP_ENV})"
+else
+  # greetd starts niri on vt 1 from /etc/nwg-hello/niri.kdl and nwg-hello runs
+  # inside it. A missing payload or unit leaves no GUI.
+  deploy_nwg_hello
+  getent passwd "${GREETER_USER}" >/dev/null 2>&1 \
+    || run useradd --system --home-dir / --shell /bin/bash "${GREETER_USER}" \
+    || die "could not create greeter user ${GREETER_USER}"
+  run install -d -o root -g root -m 0755 /etc/greetd
+  printf '[terminal]\nvt = 1\n\n[default_session]\ncommand = "niri -c /etc/nwg-hello/niri.kdl"\nuser = "%s"\n' \
+    "${GREETER_USER}" | run tee /etc/greetd/config.toml >/dev/null
+  run systemctl enable greetd >/dev/null 2>&1 || die "could not enable greetd.service"
+  log "Service: greetd"
 
   # Units deployed by the config step (vellum, obsidian-sync, ...). A service
   # without [Install] is driven by its timer, so staying disabled is fine.
@@ -66,44 +89,15 @@ if [[ "${DESKTOP_ENV}" != "none" ]]; then
       log "User unit: ${u##*/} (no [Install]; driven by another unit)"
     fi
   done
-
-  # greetd login. --command niri picks the compositor that renders the greeter;
-  # the user's own session is chosen later in the greeter UI.
-  getent passwd "${GREETER_USER}" >/dev/null 2>&1 \
-    || run useradd --system --home-dir / --shell /bin/bash "${GREETER_USER}" \
-    || die "could not create greeter user ${GREETER_USER}"
-  run install -d -m 0755 /etc/greetd/niri
-  printf '[terminal]\nvt = 1\n\n[default_session]\ncommand = "/usr/bin/%s"\nuser = "%s"\n' \
-    "${GREETER_CMD}" "${GREETER_USER}" | run tee /etc/greetd/config.toml >/dev/null
-  run install -o root -g "${GREETER_USER}" -m 0644 -t /etc/greetd/niri \
-    "${CONFIG_DIR}/etc/greetd/niri/config.kdl" "${CONFIG_DIR}/etc/greetd/niri/dms.kdl"
-  run systemctl enable greetd >/dev/null 2>&1 || die "could not enable greetd.service"
-  log "Service: greetd"
-
-  # /tmp/.X11-unix guard: a greeter-owned dir makes niri disable Xwayland for
-  # the user session. Deploy + enable only; the unit waits for a real login.
-  run install -o root -g root -m 0644 \
-    "${CONFIG_DIR}/etc/systemd/system/fix-x11-unix-dir.service" \
-    /etc/systemd/system/fix-x11-unix-dir.service
-  run systemctl daemon-reload >/dev/null 2>&1 || warn "system daemon-reload failed"
-  run systemctl enable fix-x11-unix-dir.service >/dev/null 2>&1 \
-    || warn "could not enable fix-x11-unix-dir.service (X11 apps may lose the display)"
-else
-  # TTY login: undo an earlier desktop install, best effort.
-  for unit in dms.service dsearch.service; do
-    userctl disable "${unit}" >/dev/null 2>&1 || warn "could not disable ${unit}"
-  done
-  run systemctl disable greetd >/dev/null 2>&1 || warn "could not disable greetd.service"
-  log "Desktop services disabled (${DESKTOP_ENV})"
 fi
 
 section "System services"
 
 run systemctl daemon-reload >/dev/null 2>&1 || warn "system daemon-reload failed"
 
-# Same set on both machine types; NetworkManager is the one that must not fail.
-SERVICES=(bluetooth.service power-profiles-daemon.service docker.service \
-          NetworkManager.service grub-btrfsd.service systemd-timesyncd.service)
+# Same set on every machine type; NetworkManager is the one that must not fail.
+SERVICES=(bluetooth.service docker.service NetworkManager.service \
+          grub-btrfsd.service systemd-timesyncd.service lm_sensors.service)
 for s in "${SERVICES[@]}"; do
   if run systemctl enable --now "${s}" >/dev/null 2>&1; then
     log "Service: ${s}"
@@ -115,7 +109,7 @@ for s in "${SERVICES[@]}"; do
 done
 
 # snapper-timeline is what actually creates the TIMELINE_CREATE snapshots.
-for t in paccache.timer snapper-cleanup.timer snapper-timeline.timer; do
+for t in snapper-cleanup.timer snapper-timeline.timer; do
   if run systemctl enable --now "${t}" >/dev/null 2>&1; then
     log "Timer: ${t}"
   else
@@ -123,24 +117,22 @@ for t in paccache.timer snapper-cleanup.timer snapper-timeline.timer; do
   fi
 done
 
-# btrfs-scrub@- has no unit file of its own, so probe the template; btrfs only.
-if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]] \
-  && systemctl list-unit-files 'btrfs-scrub@.timer' >/dev/null 2>&1; then
-  run systemctl enable --now 'btrfs-scrub@-.timer' >/dev/null 2>&1 \
-    || warn "could not enable btrfs-scrub@-.timer"
-fi
-
-# VMware host units on a physical machine; vmtoolsd is the guest core.
+# Physical host: scrub timer and the VMware network bridge are enabled, the
+# USB arbitrator is not. Only a guest gets vmtoolsd.
 if [[ "${MACHINE_TYPE}" == "physical" ]]; then
-  for s in vmware-networks.service vmware-usbarbitrator.service; do
-    if [[ ! -f "/usr/lib/systemd/system/${s}" ]]; then
-      warn "unit missing: ${s} (is vmware-workstation installed?)"
-    elif run systemctl enable --now "${s}" >/dev/null 2>&1; then
-      log "Service: ${s}"
-    else
-      warn "could not enable ${s}"
-    fi
-  done
+  if [[ "$(findmnt -no FSTYPE / 2>/dev/null)" == "btrfs" ]] \
+     && systemctl list-unit-files 'btrfs-scrub@.timer' >/dev/null 2>&1; then
+    run systemctl enable --now 'btrfs-scrub@-.timer' >/dev/null 2>&1 \
+      || warn "could not enable btrfs-scrub@-.timer"
+  fi
+  if [[ ! -f /usr/lib/systemd/system/vmware-networks.service ]]; then
+    warn "unit missing: vmware-networks.service (is vmware-workstation installed?)"
+  elif run systemctl enable --now vmware-networks.service >/dev/null 2>&1; then
+    log "Service: vmware-networks.service"
+  else
+    warn "could not enable vmware-networks.service"
+  fi
+  log "Not enabled: vmware-usbarbitrator (host parity); flclash-helper/rjsupplicant are host-local units"
 else
   [[ -f /usr/lib/systemd/system/vmtoolsd.service ]] \
     || die "vmtoolsd.service missing (open-vm-tools not installed?)"
@@ -155,21 +147,17 @@ fi
 
 section "User groups"
 
-# dms reads evdev devices through 'input' for its plugins; 'docker' makes the
-# daemon usable without sudo after the next login.
-for g in input docker; do
-  if ! getent group "${g}" >/dev/null 2>&1; then
-    run groupadd "${g}" 2>/dev/null || warn "could not create group ${g}"
-  fi
-  if id -nG "${TARGET_USER}" 2>/dev/null | grep -qw "${g}"; then
-    continue
-  fi
-  if run usermod -aG "${g}" "${TARGET_USER}" 2>/dev/null; then
-    log "Added ${TARGET_USER} to group ${g}"
+# 'docker' makes the daemon usable without sudo after the next login.
+if ! getent group docker >/dev/null 2>&1; then
+  run groupadd docker 2>/dev/null || warn "could not create group docker"
+fi
+if ! id -nG "${TARGET_USER}" 2>/dev/null | grep -qw docker; then
+  if run usermod -aG docker "${TARGET_USER}" 2>/dev/null; then
+    log "Added ${TARGET_USER} to group docker"
   else
-    warn "could not add ${TARGET_USER} to group ${g}"
+    warn "could not add ${TARGET_USER} to group docker"
   fi
-done
+fi
 
 section "GRUB theme"
 

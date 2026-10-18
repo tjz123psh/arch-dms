@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# 08-settings.sh — locale, timezone, hostname, swap and desktop-side caches.
+# 08-settings.sh — locale, timezone, hostname, swap and snapper settings.
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../lib/common.sh
 source "${ROOT}/lib/common.sh"
 
-MACHINE_TYPE="${MACHINE_TYPE:-physical}"
 TARGET_GROUP="$(id -gn "${TARGET_USER}")"
 
 section "System settings"
@@ -51,8 +50,8 @@ run systemctl daemon-reload
 success "zram configured (zstd, size=ram)"
 
 # --- VMware guest graphics ---
-# vmwgfx dma-bufs do not import into GL clients under niri/Hyprland; llvmpipe
-# does, so guests are forced to software GL while physical keeps hardware GL.
+# vmwgfx dma-bufs do not import into GL clients under niri; llvmpipe does, so
+# guests are forced to software GL while physical keeps hardware GL.
 if is_vmware_guest; then
   log "VMware guest: forcing software GL (LIBGL_ALWAYS_SOFTWARE=1)"
   apply_vmware_graphics_workaround
@@ -85,53 +84,9 @@ if command -v fish >/dev/null 2>&1; then
   fi
 fi
 
-# --- dms plugin dependencies ---
-# The dankmaintenance and ShorinScreenrec plugins test these paths at startup
-# and report a failed load when they are missing.
-log "Creating dms plugin dependency paths"
-mkdir -p "${TARGET_HOME}/.cache/checkallupdates"
-run mkdir -p /.snapshots /home/.snapshots
-menu_src="${CONFIG_DIR}/home/.local/bin/shorin-screenrec-menu"
-# Installed system-wide because the plugin's startup check runs with a PATH
-# that does not include ~/.local/bin.
-if [[ -f "${menu_src}" ]]; then
-  run install -m 755 "${menu_src}" /usr/local/bin/shorin-screenrec-menu
-  log "Deployed shorin-screenrec-menu to /usr/local/bin"
-else
-  warn "shorin-screenrec-menu missing from config; ShorinScreenrec may fail its startup check"
-fi
-
-# Recording engine: wf-recorder works on every machine (CPU encoding, rebuilt
-# against the current ffmpeg). Physical GPUs get h264_vaapi; the probe encodes
-# one frame and falls back to libx264 on any failure.
-log "Presetting screen recording engine"
-rec_dir="${TARGET_HOME}/.cache/shorin-screenrec"
-mkdir -p "${rec_dir}"
-printf 'wf-recorder\n' > "${rec_dir}/engine"
-printf 'preset=fast:crf=18\n' > "${rec_dir}/enc_params_wf"
-codec="libx264"
-if [[ "${MACHINE_TYPE}" == "physical" ]] && ! is_vmware_guest \
-   && [[ -e /dev/dri/renderD128 ]] && command -v ffmpeg >/dev/null 2>&1; then
-  if ffmpeg -hide_banner -loglevel error -f lavfi -i color=black:s=128x128:d=0.1 \
-      -vf "format=nv12,hwupload" -c:v h264_vaapi -vaapi_device /dev/dri/renderD128 \
-      -f null - >/dev/null 2>&1; then
-    codec="h264_vaapi"
-  fi
-fi
-printf '%s\n' "${codec}" > "${rec_dir}/codec_wf"
-
-# On the root path mkdir -p leaves the whole chain root-owned; the first
-# desktop session must be able to write its caches and recording settings.
-if [[ "$(id -u)" -eq 0 ]]; then
-  chown "${TARGET_USER}:${TARGET_GROUP}" \
-    "${TARGET_HOME}/.cache" "${TARGET_HOME}/.cache/checkallupdates" "${rec_dir}" \
-    "${rec_dir}/engine" "${rec_dir}/enc_params_wf" "${rec_dir}/codec_wf" 2>/dev/null || true
-fi
-log "Recording engine: $(cat "${rec_dir}/engine") codec: $(cat "${rec_dir}/codec_wf") params: $(cat "${rec_dir}/enc_params_wf")"
-
 # --- snapper configs ---
-# 07 enables snapper-cleanup.timer; the snapshot tooling and dms plugins expect
-# root and home configs, with wheel able to read the .snapshots subvolumes.
+# 07 enables snapper-cleanup.timer; the snapshot tooling expects root and home
+# configs, with wheel able to read the .snapshots subvolumes.
 if command -v snapper >/dev/null 2>&1 && command -v btrfs >/dev/null 2>&1; then
   if [[ ! -f /etc/snapper/configs/root ]]; then
     log "Initializing snapper root config"

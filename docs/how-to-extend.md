@@ -58,6 +58,6 @@ physical-v1	<module>	config/home/.config/xxx	.config/xxx	644
   `install.sh --help`）。
 - 只改数据（清单 / 配置 / recipe 注释）：dev-check 通过 + 人工复核 diff 即可。
 - **红线改动**（安装主流程、manifests schema、`DESKTOP_ENV` / `MACHINE_TYPE`
-  过滤）：在一次性测试 VM 里完整跑 `./install.sh -t vm -d both`，8 步全过再提交。
+  过滤）：在一次性测试 VM 里完整跑 `./install.sh -t vm -d niri`，8 步全过再提交。
 - 物理机专属逻辑（驱动、supergfxd、VMware host 服务）无法在 VM 内代替验证，
   改完要说明"未在真实硬件上验证"。

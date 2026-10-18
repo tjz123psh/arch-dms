@@ -68,7 +68,7 @@ libpulse	pacman	extra	pacman	audio	package-only	install	current-explicit	A featu
 libva-nvidia-driver	pacman	extra	pacman	graphics-nvidia	package-only	install	current-explicit	VA-API implementation that uses NVDEC as a backend
 libva-utils	pacman	extra	pacman	graphics-nvidia	package-only	install	current-explicit	Intel VA-API Media Applications and Scripts for libva
 libvirt	pacman	extra	pacman	virtualization	deferred	deferred	current-explicit	API for controlling virtualization engines (openvz,kvm,qemu,virtualbox,xen,etc) [KVM legacy: no longer restored since 2026-08-08 KVM->VMware migration]
-linux	pacman	core	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The Linux kernel and modules
+linux-lts	pacman	core	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The LTS Linux kernel and modules
 linux-firmware	pacman	core	pacman	hardware-tools	package-only	install	current-explicit	Firmware files for Linux - Default set
 linux-zen	pacman	extra	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The Linux ZEN kernel and modules
 linux-zen-headers	pacman	extra	pacman	kernel-support	package-only	install	current-explicit	Headers and scripts for building modules for the Linux ZEN kernel

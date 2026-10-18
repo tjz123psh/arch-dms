@@ -81,7 +81,7 @@ if ! command -v paru >/dev/null 2>&1; then
 fi
 command -v paru >/dev/null 2>&1 || die "paru unavailable; cannot install AUR packages"
 
-# Go-built recipes (greetd-dms-greeter-git) fetch modules through GOPROXY.
+# Go-built AUR recipes fetch modules through GOPROXY.
 # The proxy lives in one place: the payload's go/env file, which 06-config
 # deploys. Step 05 runs before that, so read the repo copy here; the fallback
 # only covers a missing file.
