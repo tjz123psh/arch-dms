@@ -22,8 +22,6 @@ cd arch-dms && ./install.sh        # 或 sudo bash strap.sh（root，克隆到 /
 
 - 桌面：`niri`（默认，DMS on Niri）/ `both`（DMS + Hyprland）/ `none`；
   `-d niri|both|none` 可免交互。
-- 选 `both` 时登录界面请用 **Hyprland (uwsm-managed)**：DMS 的 systemd user service
-  依赖 `graphical-session.target`，普通 `start-hyprland` 不会激活它。
 - 中断后重跑续跑（`.install-progress`）；AUR 仅在线 `paru`。
 - 所有包从滚动仓库/AUR 拉取最新版本；仓库不保存版本 pin 或本地 recipe。
 - 验收可在一台一次性 VM 里跑 `./install.sh -d niri`：驱动只安装、不生效。
