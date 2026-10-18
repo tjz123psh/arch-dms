@@ -76,7 +76,7 @@ else
   run systemctl enable greetd >/dev/null 2>&1 || die "could not enable greetd.service"
   log "Service: greetd"
 
-  # Units deployed by the config step (vellum, obsidian-sync, ...). A service
+  # Units deployed by the config step (obsidian-sync, ...). A service
   # without [Install] is driven by its timer, so staying disabled is fine.
   for u in "${TARGET_HOME}/.config/systemd/user/"*.service "${TARGET_HOME}/.config/systemd/user/"*.timer; do
     [[ -e "${u}" ]] || continue

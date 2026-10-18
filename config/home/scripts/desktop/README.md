@@ -40,7 +40,7 @@ niri 与 Hyprland 共用的桌面辅助脚本集合，覆盖权限提权、快�
    先存到 `/tmp`，再用 `wl-copy` 写进剪贴板（niri 内置截图动作只落文件）。
    `Print` = 当前输出，`Alt+Print` = 当前窗口，`Ctrl+Print` = 整个屏幕。
 2. **Hyprland 截图** —— 走 DMS 自带命令（`dms screenshot region|window|full`），剪贴板由 DMS 处理，
-   **不经过** `screenshot-clipboard`。vellum 框选 / 长截图同理。
+   **不经过** `screenshot-clipboard`。
 3. **给 X11 应用粘贴** —— Wayland 的剪贴板 X11 应用看不见，`clipboard-x11-bridge` 常驻后台，
    把 Wayland 剪贴板内容镜像成 X11 剪贴板（xclip），QQ / 微信才粘得上：
    - 300ms 轮询 + cksum 指纹去重，自身写入被回显时指纹相同会跳过，不会自循环；

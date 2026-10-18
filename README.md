@@ -83,7 +83,7 @@ sudo bash strap.sh
   Noctalia 重渲染主题时可能覆盖这两个文件。
 - **涉及 shell 的配置**：nvim 的 `:!` 与 Java 构建固定走 **bash**（不是登录 shell fish）。
 - **不纳入的敏感/大体积配置**：`~/.config/dbx/secret.key`（密钥）、transmission（含 rpc 密码哈希）、
-  VS Code（420M 运行数据）、obsidian（68M）、rclone/vellum/opencode（凭据/隐私）。
+  VS Code（420M 运行数据）、obsidian（68M）、rclone/opencode（凭据/隐私）。
 - **`spring` CLI 不随仓库分发**（只有 nvim 的 Spring Boot 向导用到）。
 - Go 写的 AUR 包走 `config/home/.config/go/env` 里的 `GOPROXY`
   （`goproxy.cn`）；第 05 步也读这个文件，换代理只改这一处。

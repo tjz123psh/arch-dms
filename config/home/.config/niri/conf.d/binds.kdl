@@ -108,11 +108,6 @@ binds {
 
     // ===== 截图 =====
 
-    // Mod+Print: vellum 框选截图
-    Mod+Print hotkey-overlay-title="vellum 框选截图" { spawn "/home/pang/.local/bin/vellumctl" "region"; }
-    // Mod+Shift+Print: vellum 长截图
-    Mod+Shift+Print hotkey-overlay-title="vellum 长截图" { spawn "/home/pang/.local/bin/vellumctl" "long"; }
-
     // Alt+Print: 截取当前窗口
     Alt+Print hotkey-overlay-title="截取窗口" { spawn-sh "/home/pang/scripts/desktop/screenshot-sound arm; /home/pang/scripts/desktop/screenshot-clipboard window"; }
     // Ctrl+Print: 截取整个屏幕
@@ -292,7 +287,6 @@ binds {
     // Alt+A: 放大镜
     Alt+A hotkey-overlay-title="放大镜" { spawn-sh "noctalia msg panel-toggle pang/magnifier:panel"; }
     // Alt+F5 录屏菜单（shorin-screenrec-menu 脚本）
-    // Mod+Ctrl+Print  vellum 钉图（vellumctl pin-last，未绑定）
     // Ctrl+XF86AudioLowerVolume / Ctrl+XF86AudioRaiseVolume  媒体音量微调（需 playerctl 小脚本）
 }
 
