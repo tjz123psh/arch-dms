@@ -34,8 +34,9 @@
   `install.sh --help`），任一失败即禁止提交。
 - **红线改动**：改安装主流程（`install.sh` / `lib/common.sh` / 步骤顺序）、改
   `manifests` 的 schema（列含义）、改 `DESKTOP_ENV` 的模块过滤——
-  必须在一个**一次性测试机**（或恢复前的宿主快照）里完整跑一遍
-  （`./install.sh -d niri`）再提交，不能在正在使用的宿主上试。
+  必须在一台**一次性虚拟机**（或恢复前的宿主快照）里完整跑一遍
+  （`./install.sh -d niri`；驱动只安装不生效，VM 验收有效）再提交，
+  不能在正在使用的宿主上试。
 - 加包 / 加配置 / 加 AUR 的固定套路见 `docs/how-to-extend.md`。
 - 提交信息用 Conventional Commits（`feat:` / `fix:` / `docs:` / `refactor:` /
   `chore:`），一次提交只做一件事。

@@ -44,10 +44,13 @@ if (( ${#OPTIONAL[@]} > 0 )); then
 fi
 
 # asusd.service is static and pulled in by supergfxd, so only supergfxd is
-# enabled, and it must come up on a physical ASUS machine.
+# enabled. Starting it is best-effort: on a VM the unit exists but there is no
+# ASUS hardware, and a failed start must not abort the installation.
 log "Enabling supergfxd"
 run systemctl daemon-reload
-run systemctl enable --now supergfxd || die "could not enable supergfxd (required on this ASUS machine)"
+run systemctl enable supergfxd || die "could not enable supergfxd"
+run systemctl start supergfxd 2>/dev/null \
+  || warn "supergfxd did not start (no ASUS hardware?); it will retry at boot"
 
 success "Drivers installed (${#REQUIRED[@]} required, ${#OPTIONAL[@]} optional)"
 log "NVIDIA DKMS modules need a reboot; pick the GPU mode afterwards with: supergfxctl -m Hybrid (or Integrated/dGPU)"

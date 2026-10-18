@@ -57,7 +57,7 @@ physical-v1	<module>	config/home/.config/xxx	.config/xxx	644
 - 任何提交前：`./dev-check.sh`（`bash -n` + 可执行位 + `shellcheck` +
   `install.sh --help`）。
 - 只改数据（清单 / 配置 / recipe 注释）：dev-check 通过 + 人工复核 diff 即可。
-- **红线改动**（安装主流程、manifests schema、`DESKTOP_ENV` 过滤）：在一次性测试机
-  （或恢复前的宿主快照）里完整跑 `./install.sh -d niri`，8 步全过再提交。
-- 硬件专属逻辑（驱动、supergfxd）无法在测试机内代替验证，改完要说明
-  "未在真实硬件上验证"。
+- **红线改动**（安装主流程、manifests schema、`DESKTOP_ENV` 过滤）：在一台一次性
+  虚拟机（或恢复前的宿主快照）里完整跑 `./install.sh -d niri`，8 步全过再提交；
+  VM 里驱动只是安装、不生效，安装流程可以完整验收。
+- 真实 GPU / ASUS 效果（supergfxd 切换、渲染）仍需真机确认，改完要说明。
