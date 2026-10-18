@@ -278,5 +278,5 @@ physical-v1	desktop-shared	config/home/Pictures/wallpapers/逐风.png	Pictures/w
 physical-v1	desktop-shared	config/home/Pictures/wallpapers/Cache_-1654a8b560901621.jpg	Pictures/wallpapers/Cache_-1654a8b560901621.jpg	644
 physical-v1	desktop-shared	config/home/Pictures/wallpapers/Cache_28b877833e065098.jpg	Pictures/wallpapers/Cache_28b877833e065098.jpg	644
 physical-v1	input-fcitx-rime	config/home/.config/fcitx5/config	.config/fcitx5/config	644
-physical-v1	input-fcitx-rime	config/home/.config/fcitx5/rime/default.custom.yaml	.config/fcitx5/rime/default.custom.yaml	644
+physical-v1	input-fcitx-rime	config/home/.local/share/fcitx5/rime/default.custom.yaml	.local/share/fcitx5/rime/default.custom.yaml	644
 physical-v1	desktop-shared	config/home/.config/fuzzel/colors.ini	.config/fuzzel/colors.ini	644

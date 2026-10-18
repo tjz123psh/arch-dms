@@ -1,5 +1,5 @@
 
 patch:
   schema_list:
-    - schema: luna_pinyin_simp
     - schema: rime_ice
+    - schema: luna_pinyin_simp
