@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 195 exact current-explicit rows plus 29 reviewed confirmed-desired
-# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 195 exact current-explicit rows plus 30 reviewed confirmed-desired
+# (non-explicit) rows - 225 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -189,6 +189,7 @@ xdg-desktop-portal-gnome	pacman	extra	pacman	wm-niri	package-only	install	curren
 xdg-desktop-portal-gtk	pacman	extra	pacman	desktop-shared	package-only	install	confirmed-desired	A backend implementation for xdg-desktop-portal using GTK
 xdg-desktop-portal-hyprland	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	xdg-desktop-portal backend for hyprland
 hyprpicker	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	Wayland color picker for Hyprland
+uwsm	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	UWSM session manager for the graphical-session target
 xorg-server-xvfb	pacman	extra	pacman	development-toolchain	package-only	install	current-explicit	Virtual framebuffer X server
 xwayland-satellite	pacman	extra	pacman	wm-niri	package-only	install	current-explicit	Xwayland outside your Wayland
 yazi	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	Blazing fast terminal file manager written in Rust, based on async I/O
