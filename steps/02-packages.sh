@@ -35,9 +35,9 @@ if [[ "${HAVE_ARCHLINUXCN}" == "true" ]]; then
     log "Adding [archlinuxcn] to /etc/pacman.conf"
     run bash -c 'cat >> /etc/pacman.conf <<"EOF"
 [archlinuxcn]
-Server = https://mirrors.aliyun.com/archlinuxcn/$arch
-Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
 Server = https://mirrors.tuna.tsinghua.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.ustc.edu.cn/archlinuxcn/$arch
+Server = https://mirrors.aliyun.com/archlinuxcn/$arch
 Server = https://mirrors.cloud.tencent.com/archlinuxcn/$arch
 Server = https://mirrors.huaweicloud.com/archlinuxcn/$arch
 Server = https://mirrors.lzu.edu.cn/archlinuxcn/$arch
