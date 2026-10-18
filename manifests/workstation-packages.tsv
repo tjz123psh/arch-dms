@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 196 exact current-explicit rows plus 29 reviewed confirmed-desired
-# (non-explicit) rows - 225 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 195 exact current-explicit rows plus 29 reviewed confirmed-desired
+# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -197,7 +197,6 @@ yt-dlp	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	A you
 zoxide	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	A smarter cd command for your terminal
 zram-generator	pacman	extra	pacman	base-tools	package-only	install	confirmed-desired	Systemd unit generator for zram devices
 nomacs	pacman	archlinuxcn	pacman	desktop-apps	config-backed	install	current-explicit	Qt image viewer; PNG default app restored via mimeapps.list
-keepassxc	pacman	extra	pacman	desktop-apps	package-only	install	current-explicit	KeePassXC password manager (KeePass 2.x database; browser integration)
 pi-coding-agent-bin	aur	aur	aur-build	cli-tools	package-only	install	current-explicit	Coding agent CLI (read/bash/edit/write, session management)
 qt6-multimedia	pacman	extra	pacman	audio	package-only	install	current-explicit	Qt6 multimedia classes; dms-shell notification-sound dependency (QMediaPlayer), 2026-08-09 no-sound fix
 qt6-multimedia-ffmpeg	pacman	extra	pacman	audio	package-only	install	current-explicit	FFmpeg backend for qt6-multimedia (provides qt6-multimedia-backend)
