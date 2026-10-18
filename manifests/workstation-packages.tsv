@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 197 exact current-explicit rows plus 29 reviewed confirmed-desired
-# (non-explicit) rows - 226 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 196 exact current-explicit rows plus 29 reviewed confirmed-desired
+# (non-explicit) rows - 225 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -33,8 +33,7 @@ cups-pk-helper	pacman	extra	pacman	desktop-shared	package-only	install	current-e
 dbx-bin	aur	aur	aur-build	development-toolchain	package-only	install	current-explicit	Open-source, lightweight, cross-platform database client
 devtools	pacman	extra	pacman	build-foundation	package-only	install	confirmed-desired	Official Arch clean-chroot tooling for isolated fixed AUR package builds
 dgop	pacman	extra	pacman	desktop-shared	config-backed	install	current-explicit	System monitoring CLI + REST API
-dms-shell-hyprland	pacman	extra	pacman	wm-hyprland	package-only	install	confirmed-desired	DankMaterialShell Quickshell provider for Hyprland (compositor glue)
-dms-shell-niri	pacman	extra	pacman	wm-niri	package-only	install	current-explicit	DankMaterialShell Quickshell provider for Niri (compositor glue)
+dms-shell	pacman	extra	pacman	dms-shell	package-only	install	confirmed-desired	DankMaterialShell Quickshell shell (replaces dms-shell-niri/hyprland)
 docker	pacman	extra	pacman	container-tools	package-only	install	current-explicit	Pack, ship and run any application as a lightweight container
 docker-compose	pacman	extra	pacman	container-tools	package-only	install	current-explicit	Fast, isolated development environments using Docker
 dosfstools	pacman	core	pacman	base-tools	package-only	install	confirmed-desired	DOS filesystem utilities
