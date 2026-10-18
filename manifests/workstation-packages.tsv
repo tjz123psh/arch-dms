@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 197 exact current-explicit rows plus 27 reviewed confirmed-desired
-# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 199 exact current-explicit rows plus 27 reviewed confirmed-desired
+# (non-explicit) rows - 226 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -101,7 +101,8 @@ linux-firmware	pacman	core	pacman	hardware-tools	package-only	install	current-ex
 linux-headers	pacman	core	pacman	kernel-support	package-only	install	current-explicit	Headers and scripts for building modules for the Linux kernel
 linux-zen	pacman	extra	verify-only	base-preconditions	manual-precondition	verify	current-explicit	The Linux ZEN kernel and modules
 linux-zen-headers	pacman	extra	pacman	kernel-support	package-only	install	current-explicit	Headers and scripts for building modules for the Linux ZEN kernel
-linuxqq-nt-bwrap	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	New Linux QQ based on Electron, with bubblewrap sandbox and some tweaks
+linuxqq	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	New Linux QQ based on Electron
+linuxqq-wayland-fix	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	QQ Wayland fixes (screenshare, audio, clipboard, screenshot)
 lsof	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	Lists open files for running Unix processes
 lua-language-server	pacman	extra	pacman	developer-editor	package-only	install	current-explicit	Lua Language Server coded by Lua
 matugen	pacman	extra	pacman	desktop-shared	config-backed	install	current-explicit	A material you color generation tool
@@ -160,7 +161,7 @@ shellcheck	pacman	extra	pacman	development-toolchain	package-only	install	curren
 slurp	pacman	extra	pacman	recording	package-only	install	current-explicit	Select a region in a Wayland compositor
 smartmontools	pacman	extra	pacman	storage-maintenance	package-only	install	current-explicit	Control and monitor S.M.A.R.T. enabled ATA and SCSI Hard Drives
 snapper	pacman	extra	pacman	storage-maintenance	package-only	install	current-explicit	A tool for managing BTRFS and LVM snapshots
-socat	pacman	extra	pacman	daily-apps	package-only	install	current-explicit	Multipurpose relay (linuxqq-nt-bwrap MAC fix; also fine on pure niri)
+socat	pacman	extra	pacman	daily-apps	package-only	install	current-explicit	Multipurpose relay
 sof-firmware	pacman	extra	pacman	audio	package-only	install	current-explicit	Sound Open Firmware
 sound-theme-freedesktop	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	Freedesktop sound theme
 spice-vdagent	pacman	extra	pacman	virtualization	deferred	deferred	current-explicit	SPICE VD agent for Linux guests [KVM legacy: no longer restored since 2026-08-08 KVM->VMware migration]
@@ -191,7 +192,7 @@ vulkan-mesa-layers	pacman	extra	pacman	graphics-amd	package-only	install	current
 vulkan-radeon	pacman	extra	pacman	graphics-amd	package-only	install	current-explicit	Open-source Vulkan driver for AMD GPUs
 vulkan-tools	pacman	extra	pacman	graphics-amd	package-only	install	current-explicit	Vulkan tools and utilities
 webkitgtk-6.0	pacman	extra	pacman	desktop-apps	package-only	install	current-explicit	Web content engine for GTK
-wechat-universal-bwrap	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	WeChat (Universal) with bwrap sandbox
+wechat-bin	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	WeChat (official build, repackaged)
 wf-recorder	pacman	extra	pacman	recording	package-only	install	confirmed-desired	Screen recorder for wlroots-based compositors such as sway
 wget	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	Network utility to retrieve files from the web
 wireplumber	pacman	extra	pacman	audio	package-only	install	current-explicit	Session / policy manager implementation for PipeWire
@@ -215,7 +216,7 @@ vmware-workstation	aur	aur	makepkg	virtualization-vmware-host	package-only	insta
 open-vm-tools	pacman	extra	pacman	virtualization-vmware-guest	package-only	install	current-explicit	VMware guest tools (vmtoolsd + vmware-vmblock-fuse)
 nomacs	pacman	archlinuxcn	pacman	desktop-apps	config-backed	install	current-explicit	Qt image viewer; PNG default app restored via mimeapps.list
 keepassxc	pacman	extra	pacman	desktop-apps	package-only	install	current-explicit	KeePassXC password manager (KeePass 2.x database; browser integration)
-grok-build-git	pacman	archlinuxcn	pacman	cli-tools	package-only	install	current-explicit	xAI terminal AI coding agent (grok-build)
+pi-coding-agent-bin	aur	aur	aur-build	cli-tools	package-only	install	current-explicit	Coding agent CLI (read/bash/edit/write, session management)
 qt6-multimedia	pacman	extra	pacman	audio	package-only	install	current-explicit	Qt6 multimedia classes; dms-shell notification-sound dependency (QMediaPlayer), 2026-08-09 no-sound fix
 qt6-multimedia-ffmpeg	pacman	extra	pacman	audio	package-only	install	current-explicit	FFmpeg backend for qt6-multimedia (provides qt6-multimedia-backend)
 yt-dlp-ejs	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	External JavaScript for yt-dlp (bilibili b23 downloader)
@@ -228,3 +229,4 @@ python	pacman	core	pacman	cli-tools	package-only	install	current-explicit	python
 rclone	pacman	extra	pacman	base-tools	package-only	install	current-explicit	cloud sync CLI - dependency of the Obsidian GoogleDrive sync workflow
 wireless-regdb	pacman	core	pacman	base-tools	package-only	install	current-explicit	Wireless regulatory database - 5GHz hotspot needs a non-world domain
 xdotool	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	X11 window automation used by clipboard/screenshot helpers
+musicfree-desktop-wayland-bin	aur	aur	aur-build	daily-apps	package-only	install	current-explicit	MusicFree desktop, Wayland-adapted prebuilt

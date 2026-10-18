@@ -17,3 +17,5 @@ vmware-keymaps
 vmware-workstation
 wechat-universal-bwrap
 wooz-git
+# 仅在线 paru（无本地 recipe）：linuxqq、linuxqq-wayland-fix、wechat-bin、
+# pi-coding-agent-bin、musicfree-desktop-wayland-bin

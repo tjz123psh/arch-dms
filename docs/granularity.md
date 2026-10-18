@@ -10,7 +10,7 @@
 | 包过滤（`module_selected()`） | `virtualization-vmware-guest` 仅 vm（open-vm-tools 等） | `virtualization-vmware-host` 仅 physical（vmware-workstation） |
 | 硬件包 | 排除 `graphics-*` / `hardware-tools` / `asus-hardware` 的配置 | 配置照常部署（驱动在 03 步装） |
 | 桌面包 | `wm-niri`（`-d niri/both`）、`wm-hyprland`（仅 `-d both`） | 同左 |
-| AUR 目标 | 12 个（不含 vmware-workstation） | 13 个（含 vmware-workstation） |
+| AUR 目标 | 15 个（不含 vmware-workstation） | 16 个（含 vmware-workstation） |
 | 配置部署（06） | scope `physical-v1` 共用；`asus-hardware` 行跳过 | 全量部署 |
 | 服务（07） | 共享服务集 + `vmtoolsd`（必需）+ `vmware-vmblock-fuse`（可选） | 共享服务集 + `vmware-networks` / `vmware-usbarbitrator`；`supergfxd` 归 03 |
 | 设置（08） | VMware guest 写 `LIBGL_ALWAYS_SOFTWARE=1`（Hyprland 无法导入 vmwgfx dma-buf） | 不写该变量；录屏走 VAAPI |
