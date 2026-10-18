@@ -91,7 +91,7 @@ if [[ -z "${GOPROXY:-}" ]]; then
     GOPROXY="$(sed -n 's/^GOPROXY=//p' "${go_env}" | tail -1)"
   fi
 fi
-export GOPROXY="${GOPROXY:-https://mirrors.aliyun.com/goproxy/,direct}"
+export GOPROXY="${GOPROXY:-https://goproxy.cn,direct}"
 
 # Root path: quote the target list once and hand a single command string to the
 # user's login shell. paru resolves AUR dependencies itself, so one -S is enough.

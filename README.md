@@ -70,6 +70,6 @@ sudo bash strap.sh
   但得到的是半可用桌面；确需换名要自行 `grep -rl /home/pang ~/.config ~/.local` 修正。
 - **`spring` CLI 不随仓库分发**（只有 nvim 的 Spring Boot 向导用到）。
 - Go 写的 AUR 包走 `config/home/.config/go/env` 里的 `GOPROXY`
-  （阿里云 `mirrors.aliyun.com/goproxy/`）；第 05 步也读这个文件，换代理只改这一处。
+  （`goproxy.cn`）；第 05 步也读这个文件，换代理只改这一处。
 - 桌面验证可用后，可选跑 `./cleanup-after-install.sh` 清理 pacman / cargo / go 构建缓存
   （先列清单再确认，删除不可恢复）。
