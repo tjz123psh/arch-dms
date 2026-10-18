@@ -76,6 +76,8 @@ sudo bash strap.sh
   但得到的是半可用桌面；确需换名要自行 `grep -rl /home/pang ~/.config ~/.local` 修正。
 - **文件管理器是 Nautilus**：右键增强扩展 `rice-menu.py`（`nautilus-python` + `python-gobject`）
   和 dconf 偏好随安装恢复；标签数据库 `meta.db` 属运行时数据，不入库。
+- **`~/Templates` 新建文件模板**：全部收在 `config/home/Templates/`，随 `06-config` 部署；
+  以后加模板跑一次 `./sync-config-mappings.sh config/home/Templates` 即可。
 - **`spring` CLI 不随仓库分发**（只有 nvim 的 Spring Boot 向导用到）。
 - Go 写的 AUR 包走 `config/home/.config/go/env` 里的 `GOPROXY`
   （`goproxy.cn`）；第 05 步也读这个文件，换代理只改这一处。

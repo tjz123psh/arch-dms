@@ -196,3 +196,26 @@ physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree�
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	644
 physical-v1	desktop-apps	config/home/.config/nautilus/nautilus.dconf	.config/nautilus/nautilus.dconf	644
 physical-v1	desktop-apps	config/home/.local/share/nautilus-python/extensions/rice-menu.py	.local/share/nautilus-python/extensions/rice-menu.py	644
+physical-v1	desktop-shared	config/home/Templates/空白文件	Templates/空白文件	644
+physical-v1	desktop-shared	config/home/Templates/配置文件.conf	Templates/配置文件.conf	644
+physical-v1	desktop-shared	config/home/Templates/配置.ini	Templates/配置.ini	644
+physical-v1	desktop-shared	config/home/Templates/文本文档.txt	Templates/文本文档.txt	644
+physical-v1	desktop-shared	config/home/Templates/C 源文件.c	Templates/C 源文件.c	644
+physical-v1	desktop-shared	config/home/Templates/CSS 样式表.css	Templates/CSS 样式表.css	644
+physical-v1	desktop-shared	config/home/Templates/Dockerfile	Templates/Dockerfile	644
+physical-v1	desktop-shared	config/home/Templates/Go 程序.go	Templates/Go 程序.go	644
+physical-v1	desktop-shared	config/home/Templates/HTML 页面.html	Templates/HTML 页面.html	644
+physical-v1	desktop-shared	config/home/Templates/Java 文件.java	Templates/Java 文件.java	644
+physical-v1	desktop-shared	config/home/Templates/JavaScript.js	Templates/JavaScript.js	644
+physical-v1	desktop-shared	config/home/Templates/JSON 文件.json	Templates/JSON 文件.json	644
+physical-v1	desktop-shared	config/home/Templates/KDL 配置.kdl	Templates/KDL 配置.kdl	644
+physical-v1	desktop-shared	config/home/Templates/Makefile	Templates/Makefile	644
+physical-v1	desktop-shared	config/home/Templates/Markdown 文档.md	Templates/Markdown 文档.md	644
+physical-v1	desktop-shared	config/home/Templates/Python 脚本.py	Templates/Python 脚本.py	755
+physical-v1	desktop-shared	config/home/Templates/Rust 程序.rs	Templates/Rust 程序.rs	644
+physical-v1	desktop-shared	config/home/Templates/Shell 脚本.sh	Templates/Shell 脚本.sh	755
+physical-v1	desktop-shared	config/home/Templates/SVG 图片.svg	Templates/SVG 图片.svg	644
+physical-v1	desktop-shared	config/home/Templates/TOML 文件.toml	Templates/TOML 文件.toml	644
+physical-v1	desktop-shared	config/home/Templates/TypeScript.ts	Templates/TypeScript.ts	644
+physical-v1	desktop-shared	config/home/Templates/XML 文件.xml	Templates/XML 文件.xml	644
+physical-v1	desktop-shared	config/home/Templates/YAML 文件.yaml	Templates/YAML 文件.yaml	644
