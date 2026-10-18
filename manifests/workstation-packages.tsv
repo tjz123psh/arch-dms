@@ -1,7 +1,7 @@
 # schema=1
 # package<TAB>channel<TAB>repository<TAB>acquisition<TAB>module<TAB>restore-mode<TAB>policy<TAB>origin<TAB>purpose
-# Reconciled ASUS target: 194 exact current-explicit rows plus 29 reviewed confirmed-desired
-# (non-explicit) rows - 223 data rows total. Row order is append-oriented and NOT guaranteed
+# Reconciled ASUS target: 195 exact current-explicit rows plus 29 reviewed confirmed-desired
+# (non-explicit) rows - 224 data rows total. Row order is append-oriented and NOT guaranteed
 # alphabetical; update this comment when rows are added or removed.
 # Rolling pacman versions resolve only after full-system refresh; AUR and archlinuxcn retain independent authorization gates.
 accountsservice	pacman	extra	pacman	desktop-shared	package-only	install	current-explicit	D-Bus interface for user account query and manipulation
@@ -138,6 +138,7 @@ python-pygments	pacman	extra	pacman	development-toolchain	package-only	install	c
 quickshell	pacman	extra	pacman	desktop-shared	config-backed	install	current-explicit	Flexible toolkit for making desktop shells with QtQuick
 reflector	pacman	extra	pacman	repository-tools	package-only	install	current-explicit	A Python 3 module and script to retrieve and filter the latest Pacman mirror list.
 rime-ice-git	pacman	archlinuxcn	pacman	input-fcitx-rime	config-backed	install	current-explicit	Rime 配置：雾凇拼音 | 长期维护的简体词库
+rime-wanxiang-gram-zh-hans	pacman	archlinuxcn	pacman	input-fcitx-rime	config-backed	install	current-explicit	万象词库中文语法模型
 ripgrep	pacman	extra	pacman	developer-editor	package-only	install	confirmed-desired	A search tool that combines the usability of ag with the raw speed of grep
 rog-control-center	pacman	extra	pacman	asus-hardware	config-backed	install	current-explicit	App to control asusctl
 rsync	pacman	extra	pacman	storage-maintenance	package-only	install	current-explicit	A fast and versatile file copying tool for remote and local files

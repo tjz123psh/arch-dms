@@ -2,3 +2,4 @@
 patch:
   schema_list:
     - schema: rime_ice
+    - schema: luna_pinyin_simp
