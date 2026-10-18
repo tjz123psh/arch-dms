@@ -45,7 +45,7 @@ dsearch-bin	aur	aur	aur-build	desktop-shared	config-backed	install	current-expli
 edk2-ovmf	pacman	extra	pacman	virtualization	deferred	deferred	current-explicit	Firmware for Virtual Machines (x86_64, i686 on x86_64) [KVM legacy: no longer restored since 2026-08-08 KVM->VMware migration]
 efibootmgr	pacman	core	pacman	base-tools	package-only	install	confirmed-desired	Linux user-space application to modify the EFI Boot Manager
 evtest	pacman	extra	pacman	hardware-tools	package-only	install	current-explicit	Input device event monitor and query tool
-exfat-utils	pacman	extra	pacman	base-tools	package-only	install	confirmed-desired	Utilities for exFAT file system
+exfatprogs	pacman	extra	pacman	base-tools	package-only	install	confirmed-desired	exFAT filesystem userspace utilities
 eza	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	A modern replacement for ls (community fork of exa)
 fastfetch	pacman	extra	pacman	cli-tools	package-only	install	current-explicit	A feature-rich and performance oriented neofetch like system information tool
 fcitx5	pacman	extra	pacman	input-fcitx-rime	config-backed	install	current-explicit	Next generation of fcitx, cross-platform input method framework
