@@ -35,8 +35,8 @@
 包名	aur	aur	aur-build	<module>	package-only	install	current-explicit	一句话用途
 ```
 
-- AUR 走**在线** `paru` 构建（`steps/05-aur.sh`），不需要本地 recipe。
-- 只有 `paru` 自身保留 `third_party/aur/paru/` 作为 archlinuxcn 不可用时的兜底。
+- AUR 走**在线** `paru` 构建（`steps/05-aur.sh`），仓库不保存本地 recipe 或版本 pin。
+- `paru` 自身也优先用 archlinuxcn 包，缺失时从 AUR 拉最新 PKGBUILD 现场构建。
 
 ## 三、加一条配置映射
 

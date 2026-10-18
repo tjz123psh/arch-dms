@@ -5,7 +5,6 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck source=../lib/common.sh
 source "${ROOT}/lib/common.sh"
 
-RECIPES_DIR="${PROJECT_DIR}/third_party/aur"
 BUILD_BASE="${PROJECT_DIR}/.aur-build"
 
 section "AUR packages"
@@ -49,32 +48,32 @@ ensure_rust() {
 }
 
 build_paru() {
-  local src="${RECIPES_DIR}/paru" work
-  [[ -d "${src}" ]] || die "missing paru recipe: ${src}"
+  local work
   mkdir -p "${BUILD_BASE}"
   work="$(mktemp -d "${BUILD_BASE}/paru.XXXXXX")"
-  cp -a "${src}/." "${work}/"
-  # GNU cp applies the source directory's ownership to the destination, so the
-  # chown must come after the copy or the user build cannot write into it.
   chown_user "${work}"
 
-  log "Building paru from the pinned recipe..."
-  user_shell "export PATH=\"\${HOME}/.cargo/bin:\${PATH}\"; cd '${work}' && /usr/bin/makepkg -s --noconfirm" \
+  log "Fetching the latest paru from AUR..."
+  user_shell "cd '${work}' && git clone --depth 1 https://aur.archlinux.org/paru.git" \
+    || die "could not fetch paru from AUR (work dir kept at ${work})"
+
+  log "Building paru..."
+  user_shell "export PATH=\"\${HOME}/.cargo/bin:\${PATH}\"; cd '${work}/paru' && /usr/bin/makepkg -s --noconfirm" \
     || die "paru build failed (work dir kept at ${work})"
 
   local -a built=()
-  mapfile -t built < <(find "${work}" -maxdepth 1 -name '*.pkg.tar.*' -print | sort)
+  mapfile -t built < <(find "${work}/paru" -maxdepth 1 -name '*.pkg.tar.*' -print | sort)
   (( ${#built[@]} > 0 )) || die "paru build produced no package (work dir kept at ${work})"
   run pacman -U --noconfirm "${built[@]}"
   rm -rf "${work}"
 }
 
 # paru: the archlinuxcn package first (02-packages configured the repo), then
-# the pinned recipe built with makepkg when that repo is unavailable.
+# the latest AUR PKGBUILD built with makepkg when that repo is unavailable.
 if ! command -v paru >/dev/null 2>&1; then
   log "Installing paru from archlinuxcn..."
   if ! run pacman -S --needed --noconfirm paru; then
-    warn "archlinuxcn paru unavailable; building the pinned recipe instead"
+    warn "archlinuxcn paru unavailable; building the latest AUR paru instead"
     ensure_rust
     build_paru
   fi

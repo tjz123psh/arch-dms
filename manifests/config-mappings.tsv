@@ -45,9 +45,7 @@ physical-v1	wm-niri	config/home/.config/niri/dms/cursor.kdl	.config/niri/dms/cur
 physical-v1	wm-niri	config/home/.config/niri/dms/input.kdl	.config/niri/dms/input.kdl	644
 physical-v1	wm-niri	config/home/.config/niri/dms/keybinds.kdl	.config/niri/dms/keybinds.kdl	644
 physical-v1	wm-niri	config/home/.config/niri/dms/windowrules.kdl	.config/niri/dms/windowrules.kdl	644
-physical-v1	developer-editor	config/home/.config/nvim/.gitignore	.config/nvim/.gitignore	644
 physical-v1	developer-editor	config/home/.config/nvim/init.lua	.config/nvim/init.lua	644
-physical-v1	developer-editor	config/home/.config/nvim/lazy-lock.json	.config/nvim/lazy-lock.json	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/core/autocmds.lua	.config/nvim/lua/core/autocmds.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/core/commands.lua	.config/nvim/lua/core/commands.lua	644
 physical-v1	developer-editor	config/home/.config/nvim/lua/core/init.lua	.config/nvim/lua/core/init.lua	644
