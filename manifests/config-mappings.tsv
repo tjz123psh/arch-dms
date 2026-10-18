@@ -219,3 +219,11 @@ physical-v1	desktop-shared	config/home/Templates/TOML 文件.toml	Templates/TOML
 physical-v1	desktop-shared	config/home/Templates/TypeScript.ts	Templates/TypeScript.ts	644
 physical-v1	desktop-shared	config/home/Templates/XML 文件.xml	Templates/XML 文件.xml	644
 physical-v1	desktop-shared	config/home/Templates/YAML 文件.yaml	Templates/YAML 文件.yaml	644
+physical-v1	cli-tools	config/home/.config/yazi/flavors/noctalia.yazi/flavor.toml	.config/yazi/flavors/noctalia.yazi/flavor.toml	644
+physical-v1	cli-tools	config/home/.config/yazi/flavors/noctalia.yazi/tmtheme.xml	.config/yazi/flavors/noctalia.yazi/tmtheme.xml	644
+physical-v1	cli-tools	config/home/.config/yazi/init.lua	.config/yazi/init.lua	644
+physical-v1	cli-tools	config/home/.config/yazi/keymap.toml	.config/yazi/keymap.toml	644
+physical-v1	cli-tools	config/home/.config/yazi/plugins/full-border.yazi/LICENSE	.config/yazi/plugins/full-border.yazi/LICENSE	644
+physical-v1	cli-tools	config/home/.config/yazi/plugins/full-border.yazi/main.lua	.config/yazi/plugins/full-border.yazi/main.lua	644
+physical-v1	cli-tools	config/home/.config/yazi/theme.toml	.config/yazi/theme.toml	644
+physical-v1	cli-tools	config/home/.config/yazi/yazi.toml	.config/yazi/yazi.toml	644
