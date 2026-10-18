@@ -121,6 +121,15 @@ for t in "${targets[@]}"; do
 done
 (( ${#missing[@]} == 0 )) || die "AUR packages missing after install: ${missing[*]}"
 
+# linuxqq and linuxqq-wayland-fix both install a visible launcher. Keep the
+# Wayland-fix entry and hide the plain QQ one so the menu has a single QQ.
+if [[ -f /usr/share/applications/qq.desktop \
+   && -f /usr/share/applications/linuxqq-wayland-fix.desktop ]] \
+   && ! grep -qx 'NoDisplay=true' /usr/share/applications/qq.desktop; then
+  run sed -i '/^NoDisplay=/d; /^\[Desktop Entry\]/a NoDisplay=true' /usr/share/applications/qq.desktop
+  log "Hid the duplicate QQ launcher; keeping QQ (Wayland fix)"
+fi
+
 for t in "${targets[@]}"; do
   log "$(pacman -Q "${t}")"
 done
