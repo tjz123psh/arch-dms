@@ -2,8 +2,11 @@
 Description=Timer for Obsidian Notes Sync
 
 [Timer]
+# 系统启动 / 用户登录后 2 分钟执行首次同步
 OnBootSec=2min
+# 每次触发后间隔 15 分钟重复执行
 OnUnitActiveSec=15min
+# 若关机错过时间段，下次开机立即补跑一次
 Persistent=true
 
 [Install]

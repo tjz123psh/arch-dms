@@ -1,0 +1,83 @@
+// —— 图层规则（Noctalia 面板/背景模糊等） ——
+
+// ══════════════════════════════════════════════════════════════
+//  layer-rule：给桌面壳的图层单独开毛玻璃
+//  namespace 来自 `niri msg layers`（实测 26.04 下的真实值）：
+//    noctalia-bar-default       顶栏            (top)
+//    noctalia-panel             面板/控制中心    (overlay)
+//    noctalia-panel-click-shield 点击拦截层（故意不模糊）
+//    noctalia-wallpaper         壁纸层（不模糊）
+// ══════════════════════════════════════════════════════════════
+
+// 顶栏：半透明圆角卡片 + 毛玻璃 + 柔和阴影
+layer-rule {
+    match namespace="^noctalia-bar-default$"
+
+    background-effect {
+        xray true
+        blur true
+        noise 0.02
+        saturation 1.15
+    }
+}
+
+// attached 面板（日历 / 控制中心）：由 Noctalia 的 client blur region 控制毛玻璃。
+// 不在这里强制 background-effect：v5.2.1 动画端点会撤销 client region，
+// 强制 xray/blur/noise/saturation 会因此回退成整块 surface，造成开关闪块。
+// 有效 client region 仍会让 Niri 自动启用模糊；Noctalia 的动画/阴影保持不变。
+
+// 浮动模式 / 插件面板（noctalia-panel）：与 attached 同策——由 client blur region 驱动，
+// 不在此强制 background-effect。v5.2.1 的持久面板打开时先发 NULL 区域，
+// 强制规则会回退成整块背景特效（插件面板/浮动面板的开关闪块），撤除后不再出现。
+
+// 点击拦截层：全屏透明层，明确禁止模糊 —— 保证点顶栏部件时顶栏依旧清晰
+layer-rule {
+    match namespace="^noctalia-panel-click-shield$"
+
+    background-effect {
+        blur false
+    }
+}
+
+// fuzzel 备用启动器（Ctrl+M）：毛玻璃；主入口 Super+O 使用 Noctalia。
+layer-rule {
+    match namespace="^launcher$"
+
+    background-effect {
+        xray true
+        blur true
+        noise 0.02
+        saturation 1.15
+    }
+}
+
+// dock：⚠ 不加任何 background-effect。
+// dock 自动隐藏时表面仍映射，niri 的 blur（xray 开/关都一样）会在隐藏后残留
+// 一块"模糊圆角矩形"鬼影（用户两次反馈）；dock 自身 0.75 不透明度 + 阴影已够用。
+layer-rule {
+    match namespace="^noctalia-dock$"
+
+    background-effect {
+        blur false
+    }
+}
+
+// 桌面部件（时钟/天气等，bottom 层；namespace 形如 noctalia-desktop-widget-*）
+layer-rule {
+    match namespace="^noctalia-desktop-widget-"
+
+    background-effect {
+        xray true
+        blur true
+        noise 0.02
+        saturation 1.1
+    }
+}
+
+// 概览背景：把 Noctalia 的 backdrop 层（壁纸的模糊+着色副本）放进 backdrop
+// 这样概览里看到的是一整张壁纸，而不是 niri 默认的纯灰底
+layer-rule {
+    match namespace="^noctalia-backdrop"
+
+    place-within-backdrop true
+}

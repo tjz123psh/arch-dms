@@ -4,6 +4,7 @@
 > 现象：DankMaterialShell 面板开热点，一直转圈加载；后来能连上但网页打不开。
 > 结果：已修复。热点可在 4–5 秒内启动，客户端正常上网。
 > 环境：Arch Linux + niri（Wayland）+ quickshell DMS + NetworkManager 1.58.1 + Docker。
+> 后续（当前 shell = Noctalia）：见 `Noctalia热点修复记录.md`（2026-10-13）。
 
 ## 背景
 

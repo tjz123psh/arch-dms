@@ -88,7 +88,7 @@ setsid /usr/bin/musicfree &
 验证（niri IPC）：
 
 ```bash
-~/.grok/skills/niri-ipc/scripts/niri.py windows
+~/.agents/skills/niri-ipc/scripts/niri.py windows
 # MusicFree 的 tile_size 应变为 [954, 1028]，与其他窗口一致
 ```
 

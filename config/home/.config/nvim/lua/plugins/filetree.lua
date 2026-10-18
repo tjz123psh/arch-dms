@@ -1,8 +1,4 @@
--- ============================================
 -- 文件树：neo-tree.nvim
--- 左侧显示项目文件结构
--- 按 <leader>e 打开/关闭
--- ============================================
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
@@ -18,10 +14,12 @@ return {
   },
   opts = {
     popup_border_style = "rounded",
-    use_popups_for_input = false, -- 使用 vim.ui.input，由 dressing.nvim 接管统一风格
+    use_popups_for_input = false, -- 走 vim.ui.input，由 snacks 输入框接管（全机统一风格）
     window = {
       position = "left",
-      width = 35,
+      width = function()
+        return math.max(20, math.min(35, math.floor(vim.o.columns * 0.4)))
+      end,
       mappings = {
         ["<cr>"] = "open",
         ["o"] = "open",
@@ -37,7 +35,6 @@ return {
           ["l"] = "set_root",
           ["r"] = "rename",
           ["m"] = "move",
-          ["p"] = "toggle_hidden",
           ["Z"] = "expand_all_subnodes", -- 递归展开光标所在节点下的所有子节点
           ["."] = false,
         },

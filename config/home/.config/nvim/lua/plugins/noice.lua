@@ -1,8 +1,6 @@
--- ============================================
 -- UI 增强：noice.nvim
--- 将命令行、消息通知、弹出菜单替换为浮动窗口
--- 搭配 dressing.nvim 统一界面风格
--- ============================================
+
+local input_boxes = require("core.ui.input")
 
 return {
   "folke/noice.nvim",
@@ -14,7 +12,7 @@ return {
       opts = {
         timeout = 2500,
         stages = "fade_in_slide_out",
-        background_colour = "#000000",
+        background_colour = "#1e1e2e",
       },
       config = function(_, opts)
         local notify = require("notify")
@@ -25,27 +23,26 @@ return {
   },
 
   opts = {
-    -- 命令行输入弹窗（居中圆角浮动窗口，窄终端自动收缩）
     views = {
       cmdline_popup = {
         position = { row = "50%", col = "50%" },
-        size = { width = 78 },
+        size = { width = "auto", min_width = input_boxes.noice_min_width(), height = "auto" },
         border = { style = "rounded" },
       },
-      cmdline_input = {
-        position = { row = "50%", col = "50%" },
-        size = { width = 78 },
+      messages = {
+        view = "popup",
+        position = { row = "40%", col = "50%" },
+        size = { width = "auto", min_width = 40, max_width = 100, height = "auto", max_height = 20 },
         border = { style = "rounded" },
       },
     },
 
-    -- 命令模式（: 开头的命令）
     cmdline = {
       enabled = true,
       view = "cmdline_popup",
+      format = { input = { title = " 输入 " } },
     },
 
-    -- 普通消息通知
     messages = {
       enabled = true,
       view = "notify",
@@ -53,19 +50,16 @@ return {
       view_warn = "notify",
     },
 
-    -- 弹出菜单（如代码操作列表）
     popupmenu = {
       enabled = true,
       backend = "nui",
     },
 
-    -- 通知区域（右下角 mini 风格）
     notify = {
       enabled = true,
       view = "mini",
     },
 
-    -- LSP 进度提示
     lsp = {
       progress = {
         enabled = true,
@@ -78,7 +72,6 @@ return {
       },
     },
 
-    -- 路由规则：过滤不需要弹窗的通知
     routes = {
       { filter = { event = "msg_show", kind = "search_count" }, opts = { skip = true } },
       { filter = { event = "lsp", kind = "progress", find = "jdtls" }, opts = { skip = true } },

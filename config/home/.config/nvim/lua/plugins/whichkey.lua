@@ -1,29 +1,50 @@
--- ============================================
 -- 快捷键提示：which-key.nvim
--- 按 leader 键后弹出分类菜单，显示可用快捷键
--- ============================================
 
 return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
     triggers = {
-      { "<auto>", mode = "nxso" }, -- leader 自动弹出
-      { "\\", mode = "n" }, -- localleader 也弹出
+      { "<leader>", mode = { "n", "v" } },
+      { "\\", mode = { "n", "v" } }, -- localleader
+      { "g", mode = { "n", "v" } },
+      { "z", mode = { "n", "v" } },
+      { "[", mode = { "n", "v" } },
+      { "]", mode = { "n", "v" } },
+      { "<C-w>", mode = { "n" } },
     },
+    delay = 300,
     spec = {
-      -- leader 前缀分组
-      { "<leader>b", group = "缓冲区操作" },
-      { "<leader>c", group = "代码操作" },
-      { "<leader>d", group = "调试（DAP）" },
-      { "<leader>f", group = "搜索（Telescope）" },
-      { "<leader>h", group = "快捷键速查" },
-      { "<leader>r", group = "重命名/运行" },
-      { "<leader>s", group = "窗口分割 / Spring" },
-      { "<leader>t", group = "终端" },
-      { "<leader>w", group = "保存/退出" },
+      {
+        mode = { "n", "v" },
+        { "<leader>a", group = "通用 · AI CLI" },
+        { "<leader>b", group = "通用 · 缓冲区" },
+        { "<leader>c", group = "LSP · 代码操作" },
+        { "<leader>d", group = "DAP · 调试" },
+        { "<leader>f", group = "通用 · 搜索" },
+        { "<leader>h", group = "通用 · 速查/消息" },
+        { "<leader>r", group = "LSP · 重命名" },
+        { "<leader>s", group = "Spring · 项目/运行" },
+        { "<leader>t", group = "通用 · 终端" },
+        { "<leader>u", group = "Neovide · 显示" },
+        { "<leader>v", group = "通用 · 窗口切分" },
+        { "<leader>w", group = "通用 · 保存/退出" },
+        { "<leader>G", group = "Java · 代码生成" },
+        { "<leader>J", group = "Java · 运行/测试/调试" },
+        { "<leader>m", group = "Java · Maven/Gradle" },
+        { "<leader>M", group = "Markdown · 美化" },
+        { "<leader>o", group = "整理 · 按语言" },
+        { "<leader>R", group = "重构 · 按语言" },
+      },
+      { "<leader>e", desc = "通用 · 文件树" },
+      { "<leader>j", desc = "通用 · 合并下一行" },
+      { "<leader>q", desc = "通用 · 关闭窗口" },
+      { "<leader>F", desc = "格式化 · 当前文件" },
 
+      { "ZQ", desc = "放弃当前窗口修改并关闭（不自动保存）" },
       { "g", group = "g 前缀 —— 跳转、转换、文件" },
+      { "gc", desc = "注释/取消注释（可视、可配 motion）" },
+      { "gcc", desc = "注释/取消注释当前行" },
       { "ge", desc = "上一个单词末尾" },
       { "gE", desc = "上一个 WORD 末尾" },
       { "gf", desc = "打开光标下文件" },
@@ -36,37 +57,39 @@ return {
       { "gT", desc = "上一个标签页" },
       { "gv", desc = "重新选择上次可视区域" },
       { "gu", desc = "小写转换（配合 motion）" },
-      { "gU", desc = "大写转换 / java 里=父类" },
+      { "gU", desc = "大写转换（配合 motion）" },
+      { "gA", desc = "跳转到父类/接口实现（Java）" },
+      { "gr", group = "LSP：引用 / 重命名 / 代码操作（内置）" },
+      { "grr", desc = "查找引用（LSP）" },
+      { "grn", desc = "重命名符号（LSP）" },
+      { "gra", desc = "代码操作（LSP）" },
+      { "gri", desc = "跳转到实现（LSP）" },
+      { "grt", desc = "跳转到类型定义（LSP）" },
       { "g~", desc = "切换大小写（配合 motion）" },
       { "gq", desc = "格式化选中文本" },
       { "gw", desc = "格式化（光标不动）" },
       { "gn", desc = "向前搜索并选中匹配" },
       { "gN", desc = "向后搜索并选中匹配" },
-      { "g0", desc = "跳到行首（忽略折行）" },
-      { "g^", desc = "跳到行首非空（忽略折行）" },
+      { "g0", desc = "跳到屏幕行行首" },
+      { "g^", desc = "跳到屏幕行行首非空" },
       { "gm", desc = "跳到行中间" },
-      { "g$", desc = "跳到行尾（忽略折行）" },
+      { "g$", desc = "跳到屏幕行行尾" },
       { "g_", desc = "跳到行尾非空字符" },
-      { "gj", desc = "向下（忽略折行）" },
-      { "gk", desc = "向上（忽略折行）" },
+      { "gj", desc = "下移一个屏幕行" },
+      { "gk", desc = "上移一个屏幕行" },
       { "gx", desc = "用系统程序打开文件/链接" },
       { "g%", desc = "跳转到行内匹配" },
       { "gI", desc = "在行首插入" },
-      { "gD", desc = "跳到局部定义" },
+      { "gD", desc = "跳到文件内全局声明（gd 才是局部）" },
       { "g*", desc = "向后搜索光标单词" },
       { "g#", desc = "向前搜索光标单词" },
       { "g]", desc = "跳转到标签定义" },
       { "g<", desc = "查看上次命令输出" },
       { "g8", desc = "显示 UTF-8 编码字节" },
       { "gd", desc = "跳转到定义（LSP）" },
-      { "gr", desc = "查找所有引用（LSP）" },
       { "gi", desc = "跳转到实现（LSP）" },
       { "gR", desc = "跳转到类型定义（LSP）" },
-
-      { "t", group = "t 前缀 —— 终端" },
-      { "tt", desc = "切换浮动终端" },
-      { "th", desc = "水平分割终端" },
-      { "tv", desc = "垂直分割终端" },
+      { "gO", desc = "本文档符号列表（LSP）" },
 
       { "z", group = "z 前缀 —— 折叠/滚动" },
       { "za", desc = "切换折叠" },
@@ -87,6 +110,10 @@ return {
       { "zt", desc = "滚动使光标在顶部" },
       { "zb", desc = "滚动使光标在底部" },
       { "z.", desc = "居中光标（重绘）" },
+      { "zi", desc = "切换折叠开关" },
+      { "zv", desc = "显示光标所在的折叠" },
+      { "zx", desc = "重新计算折叠（撤销手动折叠）" },
+      { "zE", desc = "删除文件内所有折叠" },
       { "z<CR>", desc = "滚屏使光标在顶部（重绘）" },
       { "z-", desc = "滚屏使光标在底部（重绘）" },
       { "z=", desc = "拼写建议" },
@@ -107,7 +134,6 @@ return {
       { "]d", desc = "下一个诊断" },
       { "] ", desc = "在下一行后加空行" },
 
-      -- motions（按 d/y/c/gU/gu 等操作符后出现的动作键）
       { "w", desc = "下一个单词开头", mode = "no" },
       { "b", desc = "上一个单词开头", mode = "no" },
       { "e", desc = "下一个单词末尾", mode = "no" },
@@ -137,11 +163,9 @@ return {
       { "t", desc = "跳到指定字符前", mode = "no" },
       { "T", desc = "往回跳到指定字符前", mode = "no" },
 
-      -- text objects（d/y/c 后可选的文本对象）
       { "a", group = "包围（含空白）", mode = "xo" },
       { "i", group = "内部（不含空白）", mode = "xo" },
 
-      -- <C-w> 窗口操作
       { "<C-w>", group = "窗口操作" },
       { "<C-w>s", desc = "水平切分窗口" },
       { "<C-w>v", desc = "垂直切分窗口" },
@@ -166,7 +190,6 @@ return {
       { "<C-w>K", desc = "窗口移到最上" },
       { "<C-w>L", desc = "窗口移到最右" },
 
-      -- 其他导航（H/L 已被 bufferline 覆盖为切换缓冲区）
       { "M", desc = "光标到窗口中间行", mode = "n" },
     },
   },

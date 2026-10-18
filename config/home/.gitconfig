@@ -1,6 +1,3 @@
-[user]
-	name = pang
-	email = 2803834833@qq.com
 [core]
 	pager = delta
 [interactive]
@@ -12,9 +9,14 @@
 	conflictstyle = zdiff3
 [diff]
 	colorMoved = default
+[user]
+	name = pang
+	email = 2803834833@qq.com
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+[http "https://github.com"]
+	proxy = http://127.0.0.1:7890

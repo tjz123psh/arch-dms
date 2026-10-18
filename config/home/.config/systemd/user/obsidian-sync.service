@@ -5,7 +5,10 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+# 关键：systemd 服务默认不继承终端 Shell 代理，必须显式注入代理环境变量以直连 Google API
 Environment="HTTP_PROXY=http://127.0.0.1:7890"
 Environment="HTTPS_PROXY=http://127.0.0.1:7890"
 Environment="ALL_PROXY=socks5://127.0.0.1:7890"
+
+# 同步命令：本地学习笔记目录 ➔ Google Drive 云端对应目录
 ExecStart=/usr/bin/rclone copy "/home/pang/obsidian/学习笔记" gdrive:Obsidian/学习笔记

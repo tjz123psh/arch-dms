@@ -23,7 +23,7 @@
 | `:luafile %` | 将当前 `.lua` 文件作为 Lua 执行 |
 | `:R` | 执行当前 `.lua` 文件的磁盘内容（等同 `:luafile`，不是完整重载） |
 | `:A` | 打开启动欢迎页 |
-| `:CheatSheet` | 快捷键速查浮窗（同 `<leader>hk`；2026-09-28 补注册，此前只在注释里声称存在、实报 E492） |
+| `:CheatSheet` | 按需打开快捷键速查浮窗（同 `<leader>hk`），窗口关闭后保留正常编辑状态 |
 | `:BufDelete [N]` | 关闭缓冲区但**保住分屏布局**（同 `<leader>bd`；内部走 `Snacks.bufdelete`。原生 `:bdelete` 会连窗口一起关掉。带 N 时关第 N 个 buffer，bufferline 的 × 用它） |
 
 > `:R` 不保存缓冲区、不清除 `require` 缓存，也不保证应用插件 spec；修改插件配置后，保存并重启 Neovim 是可靠方式。
@@ -67,7 +67,7 @@
 | 命令 | 用途 |
 |------|------|
 | `:messages` | 查看最近的消息/日志 |
-| `:LspInfo` | 查看当前缓冲区 LSP 客户端状态 |
+| `:LspInfo` | 查看所有活跃 LSP 客户端、根目录和文件类型 |
 | `:LspLog` | 打开 LSP 日志文件 |
 | `:lua require("snacks").picker.keymaps()` | 查看所有快捷键映射（snacks picker） |
 | `:lua require("snacks").picker.help()` | 搜索帮助文档 |
@@ -97,11 +97,12 @@
 
 ## Markdown 编辑区美化（render-markdown.nvim）
 
-打开 Markdown 时按 FileType 自动加载，直接在原编辑窗口内渲染，不需要浏览器或独立预览浮窗。普通/命令模式渲染，插入/可视模式显示源码；光标行通过 anti_conceal 显示源码，方便修改。
+打开 Markdown（含 `.mdx`）时按 FileType 自动加载，直接在原编辑窗口内渲染，不需要浏览器或独立预览浮窗。普通/命令模式渲染，插入/可视模式显示源码；光标行通过 anti_conceal 显示源码，方便修改；要临时多露/少露源码用 `<leader>Me` / `<leader>Mc`。
 
 | 命令 | 用途 |
 |------|------|
 | `:RenderMarkdown buf_toggle` | 切换**当前缓冲区**美化（同 `<leader>Mp`） |
+| `:RenderMarkdown expand` / `contract` | 光标行上下多露 / 少露一行源码（同 `<leader>Me` / `<leader>Mc`） |
 | `:RenderMarkdown buf_enable` | 启用**当前缓冲区**美化 |
 | `:RenderMarkdown buf_disable` | 关闭**当前缓冲区**美化 |
 | `:RenderMarkdown enable` / `disable` / `toggle` | 全局启用 / 关闭 / 切换，不是仅当前缓冲区 |
@@ -142,21 +143,27 @@
 | `:DapContinue` | 开始 / 继续调试 |
 | `:DapToggleBreakpoint` | 切换断点 |
 
-## Java
+## Java / Spring Boot
 
-| 命令 | 用途 |
-|------|------|
-| `:JavaRun` | 运行当前 Java 源文件；有 package 时按需编译当前文件和依赖源码后运行 |
-| `:JavaBuildProjects` | 让 jdtls 重新导入并构建项目（走 LSP 的 `java/buildProjects`，不需要外部 `mvn`）；有多个项目时会让你先选。⚠ 命令在**启动时即注册**（lazy `cmd` 桩），但没有 Java 缓冲区/jdtls 时会提示"需要先打开一个 Java 项目" |
-| `:JavaSetRuntime` | 切换 jdtls 使用的 JDK 运行时（相当于 IDEA 的 Project SDK）；不带参数弹选择列表，`Tab` 补全当前可选项（本机 `JavaSE-21`、`JavaSE-1.8`）。同上：启动即可用，无 jdtls 时给提示而不是报错 |
-| `:SpringBootCreate` | 打开 Spring Boot 项目向导（`snacks.picker` 版，与 `<leader>sp` 等价；命令在启动时即注册，不依赖插件懒加载） |
-| `:SpringBoot` | Spring 符号查询（spring-boot.nvim）：不带参数弹选择列表（Annotations / Beans / RequestMappings / Prototype），也可直接 `:SpringBoot @`。要求当前缓冲区已挂上 `spring-boot` 语言服务器（打开 Java/YAML 项目后自动起）；命令同样启动即存在（lazy `cmd` 桩） |
+| 命令 / 按键 | 用途 |
+|---|---|
+| `:JavaRun` / `<leader>Jr` | 保存当前源码，临时编译并在分屏终端运行；支持 Scanner 等标准输入、有包源码及同目录辅助类 |
+| `<F5>` | 调试当前 Java 项目或单文件；每次查询当前 jdtls 的主类与 classpath，已有会话则继续 |
+| `:JavaBuildProjects` | 当前 Java 缓冲区的 jdtls 重新导入/构建；不调用外部 Maven |
+| `:JavaSetRuntime [名称]` | 切换 jdtls 项目 JDK；无参数弹列表，Tab 补全。本机可选 JavaSE-21 / JavaSE-1.8 |
+| `:SpringBootCreate` / `<leader>sp` | 全局项目向导，按需加载；直接从官方 Initializr 创建，不依赖 spring CLI |
+| `:SpringBoot` | Spring 注解、Bean、端点查询；仅真正的 Spring 项目启动 Spring 语言服务 |
+| `<leader>sr` | 启动 Spring Boot；多个主类时选择，支持顺序“全部启动” |
 
-> 项目根由 jdtls 自动识别（`pom.xml` / `build.gradle*` / `.git` / `src`），不需要手工生成标记文件；原 `:JavaInit` 已删除（该命令不存在）。
+单文件算法不需要创建 Maven/Gradle 工程。运行使用 PATH 中的 java/javac，保存失败不会继续；编译产物退出后清理，终端输出保留。有 package 时目录必须与包名对应；第三方依赖、项目 JDK/classpath 请走 F5 或项目构建，不把 JavaRun 当作 Maven 执行器。终端内按 i 输入，jk 回普通模式。
 
-> 运行 Spring Boot 项目用 `<leader>sr`（**键位**，不是命令）：先扫 `src/main/java` 下的主类 —— 只有一个直接启动，多个弹选择框（列出终端槽、`← pom 默认`、`● 已在跑`，并附一项「▶ 全部启动」）；Maven 走 `spring-boot:run`、Gradle 走 `bootRun`。终端按“项目路径＋主类”独占分配，构建/测试另用该项目的专用终端；保留通用终端 1/2/3。同一个类再按一次会先发 Ctrl-C、等旧进程退出再重启（超过 10 秒不强行发送命令）。启动通知/选择框显示编号，重开用 `:<编号>ToggleTerm`，例如 `:4ToggleTerm`；`<leader>th` 仍只打开通用 2 号终端。
+项目构建优先使用 wrapper，无执行位时通过 sh 调用，不修改项目权限；无 wrapper 时查找 PATH 工具，再复用本机已下载的 wrapper 缓存。每个项目的构建/测试终端与每个 Spring 主类终端分开，通用 1/2/3 不变。重开用通知中的 `:<编号>ToggleTerm`；同主类重启会等待旧进程退出，忙碌构建不接收新命令。
 
-Java 测试与调试：`<leader>Jt` 按 Treesitter 定位光标所在方法，多行参数和同行注解均支持；不在方法内、语法不完整或解析器缺失时提示并停止，不猜前一个方法。`<leader>JT` 运行当前类（含可识别的成员内部类；匿名类/局部类不猜名称）。构建/测试未结束时拒绝叠加命令。`<F5>` 每次从当前项目查询主类，不复用其它项目的旧列表；已有调试会话时仍是继续。`<leader>Jd` 只重新查询当前项目并报告数量，不启动调试。
+`<leader>Jt` / `<leader>JT` 用语法树定位当前方法/类并在构建工具中测试；`<leader>Jg` / `<leader>JG` 保留 jdtls 的“最近测试方法/文件测试类”调试语义，Jg 不等于严格包含光标的方法。
+
+Maven 多入口保留标准/自定义 mainClass 属性；POM 写死其它主类时拒绝冒充所选主类启动。Gradle 多入口须配置 bootRun.mainClass，或用 F5 选择调试；不猜通用覆盖参数。“全部启动”在失败/超时后停止，不并发编译同一项目。
+
+配置与边界见[Java 架构](</home/pang/md/nvim/nvim配置架构.md>)；完整按键以[速查数据](</home/pang/.config/nvim/lua/core/ui/reference.lua>)为准。
 
 ## 快捷键速查
 
@@ -175,4 +182,4 @@ Java 测试与调试：`<leader>Jt` 按 Treesitter 定位光标所在方法，�
 | `:vmap` | 列出可视模式快捷键 |
 | `:tmap` | 列出终端模式快捷键 |
 
-> 完整快捷键按 `<leader>hk` 看速查面板（`core/cheatsheet.lua`），或在面板外用 `:lua require("snacks").picker.keymaps()` 搜索；此前的独立快捷键文档 `nvim快捷键.md` 已删除。
+> 完整快捷键按 `<leader>hk` 看速查面板（[速查数据](</home/pang/.config/nvim/lua/core/ui/reference.lua>)），或在面板外用 `:lua require("snacks").picker.keymaps()` 搜索；此前的独立快捷键文档 `nvim快捷键.md` 已删除。

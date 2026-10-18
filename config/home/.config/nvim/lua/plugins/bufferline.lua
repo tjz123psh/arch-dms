@@ -1,10 +1,4 @@
--- =============================================================================
 -- 标签栏（缓冲区列表）：bufferline.nvim
--- =============================================================================
--- 在窗口顶部显示标签栏，展示所有打开的缓冲区。
--- 支持图标、诊断信息、neo-tree 文件树偏移等。
--- 快捷键：<S-h> 切换到上一个标签，<S-l> 切换到下一个标签。
--- =============================================================================
 
 return {
   "akinsho/bufferline.nvim",
@@ -19,10 +13,49 @@ return {
     { "<S-l>", "<cmd>BufferLineCycleNext<cr>", desc = "切换到下一个缓冲区" },
   },
   opts = function()
+    local SOLID_BG, SOLID_BG_ACTIVE = "#181825", "#1e1e2e"
+    local BORDER, ACCENT, MODIFIED, RED = "#7f849c", "#89b4fa", "#f9e2af", "#f38ba8"
+
     local highlights
     local ok, bufferline_theme = pcall(require, "catppuccin.special.bufferline")
     if ok then
-      highlights = bufferline_theme.get_theme()
+      local upstream = bufferline_theme.get_theme()
+      highlights = function()
+        local hl = upstream()
+        for name, spec in pairs(hl) do
+          if type(spec) == "table" and spec.bg == "NONE" then
+            spec.bg = name:find("_selected", 1, true) and SOLID_BG_ACTIVE or SOLID_BG
+          end
+        end
+        for _, name in ipairs({
+          "buffer_visible",
+          "separator",
+          "separator_visible",
+          "separator_selected",
+          "offset_separator",
+          "close_button",
+          "close_button_visible",
+        }) do
+          if hl[name] then
+            hl[name].fg = (name == "buffer_visible") and "#a6adc8" or BORDER
+          end
+        end
+        if hl.indicator_selected then
+          hl.indicator_selected = { fg = ACCENT, bg = SOLID_BG_ACTIVE, bold = true }
+        end
+        if hl.indicator_visible then
+          hl.indicator_visible = { fg = BORDER, bg = SOLID_BG }
+        end
+        if hl.close_button_selected then
+          hl.close_button_selected.fg = RED
+        end
+        for _, name in ipairs({ "modified", "modified_visible", "modified_selected" }) do
+          if hl[name] then
+            hl[name].fg = MODIFIED
+          end
+        end
+        return hl
+      end
     end
 
     return {
@@ -30,8 +63,9 @@ return {
       options = {
         mode = "buffers",
         numbers = "none",
-        close_command = "bdelete %d",
-        right_mouse_command = "bdelete %d",
+        always_show_bufferline = false,
+        close_command = "BufDelete %d",
+        right_mouse_command = "BufDelete %d",
         indicator = {
           style = "icon",
           icon = "▎",
@@ -63,6 +97,7 @@ return {
             text = "文件树",
             highlight = "Directory",
             text_align = "left",
+            padding = 1,
           },
         },
       },

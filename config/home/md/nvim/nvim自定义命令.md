@@ -1,26 +1,28 @@
 # Neovim 自定义命令速查表
 
-> 核心命令由 `lua/core/commands.lua` 注册或调用模块的 `setup()`；项目列表在 `core/projects.lua`，向导在 `core/spring_wizard.lua`，皮肤在 `core/ui.lua`，Java 专用命令由语言插件注册。
+> 通用入口在[核心命令](</home/pang/.config/nvim/lua/core/commands.lua>)，LspInfo/LspLog 在[诊断模块](</home/pang/.config/nvim/lua/core/diagnostics.lua>)，项目入口在[项目模块](</home/pang/.config/nvim/lua/core/projects/init.lua>)；语言命令由各语言声明和[注册表](</home/pang/.config/nvim/lua/languages/init.lua>)管理。
 
 | 命令 | 用途 |
 |------|------|
 | `:R` | 用 `luafile` 执行当前 `.lua` 文件的磁盘内容 |
 | `:A` | 返回启动欢迎页 |
-| `:LspInfo` | 查看当前缓冲区 LSP 客户端状态 |
+| `:CheatSheet` | 按需打开快捷键速查，同 `<leader>hk` |
+| `:LspInfo` | 查看所有活跃 LSP 客户端、根目录和文件类型 |
 | `:LspLog` | 打开 LSP 日志文件 |
 | `:Projects` | 打开项目列表，首次打开同步读取项目历史，回车切换项目并刷新文件树 |
 | `:JavaBuildProjects` | 让 jdtls 重新导入并构建项目（改了 `pom.xml` / `build.gradle*` 依赖后用） |
 | `:JavaSetRuntime` | 切换 jdtls 使用的 JDK 运行时（IDEA 的 Project SDK）；`Tab` 可补全运行时候选名 |
-| `:SpringBootCreate` | 打开 Spring Boot 项目向导（与全局键 `<leader>sp` 等价，任何缓冲区可用；commands 启动时调用 `core.spring_wizard.setup()` 注册） |
-| `:JavaRun` | 运行当前 Java 源文件；无 package 走 `java 文件.java`，有 package 走 `javac -sourcepath` 按需编译后运行 |
+| `:SpringBootCreate` | 全局 11 步向导（同 `<leader>sp`）；调用时才加载向导，使用官方 Initializr，无需 spring CLI |
+| `:JavaRun` | 保存后在临时目录编译当前源码及所需辅助源码，分屏终端运行并接收 stdin；同 `<leader>Jr` |
 
 ## Markdown 插件命令（非核心自定义命令）
 
-Markdown 编辑区美化由 `lua/plugins/markdown.lua` 中的 render-markdown.nvim 提供，打开 Markdown 自动加载，无需独立预览窗。
+Markdown 编辑区美化由 `lua/languages/markdown/render.lua` 中的 render-markdown.nvim 提供，打开 Markdown 或 `.mdx` 自动加载，无需独立预览窗。
 
 | 命令 | 用途 |
 |------|------|
 | `:RenderMarkdown buf_toggle` | 当前缓冲区美化开关，同 `<leader>Mp` |
+| `:RenderMarkdown expand` / `contract` | 光标行上下多露 / 少露一行源码，同 `<leader>Me` / `<leader>Mc` |
 | `:RenderMarkdown buf_enable` / `buf_disable` | 仅启用 / 关闭当前缓冲区美化 |
 | `:RenderMarkdown enable` / `disable` / `toggle` | 全局启用 / 关闭 / 切换 |
 
@@ -29,14 +31,14 @@ Markdown 编辑区美化由 `lua/plugins/markdown.lua` 中的 render-markdown.nv
 ## 使用说明
 
 - `:R` — 只执行当前磁盘文件，不自动保存、不清 `require` 缓存，也不保证应用返回的插件 spec。修改插件配置后，保存并重启 Neovim 是可靠方式。
-- `:A` — 先加载 alpha-nvim，再回到启动欢迎界面
-- `:LspInfo` — 0.12 移除了内置 `:LspInfo`，手动恢复
-- `:LspLog` — 0.12 移除了内置 `:LspLog`，手动恢复
-- `:Projects` — `commands.lua` 调用 `core.projects.setup()`；模块集中项目历史、`DirChanged` 记录与命令注册。同步读历史，列表取只追加副本（`~/.local/state/nvim/project-history.list`）∪ 插件历史 ∪ 会话项目；打开时 append 回填插件缺项。连同 `plugins/project.lua` 永不截断的写守卫保留四层保护，避免异步读取和并发截断造成历史丢失；并发可能产生重复行，读取去重。使用 `source = "project-history"` 与 `project_dir` 字段，避免撞上 snacks 内置源和保留字段。当前项目置顶，回车切项目并刷新文件树，保持紧凑样式。
-- `:JavaBuildProjects` — 让 jdtls 重新导入并按项目构建工具（Maven/Gradle）构建，走 LSP 请求 `java/buildProjects`（命令启动即注册；无 jdtls 时提示先打开 Java 项目）；项目根由 jdtls 按 `pom.xml` / `build.gradle*` / `.git` / `src` 自动识别，不需要手工生成 `pom.xml` 标记（原 `:JavaInit` 已删除）
-- `:JavaSetRuntime` — 切换 jdtls 的 JDK 运行时（IDEA 的 Project SDK；命令启动即注册，无 jdtls 时给提示）；候选来自 `java.lua` 里 `settings.java.configuration.runtimes` 配置的本机 JDK（本机 `JavaSE-21` 为默认、`JavaSE-1.8`；路径不存在会自动跳过），`Tab` 补全候选名
-- `:SpringBootCreate` — 打开 Spring Boot 项目向导（`snacks.picker` 版）；由 `core/commands.lua` 在启动时调用 `core.spring_wizard` 注册，所以刚启动就能用（`<leader>sp` 是全局键，任何缓冲区都走同一向导）
-- `:JavaRun` — 无 `package` 时直接在 Neovim 原生终端跑 `java 当前文件.java`；有 `package` 时推导包根，执行 `javac -d 临时目录 -sourcepath . 当前相对路径.java`，再用 `java -cp 临时目录 包名.类名` 运行，避免编译无关练习文件
+- `:A` — 调用 Alpha 的既有懒加载命令，再打开欢迎页。
+- `:LspInfo` — 保留兼容入口，列出全部活跃客户端。
+- `:LspLog` — 打开 Neovim 当前 LSP 日志。
+- `:Projects` — [历史模块](</home/pang/.config/nvim/lua/core/projects/history.lua>)负责自有副本、插件历史和会话项目的合并、只追加回填与写守卫；[选择器](</home/pang/.config/nvim/lua/core/projects/picker.lua>)只处理排序、显示和确认。最长根置顶、独立 project-history 源、project_dir 字段和空格路径处理不变。
+- `:JavaBuildProjects` — 当前 Java 缓冲区必须已附加 jdtls；构建根优先从 Maven/Gradle/Eclipse 标记确定，独立文件按文件目录或包根，不依赖启动 Neovim 时的 cwd。
+- `:JavaSetRuntime` — 候选由[Java 模块](</home/pang/.config/nvim/lua/languages/java/lsp.lua>)检查本机已安装 JDK；JavaSE-21 默认、JavaSE-1.8 可选。无参数传 nil 以显示列表。该选择不改变 JavaRun 使用的 PATH 工具。
+- `:SpringBootCreate` — 在[Java 入口](</home/pang/.config/nvim/lua/languages/java/init.lua>)声明，由语言注册表统一注册；[向导](</home/pang/.config/nvim/lua/languages/java/spring/wizard.lua>)按需加载。需要 curl/unzip/GNU mv，失败或同名目标不会覆盖项目。
+- `:JavaRun` — [源码运行器](</home/pang/.config/nvim/lua/languages/java/files.lua>)明确保存，javac 只编译当前文件及所需源码，java 在源码根接收终端输入；类文件仅位于本次临时目录，退出即清理。保存失败、包目录不匹配会停止；第三方依赖项目用 F5/构建工具。
 
 ## 自动保存的退出约定（2026-10-05）
 

@@ -1,0 +1,89 @@
+// —— 窗口规则（圆角/毛玻璃/浮动等） ——
+
+// ── 全局窗口规则：20–28px 圆角 + 毛玻璃 ──────────────────────
+window-rule {
+    geometry-corner-radius 24
+    clip-to-geometry true
+
+    background-effect {
+        xray true
+        blur true
+        noise 0.02
+        saturation 1.15
+    }
+}
+
+// 终端：更透一点，文字更锐
+window-rule {
+    match app-id=r#"^(foot|Alacritty|kitty|quickterminal|btop|org\.wezfurlong\.wezterm)$"#
+    geometry-corner-radius 24
+    clip-to-geometry true
+    background-effect {
+        xray true
+        blur true
+        noise 0.015
+        saturation 1.25
+    }
+}
+
+// 浮动终端（Alt+/ 呼出；与主机 quickterminal 规则一致）
+window-rule {
+    match app-id="quickterminal"
+    open-floating true
+    default-column-width { fixed 800; }
+    default-window-height { fixed 500; }
+}
+
+// 任务管理器（btop；Ctrl+Alt+Del 呼出）
+window-rule {
+    match app-id="btop"
+    open-floating true
+    default-column-width { fixed 1100; }
+    default-window-height { fixed 680; }
+}
+
+// 资源监视器（Mission Center；Super+M 呼出；与 btop 同尺寸同形态）
+window-rule {
+    match app-id="io.missioncenter.MissionCenter"
+    open-floating true
+    default-column-width { fixed 1100; }
+    default-window-height { fixed 680; }
+}
+
+// 快捷键速查浮层（Super+/ 呼出；kitty + fzf）
+window-rule {
+    match app-id="niri-keys"
+    open-floating true
+}
+
+// 退出确认菜单（Super+Shift+E 呼出；kitty + fzf）
+window-rule {
+    match app-id="niri-quit"
+    open-floating true
+    open-focused true
+    default-column-width { fixed 820; }
+    default-window-height { fixed 500; }
+    draw-border-with-background false
+}
+
+// 维护菜单（Super+Shift+C 呼出；kitty + term-menu）
+window-rule {
+    match app-id="term-menu"
+    open-floating true
+    default-column-width { fixed 1600; }
+    default-window-height { fixed 1000; }
+}
+
+// Noctalia 设置面板等窗口（Super+, 呼出）：浮动
+window-rule {
+    match app-id=r#"^dev\.noctalia\.Noctalia$"#
+    open-floating true
+    default-column-width { fixed 1020; }
+    default-window-height { fixed 720; }
+}
+
+// 视频播放器（mpv，含 b23 弹窗）：浮动播放窗
+window-rule {
+    match app-id=r#"^mpv$"#
+    open-floating true
+}

@@ -1,42 +1,48 @@
--- ============================================
--- 浮动/分屏终端：toggleterm.nvim
--- 替代 :term，支持多终端实例、浮动窗口、快速切换
--- ============================================
+-- 独立终端 1/2/3；从浮窗切分屏前先回到普通窗口，退出后保留输出。
+local function toggle(id, size, direction)
+  if vim.api.nvim_win_get_config(0).relative ~= "" then
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      if vim.api.nvim_win_get_config(win).relative == "" then
+        vim.api.nvim_set_current_win(win)
+        break
+      end
+    end
+  end
+  require("toggleterm").toggle(id, size, nil, direction)
+end
 
 return {
   "akinsho/toggleterm.nvim",
   version = "*",
   cmd = "ToggleTerm",
-  keys = {
-    { "<leader>tt", desc = "切换浮动终端" },
-    { "<leader>th", desc = "水平分割终端" },
-    { "<leader>tv", desc = "垂直分割终端" },
+  opts = {
+    size = 20,
+    shading_factor = 2,
+    direction = "float",
+    close_on_exit = false,
+    float_opts = { border = "rounded" },
   },
-  config = function()
-    local toggleterm = require("toggleterm")
-
-    toggleterm.setup({
-      size = 20, -- 水平/垂直终端高度
-      open_mapping = nil, -- 不用默认映射，用下方自定义
-      shading_factor = 2, -- 终端背景暗化程度
-      direction = "float", -- 默认浮动
-      close_on_exit = false, -- 命令结束后保留终端和输出，便于查看测试结果
-      auto_scroll = true,
-      float_opts = {
-        border = "rounded",
-        winblend = 0, -- 匹配 kitty background_opacity 0.8
-      },
-    })
-
-    local map = vim.keymap.set
-
-    -- 切换终端（浮动，默认创建 1 号终端）
-    map("n", "<leader>tt", "<cmd>ToggleTerm<cr>", { desc = "切换浮动终端" })
-
-    -- 水平分割终端
-    map("n", "<leader>th", "<cmd>ToggleTerm direction=horizontal<cr>", { desc = "水平分割终端" })
-
-    -- 垂直分割终端
-    map("n", "<leader>tv", "<cmd>ToggleTerm direction=vertical<cr>", { desc = "垂直分割终端" })
-  end,
+  keys = {
+    {
+      "<leader>tt",
+      function()
+        toggle(1, 20, "float")
+      end,
+      desc = "切换浮动终端",
+    },
+    {
+      "<leader>th",
+      function()
+        toggle(2, 15, "horizontal")
+      end,
+      desc = "水平分割终端",
+    },
+    {
+      "<leader>tv",
+      function()
+        toggle(3, math.max(30, math.min(80, math.floor(vim.o.columns * 0.45))), "vertical")
+      end,
+      desc = "垂直分割终端",
+    },
+  },
 }

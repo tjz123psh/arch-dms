@@ -72,7 +72,8 @@
 | **加载** | `keys` 懒加载（按 `<leader>aa` 等键才加载） |
 | **快捷键** | `<leader>aa` 开关面板、`<leader>as` 选工具（只列已安装的）、`<leader>at` 发送当前上下文（n/x）、`<leader>ad` 断开会话、`<C-.>` 聚焦 CLI 窗口（n/t/i/x） |
 | **依赖** | 本机已装 `codex` / `opencode` / `grok`；snacks（可选，更好的选择器）。**不需要 tmux**（`cli.mux` 已关） |
-| **备注** | 只启用 CLI，`nes.enabled = false`，不接 Copilot；健康检查前先加载插件，未启用 Copilot LSP 的提示属预期。当前不用 tmux/zellij：`<leader>aa` 调用 toggle，只显示/隐藏终端，不停止 job；`<leader>ad` / `:Sidekick cli close` 走 detach → terminal close，会停止对应终端 job 并清理 buffer。CLI 主题是否需要重启由 CLI 决定，隐藏再显示不保证重读主题。终端真彩色由 `core/options.lua` 在用户未设置时补 `COLORTERM=truecolor`。 |
+| **备注** | 只启用 CLI，`nes.enabled = false`，不接 Copilot；健康检查前先加载插件，未启用 Copilot LSP 的提示属预期。当前不用 tmux/zellij：`<leader>aa` 调用 toggle，只显示/隐藏终端，不停止 job；`<leader>ad` / `:Sidekick cli close` 走 detach → terminal close，会停止对应终端 job 并清理 buffer。面板保持上游默认的**右侧分屏**（`cli.win.layout = "right"`）。⚠ 面板窗口把 `Normal`/`NormalNC`/`EndOfBuffer`/`SignColumn` 映射到 `SidekickChat`，而上游**从未定义**这个组；WinHighlight 指向未定义的组时 Neovim 会退回「UI 默认背景」（猫猫 base `#1e1e2e`）⇒ 透明主题下编辑区透出桌面、只有面板是一整块实心色（抓包实测：该区域的 SGR 里带 `48;2;30;30;46`）。修复在 [sidekick.lua](</home/pang/.config/nvim/lua/plugins/sidekick.lua>) 的 `config` 里把该组 `link = "Normal"`，面板即与编辑区一致、换主题自动跟随（修复后同一位置不再带背景色）。⚠ 分屏在 Neovim 里没有边框，**四角必然是直角**；`winborder = rounded` 只作用于浮窗，想圆角只能把面板改成浮窗（代价：浮在编辑区之上、不再挤压编辑区、分屏导航键失效）。
+CLI 主题是否需要重启由 CLI 决定，隐藏再显示不保证重读主题。终端真彩色由 `core/options.lua` 在用户未设置时补 `COLORTERM=truecolor`。 |
 
 ---
 ## 文件树与导航
@@ -109,7 +110,7 @@
 | **配置** | `plugins/project.lua` |
 | **加载** | `lazy = false`，启动即初始化项目历史，保证启动页第一次打开项目列表就有内容 |
 | **快捷键** | `<leader>fp` 通过 `:Projects` 浏览项目 |
-| **备注** | 保留 `vim.lsp.get_clients()` 兼容补丁和切项目后刷新 neo-tree。`core/projects.lua` 集中 `:Projects`、同步读取和 `DirChanged`：只追加副本 + 历史并集 + append 回填，再加 `plugins/project.lua` 的只追加写守卫，共四层保护。上游异步读配合截断写可能丢历史，因此守卫永不调用截断写，异常也不回退截断；并发重复行在读取端去重。 |
+| **备注** | [项目接线](</home/pang/.config/nvim/lua/core/projects/init.lua>)维护 LSP 根兼容和文件树刷新，[历史模块](</home/pang/.config/nvim/lua/core/projects/history.lua>)维护三源并集、自有副本、append 回填和永不截断的写守卫；插件声明不再嵌入历史实现。 ；`exclude_dirs = { "~/obsidian/*" }` 让 Obsidian 笔记库不参与自动跳根——整库一个 `.git`，否则在库里打开任何笔记都会把 cwd 切到库根，文件树（`bind_to_cwd`）随之搬走 |
 
 ---
 
@@ -182,7 +183,7 @@
 
 | 项目 | 说明 |
 |------|------|
-| **功能** | 命令行美化：按 `:` 弹出居中浮动输入框（`width = "auto"` —— noice 只在 auto 时才把宽度夹进 minmax(min_width, max_width = `columns-4`, 内容宽)）；`min_width` 由 `core/input_boxes.lua` 按屏幕列数算（`noice_min_width = clamp(columns − 6, 30, 80) − 4`），与 snacks 输入框**等长**、内容行重合，长命令仍随内容变宽；`vim.fn.input` 的浮窗标题显示为「 输入 」；通知消息和 LSP 进度提示。⚠ 2026-09-28（审查 U01）实测修正：盒模型偏移是 **4 不是 2**（114 列下 `min_width=78` ⇒ 外框 82、80 列下 72 ⇒ 76），旧实现少减 2 列 ⇒ 两个框一直差 2 列；宽度也不再写死 80（旧配置在 80 列终端外框 82，右边框被屏幕裁掉）。⚠ noice 的 `min_width` 只能是**数字** ⇒ 这是配置加载时的快照，改终端大小要重启才跟上（snacks 那侧是开窗时求值的函数） |
+| **功能** | 命令行与通知美化；输入窗共享[尺寸策略](</home/pang/.config/nvim/lua/core/ui/input.lua>)，使用 width="auto"，min_width 是加载时的数字快照。cmdline_input 继承 cmdline_popup，不重复写同一份样式；两种输入框不承诺 resize 后完全重合。 |
 | **配置** | `plugins/noice.lua` |
 | **加载** | `lazy = false` |
 | **依赖** | nui.nvim、nvim-notify |
@@ -213,25 +214,25 @@
 
 | 项目 | 说明 |
 |------|------|
-| **功能** | 统一提供搜索/选择器与 `vim.ui.input` 输入框；Noice 仍负责命令行和消息，Alpha 负责欢迎页。输入框与 Noice 共用 `core/input_boxes.lua` 的尺寸策略，但 Noice 最小宽度仅在加载时求值，且两种边框位置仍可能差一行，不保证 resize 后完全等宽等高。 |
+| **功能** | 统一提供搜索/选择器与 `vim.ui.input` 输入框；Noice 仍负责命令行和消息，Alpha 负责欢迎页。输入框与 Noice 共用 [输入尺寸](</home/pang/.config/nvim/lua/core/ui/input.lua>) 的尺寸策略，但 Noice 最小宽度仅在加载时求值，且两种边框位置仍可能差一行，不保证 resize 后完全等宽等高。 |
 | **配置** | `plugins/snacks.lua` 配置 picker/input，从默认键位拷贝后追加映射；调用 `core.ui.setup()` 统一皮肤。普通 picker 和 `vim.ui.select` 使用 `picker_compact`；grep 单独构造列表/预览布局，不对 select 的布局数组做深合并，避免残留旧节点。 |
-| **布局** | grep（`<leader>fg`）在宽屏（≥120 列）使用左侧输入/列表、右侧预览，窄屏改为上方输入/列表、下方预览。其他 picker 继续紧凑且默认无预览，原有键位不变。 |
+| **布局** | grep（`<leader>fg`）在宽屏（≥120 列）使用左侧输入/列表、右侧预览，窄屏改为上方输入/列表、下方预览。其他 picker 继续紧凑且默认无预览，原有键位不变。项目列表（`:Projects`）单独放大尺寸：紧凑预设只有 55% 宽 / 40% 高，项目少时显得太小，现按 `宽 = clamp(columns*0.8, ≥内容宽, 160)`、`高 = clamp(lines*0.6, 8, lines-4)` 取整屏比例（140×55 实测列表 110×29、整框 33 行；80×24 → 64×10 / 14 行；60×18 → 48×6 / 10 行，不会超出屏幕）。其它 picker 与 `vim.ui.select` 仍用 `picker_compact` 原尺寸。 |
 | **加载** | `lazy = false`，`priority = 1000`；`vim.ui.select`/`vim.ui.input` 在 **UIEnter** 时正式接管（headless 测不到，真 TTY 实测来源为 `snacks/picker/init.lua`、`snacks/input.lua`） |
 | **快捷键** | picker 内：`<CR>` 确认、`<Tab>`/`<S-Tab>` 多选切换、`<Esc>` 一次关闭、方向键上下；另追加 `<C-j>`/`<C-k>` 与 `<C-n>`/`<C-p>` 上下移动 |
-| **皮肤** | `core/ui.lua` 集中 soft/pink 色板、高亮、`:PickerSkin` 和 `ColorScheme` 重设；默认 soft，`:PickerSkin soft` / `:PickerSkin pink` 即时切换。Spring 向导读取同一色板，不另写共享高亮。标题、边框和选中行需覆盖 snacks 实际使用的组（如 `SnacksTitle`、`SnacksPickerBoxBorder`、`SnacksPickerListCursorLine`），避免主题默认色漏出。 |
+| **皮肤** | [共享 UI](</home/pang/.config/nvim/lua/core/ui/init.lua>) 集中 soft/pink 色板、高亮、`:PickerSkin` 和 `ColorScheme` 重设；默认 soft，`:PickerSkin soft` / `:PickerSkin pink` 即时切换。Spring 向导读取同一色板，不另写共享高亮。标题、边框和选中行需覆盖 snacks 实际使用的组（如 `SnacksTitle`、`SnacksPickerBoxBorder`、`SnacksPickerListCursorLine`），避免主题默认色漏出。 |
 | **行渲染** | picker 的 `format = function(item, picker)` 支持 chunk 数组 `{ {文本, 高亮组}, ... }`，可做图标列/多色排版（`:Projects` 就是"蓝色文件夹图标 + 项目名亮色 + 父目录灰色"）；snacks 会在**渲染后的文本**上重算匹配高亮，`resolve = function(max_width)` 的 chunk 能做宽度感知截断 |
-| **备注** | 除 `picker`/`input` 外**全部显式关闭**（notifier 会顶掉 noice、dashboard 顶掉 alpha、terminal 顶掉 toggleterm 等）；⚠ **坑：snacks 对 `win.*.keys` 是整体替换语义**——只写几个键会把默认的 `<CR>`/`<Tab>`/`<Esc>` 一起干掉（实测向导按 CR 不确认、picker 关不掉），必须从 defaults 拷贝再 merge，且要放在 `config()` 里（spec 解析期 snacks 还没进 rtp）；picker 同 `source` 会互相 dedupe，故向导用 `spring-wizard`/`spring-wizard-deps`、jdtls 多选用 `jdtls-pick-many`、项目列表用 `project-history`（**不能**用内置同名源 `projects`） |
+| **备注** | 只启用 picker/input，保留 notifier/dashboard/terminal/explorer 四项职责护栏，其余未配置模块不自动启用。窗口键表从 defaults 拷贝，仅覆盖 Esc 一次取消，避免丢失确认/多选默认键；项目、Java 多选和 Spring 向导各用独立 source。 |
 
 ### MeanderingProgrammer/render-markdown.nvim
 
 | 项目 | 说明 |
 |------|------|
 | **功能** | 直接美化原 Markdown 编辑区的标题、列表、引用、表格、链接和代码块，不打开浏览器或独立预览窗口，不改写文件内容 |
-| **配置** | `lua/plugins/markdown.lua`；`ft = "markdown"`，Markdown FileType 自动加载 |
+| **配置** | `lua/languages/markdown/render.lua`；`ft = { "markdown", "markdown.mdx" }`（lazy 的 `ft` 同时决定插件生效的 `file_types`，所以 `.mdx` 也渲染），Markdown FileType 自动加载 |
 | **模式** | 普通/命令模式渲染，插入/可视模式回到源码；光标行启用 anti_conceal，方便看清并修改标记 |
 | **透明主题** | 标题 `heading.backgrounds = {}`；代码块 `disable_background = true`、`style = "language"`、`border = "none"`，禁用 sign；避免整行底色和额外边框。catppuccin 启用 `render_markdown` 集成 |
 | **依赖** | 复用现有 nvim-treesitter 与 nvim-web-devicons；LaTeX 暂不启用，不额外安装转换工具；不承诺浏览器级图片、Mermaid 或 LaTeX 渲染 |
-| **快捷键** | `<leader>Mp` 仅切换当前缓冲区美化；旧 `<leader>Mt` / `<leader>Ms` 移除 |
+| **快捷键** | `<leader>Mp` 仅切换当前缓冲区美化；`<leader>Me` / `<leader>Mc` 让光标行上下多露 / 少露一行源码（插件 `expand()` / `contract()`，读长段落时对照原文用）；旧 `<leader>Mt` / `<leader>Ms` 移除 |
 | **命令** | `:RenderMarkdown buf_toggle` / `buf_enable` / `buf_disable` 仅作用于当前缓冲区；`enable` / `disable` / `toggle` 是全局操作。旧 `:MdRender` 不再使用 |
 | **历史取舍** | 2026-09-25 曾依次尝试 render-markdown（代码块整行底色在透明主题下像“斑马带”，用户：“看着好怪”）、markview（关底色后仍反馈“终端渲染好像都不太行”）、markdown-preview.nvim（浏览器预览，要下 45MB 预编译二进制），当时最终选了 md-render 独立窗口。这些是当时反馈，不代表就地渲染必须放弃；本次用户明确不喜欢 md-render，并选择“直接美化编辑区”，因此改用上述无整块底色方案。新方案观感仍需用户确认 |
 
@@ -282,7 +283,7 @@
 | **功能** | Treesitter 语法解析器，提供精确的语法高亮、代码折叠、智能缩进 |
 | **配置** | `plugins/treesitter.lua` |
 | **加载** | `lazy = false`（新版 nvim-treesitter 不支持 lazy-loading）+ `cmd = { "TSInstall", "TSUpdate", "TSConfigInfo" }` |
-| **备注** | 自动安装未安装的语言解析器，安装前兼容 Mason CLI 加载时序；清单包括 bash、c/cpp、css、go、html、java、javascript、json、lua、markdown、rust、vim、yaml，以及 2026-09-24 补上的前端五项 **typescript / tsx / vue / svelte / scss**（`.ts`/`.tsx`/`.vue`/`.svelte`/`.scss` 的高亮与缩进）；nvim-treesitter 自带 filetype→parser 别名注册（tsx↔typescriptreact、json↔jsonc、bash↔sh 等），不需要手写 `vim.treesitter.language.register`。⚠ 本机 GitHub 需走 Clash 代理（`127.0.0.1:7890`）：代理没开时解析器装不上，故缺失时的自动下载加了 **6 小时节流**，避免每次启动都刷一屏 curl 报错 |
+| **备注** | 解析器清单由保留语言及共享声明汇总，当前为 c/cpp、css/scss、go、html、java、json、lua、markdown/markdown_inline、rust、yaml，以及 diff/query/regex，共16项。2026-10-15 不再声明 Bash、Vim/Vimdoc、JavaScript、TypeScript/TSX、Vue、Svelte；已安装解析器不卸载。安装前仍兼容 Mason CLI，缺失解析器的自动下载保留6小时节流。 |
 
 ---
 
@@ -346,63 +347,43 @@
 ### mfussenegger/nvim-jdtls
 
 | 项目 | 说明 |
-|------|------|
-| **功能** | Java 语言服务器增强（Eclipse JDTLS），提供代码补全、调试、重构等完整 Java 开发体验 |
-| **配置** | `plugins/lang/java.lua` |
-| **加载** | `ft = { "java" }`（打开 Java 文件时加载） |
-| **快捷键** | `<F5>` 调试当前 Java 项目（每次查询主类，已有会话则继续）；`<leader>Jd` 重新查询当前项目主类；`<leader>Jt` / `<leader>JT` 在终端运行测试方法 / 测试类；`<leader>Jg` / `<leader>JG` 调试测试方法 / 测试类；`<leader>sr` 运行 Spring Boot 项目（自动识别主类，多个入口弹选择框、含「全部启动」，每个主类一个终端，已在跑的标 `●`）；`<leader>co` Java 代码操作；`<leader>ot` 通过通用入口调用 jdtls 整理 import；`<leader>Ra` 通用重构列表，Rv/Rc/Rm/RV 仍为 Java 增强；`gA` 跳转父类/接口实现（原 `gU`，让位给内置转大写） |
-| **依赖** | nvim-dap（调试）、mason 安装的 jdtls 和 java-debug-adapter |
-| **备注** | lspconfig 已跳过 jdtls（由本插件接管）；由 `java.lua` 注入 java-debug/java-test 的 OSGi bundles，并排除 test runner、jacoco 和 JDTLS 已提供的重复 ASM bundle；工作区目录按项目分开存储，避免互相污染；⚠ 2026-09-26 起**按 buffer 关闭 Java 的 LSP 语义高亮**（`java_on_attach` 里 `vim.lsp.semantic_tokens.enable(false, { bufnr = bufnr })`）：nvim 0.12 会自动启用服务器支持的 capability，jdtls 的语义 token（优先级 125）盖过 treesitter（100）——实测同一常量在编辑后从 `@constant.java` teal 跳成 `@lsp.type.property` lavender，正是用户报的「写 Java 时颜色变来变去」；关掉后 Java 仍由 treesitter 完整高亮；⚠ `<leader>sr` 的扫描与参数逻辑在 `core/java_main.lua`（纯逻辑、可 headless 断言）：多入口项目盲跑 `spring-boot:run` 会报 `Unable to find a single main class`，终端槽与「全部启动」的细节见 `nvim配置架构.md` 的「特殊处理」 |
+|---|---|
+| **功能** | Java 补全、导航、重构、调试；单文件和 Maven/Gradle 项目都可用 |
+| **配置** | [Java 入口](</home/pang/.config/nvim/lua/languages/java/init.lua>)统一声明插件、偏好、工具、格式化、命令与全局键；实现继续放 Java 目录 |
+| **加载** | Java FileType；JavaBuildProjects / JavaSetRuntime 有 lazy 命令入口 |
+| **依赖** | Mason 的 jdtls、java-debug-adapter、java-test；Java Treesitter 解析器；调试使用 nvim-dap |
+| **运行/测试** | Jr/JavaRun 单源码终端运行；F5 当前项目调试；Jt/JT 构建工具测试；Jg/JG jdtls 最近测试方法/文件测试类调试 |
+| **保留保护** | 独立工作区、同根复用/重载重附加、客户端命令转发、Lombok agent、Java 语义高亮关闭、跨项目 DAP 回调失效与终端归属保护 |
 
-Java 工作流辅助模块（2026-10-04）：
-- [java_test.lua](</home/pang/.config/nvim/lua/core/java_test.lua>) 用 Treesitter 定位当前方法；不再向上猜，成员内部类的 `$` 会被 shell 转义。
-- [java_terminals.lua](</home/pang/.config/nvim/lua/core/java_terminals.lua>) 按项目＋用途＋主类分配专用终端，从 4 起避开占用编号；测试不挤进应用输入，忙碌构建不叠加，应用重启等待旧进程退出。通用 1/2/3 不变，重开应用终端用通知里的编号，如 `:4ToggleTerm`。
-- [java_debug.lua](</home/pang/.config/nvim/lua/core/java_debug.lua>) 只向捕获的当前 jdtls 客户端查询，不读写全局 DAP 主类列表；错误、超时、过时回调都有出口。
+包名、主类、测试位置共用[语法解析](</home/pang/.config/nvim/lua/languages/java/syntax.lua>)，不再把注释中的 main 或嵌套类误当作文件主类。[终端管理](</home/pang/.config/nvim/lua/languages/java/terminal.lua>)按项目/用途/主类分配，构建不抢应用 stdin；[调试](</home/pang/.config/nvim/lua/languages/java/debug.lua>)保留固定客户端和超时。DAP 在 Java attach 时仍可能被上游加载，不再宣称“必定等 F5 才加载”。
 
-### JavaHello/spring-boot.nvim + elmcgill/springboot-nvim
+### JavaHello/spring-boot.nvim
 
 | 项目 | 说明 |
-|------|------|
-| **功能** | Spring Boot 支持：`application.yml`/`.properties` 的 Spring 属性补全、诊断、跳转和 Code Action；Java 的类/接口/枚举/Record 生成、增量编译与项目向导 |
-| **配置** | `plugins/lang/springboot.lua`（由 `plugins/lang/init.lua` 聚合加载） |
-| **加载** | `spring-boot.nvim`：`cmd = { "SpringBoot" }` + `ft = { "java", "yaml", "jproperties" }`；`springboot-nvim`：只声明 `ft = { "java" }`（第二轮把 `lazy = false` 去掉了：它让 `ft` 变死配置，还把 nvim-jdtls/DAP 拖进启动期。2026-09-25 又移除了 `cmd = { "SpringBootNewProject" }` 桩——原版向导已不推荐，用不到启动期注册） |
-| **快捷键** | `<leader>sp` 项目向导（可搜索选择）、`<leader>Gc/Gi/Ge/Gr` 生成 Class/Interface/Enum/Record（`<leader>sP` 原版向导 2026-09-25 已删：Boot 4 版本号有 bug） |
-| **依赖** | nvim-jdtls、nvim-lspconfig、mason 安装的 `vscode-spring-boot-tools` |
-| **备注** | 复用现有 jdtls，不替换 Java 启动配置；`<leader>sp` 注册在 spec 的 `keys` 上，是**全局键**（任何缓冲区可用，不限 java/yaml）；`:SpringBootCreate` 由 `core/spring_wizard.lua` 在 core 层注册，保证刚启动就能用。⚠ **运行**入口 `<leader>sr` 不在本文件：它是 `plugins/lang/java.lua` 注册的 **Java 缓冲区本地键**（自动识别主类、每个入口一个终端），本文件只管补全 / 类生成 / 向导 |
+|---|---|
+| **功能** | Spring 属性补全、诊断、导航、Bean 与端点查询 |
+| **配置** | [springboot.lua](</home/pang/.config/nvim/lua/languages/java/spring/init.lua>)仅负责 Spring 语言服务 |
+| **边界** | 仅含 Spring 依赖的构建项目启动；保留 application 文件名过滤，普通算法和普通 YAML 不启动 Spring 服务 |
+| **依赖** | Mason 的 vscode-spring-boot-tools；扩展 jars 由 jdtls 加载 |
 
-## C/C++ 语言附加配置
+全局 sp/Java 四种生成键和 JavaRun/SpringBootCreate 由[Java 入口](</home/pang/.config/nvim/lua/languages/java/init.lua>)声明、语言注册表统一接入；[向导](</home/pang/.config/nvim/lua/languages/java/spring/wizard.lua>)与[Spring 运行](</home/pang/.config/nvim/lua/languages/java/spring/run.lua>)都在 Java 的 Spring 子目录。
 
-### plugins/lang/cpp.lua
+不再启用 elmcgill/springboot-nvim。它的全局自动填 package 会破坏空算法文件；四种 Class/Interface/Enum/Record 生成改为[一份模板实现](</home/pang/.config/nvim/lua/languages/java/files.lua>)，保存增量编译由 Java 模块在已附加的项目缓冲区执行。旧插件下载目录未卸载，方便回退；原版 SpringBootNewProject 不再是当前入口。
 
-| 项目 | 说明 |
-|------|------|
-| **配置位置** | `plugins/lang/cpp.lua`（通过 `lang/init.lua` 聚合加载） |
-| **clangd 参数** | `--background-index`（后台索引）、`--clang-tidy`（启用 clang-tidy 检查）、`--completion-style=detailed`、`--header-insertion=iwyu` |
-| **codelldb 调试** | 通过 mason 安装 codelldb，配置为 server 类型，端口动态分配 |
-| **备注** | clangd 的 `opts.servers.clangd` 扩展了 `lsp/init.lua` 中的基础配置；显式固定 filetypes 为 `c/cpp/objc/objcpp/cuda/proto`，避免 `c.doxygen/cpp.doxygen` health warning；DAP 配置含 `cpp`（3 种）、`c`（2 种） |
+## 独立语言目录
 
-### Rust 语言（plugins/lang/rust.lua）
+当前12种语言的入口都位于[语言目录](</home/pang/.config/nvim/lua/languages/>)，由[注册表](</home/pang/.config/nvim/lua/languages/init.lua>)统一供公共插件读取；不再在 LSP/格式化/安装器里各维护一份清单。
 
-Rust 的 LSP 配置在 `lsp/init.lua`（基础）和 `lang/rust.lua`（扩展）中，DAP 配置在 `lang/rust.lua` 中（复用 codelldb 适配器），格式化器 rustfmt 来自 rustup 管理的 stable 工具链。
+| 语言 | 入口与已有能力 |
+|---|---|
+| C / C++ | [C](</home/pang/.config/nvim/lua/languages/c/init.lua>)、[C++](</home/pang/.config/nvim/lua/languages/cpp/init.lua>)各自声明格式化/调试/缩进，共用[clangd](</home/pang/.config/nvim/lua/languages/shared/clangd.lua>)；C 两项、C++ 三项调试配置保留，编译请带调试符号 |
+| Rust | [Rust](</home/pang/.config/nvim/lua/languages/rust/init.lua>)集中 rust-analyzer、clippy、rustfmt、DAP 和工具链守卫；不再依赖 C++ 配置先加载 |
+| Go | [Go](</home/pang/.config/nvim/lua/languages/go/init.lua>)集中 gopls、gofumpt、分析项、Delve、gotmpl；继续使用 LSP 格式化 |
+| Lua | [Lua](</home/pang/.config/nvim/lua/languages/lua/init.lua>)集中 lua_ls、stylua、缩进、:R 和按需 lazydev；runtimepath 在消费 LSP 配置时读取 |
+| HTML/CSS/JSON/YAML/XML | 各有独立目录，保留原有服务；XML 排除 xsl，YAML 保留 Compose/GitLab/Helm 别名 |
+| Markdown | [Markdown](</home/pang/.config/nvim/lua/languages/markdown/init.lua>)集中 marksman、解析器、mdx、渲染插件和 Mp 键 |
 
-| 项目 | 说明 |
-|------|------|
-| **LSP** | `rust_analyzer` 通过 `:MasonToolsInstall` 或 `:LspInstall rust_analyzer` 手动安装，配置在 `lsp/init.lua` `opts.servers.rust_analyzer` |
-| **DAP** | 复用 codelldb（`cpp.lua` 定义适配器），`lang/rust.lua` 中配置 `rust` 类型（启动调试取 `target/debug/` 路径 + attach） |
-| **格式化** | `rustfmt` 由 rustup component 提供，`format.lua` 中配置 `formatters_by_ft.rust` |
-| **前置** | Arch 上安装 `rustup` 包，执行 `rustup default stable`，再安装 `rust-src rustfmt clippy` |
-| **备注** | `rust_analyzer` 仅在 `rustc` 和 `cargo` 可用时启用；当前 `rustc --print sysroot` 指向 `~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu`；检查命令使用 `check.command = "clippy"` |
-
-### plugins/lang/go.lua
-
-| 项目 | 说明 |
-|------|------|
-| **配置位置** | `plugins/lang/go.lua`（通过 `lang/init.lua` 聚合加载） |
-| **gopls LSP** | 通过 `:MasonToolsInstall` 或 `:LspInstall gopls` 手动安装，启用 gofumpt、unusedparams、unreachable 分析、staticcheck |
-| **delve 调试** | 通过 mason 自动安装 `delve`，配置为 server 类型；单配置 `启动调试`，自动编译运行当前 package |
-| **快捷键** | 复用 DAP 全局快捷键（`<F5>` 启动、`<F9>` 断点等） |
-
----
+[共享 codelldb](</home/pang/.config/nvim/lua/languages/shared/codelldb.lua>)由 C/C++/Rust 显式引用，路径延迟到真正调试时解析；Go Delve 同理。没有新增插件或安装系统工具。更改语言功能只修改其目录，字段说明见[扩展规范](</home/pang/.config/nvim/lua/languages/README.md>)。
 
 ## 依赖库
 
@@ -443,17 +424,17 @@ Rust 的 LSP 配置在 `lsp/init.lua`（基础）和 `lang/rust.lua`（扩展）
 | `plugins/filetree.lua` | neo-tree.nvim |
 | `plugins/flash.lua` | flash.nvim |
 | `plugins/format.lua` | conform.nvim |
-| `core/filetypes.lua` | 自定义 filetype 识别 |
-| `core/lsp_on_attach.lua` | LSP `on_attach` 的通用键位与诊断（lspconfig 与 jdtls 共用） |
-| `core/java_main.lua` | Java 主类扫描 + `spring-boot:run` / `bootRun` 主类参数（`<leader>sr` 的纯逻辑层） |
-| `core/spring_wizard.lua` | Spring Boot 项目向导（11 步；`:SpringBootCreate` / `<leader>sp` 的实现） |
+| `languages/init.lua` | 自定义 filetype 识别 |
+| `languages/shared/lsp.lua` | LSP `on_attach` 的通用键位与诊断（lspconfig 与 jdtls 共用） |
+| [Java 模块](</home/pang/.config/nvim/lua/languages/java/>) | 语言服务、项目操作、单文件、语法解析、调试、Spring 运行、终端、多选各自维护 |
+| `languages/java/spring/wizard.lua` | Spring Boot 项目向导（11 步；`:SpringBootCreate` / `<leader>sp` 的实现） |
 | `plugins/indentline.lua` | indent-blankline.nvim |
 | `plugins/mason.lua` | mason.nvim |
 | `plugins/mason-tool-installer.lua` | mason-tool-installer.nvim（作为 mason 的依赖随启动期加载 —— 2026-09-25 审查确认旧写的 `event = "VeryLazy"` 是死触发器，已删；`run_on_start = false`，自动补装 codelldb / java-debug-adapter / java-test / lemminx / vscode-spring-boot-tools / delve / stylua / google-java-format / clang-format / tree-sitter-cli） |
 | `plugins/neotab.lua` | neotab.nvim |
 | `plugins/noice.lua` | noice.nvim |
 | `plugins/project.lua` | project.nvim |
-| `plugins/markdown.lua` | render-markdown.nvim（原编辑窗口内美化，`<leader>Mp` 仅切换当前缓冲区） |
+| `languages/markdown/render.lua` | render-markdown.nvim（原编辑窗口内美化；`<leader>Mp` 切换当前缓冲区，`<leader>Me` / `<leader>Mc` 多露 / 撤回一行源码；`.mdx` 同样渲染） |
 | `plugins/snacks.lua` | snacks.nvim（picker + input，全机唯一 UI 提供者） |
 | `plugins/statusline.lua` | lualine.nvim |
 | `plugins/terminal.lua` | toggleterm.nvim |
@@ -463,14 +444,18 @@ Rust 的 LSP 配置在 `lsp/init.lua`（基础）和 `lang/rust.lua`（扩展）
 | `plugins/dap/init.lua` | nvim-dap + nvim-dap-ui + nvim-nio |
 | `plugins/lsp/init.lua` | nvim-lspconfig，管理已安装语言服务的启动 |
 | [mason-lspconfig.lua](</home/pang/.config/nvim/lua/plugins/mason-lspconfig.lua>) | 按命令加载的手动 LSP 安装入口 |
-| `plugins/lang/init.lua` | 语言配置聚合入口 |
-| `plugins/lang/cpp.lua` | clangd 扩展 + codelldb DAP |
-| `plugins/lang/java.lua` | nvim-jdtls + Java DAP |
-| `plugins/lang/go.lua` | gopls + delve DAP |
-| `plugins/lang/rust.lua` | rust_analyzer 扩展 + codelldb Rust DAP |
-| `plugins/lang/springboot.lua` | Spring Boot 补全 / 类生成 / 向导 |
+| `plugins/languages.lua` | 语言配置聚合入口 |
+| `languages/cpp/init.lua` | clangd 扩展 + codelldb DAP |
+| [java.lua](</home/pang/.config/nvim/lua/languages/java/init.lua>) | nvim-jdtls 声明，逻辑委托 Java 模块 |
+| `languages/go/init.lua` | gopls + delve DAP |
+| `languages/rust/init.lua` | rust_analyzer 扩展 + codelldb Rust DAP |
+| [springboot.lua](</home/pang/.config/nvim/lua/languages/java/spring/init.lua>) | 仅真实 Spring 项目的语言服务 |
 
 ---
 
 > **历史记录（本次 Markdown 替换前）**：插件总数 38 个（`~/.local/share/nvim/lazy/` 实际安装目录数，含 lazy.nvim 本身），`lazy-lock.json` 条目数已与之一致。2026-10-04 跑了一次 `:Lazy update`：把 2026-09-28 加入却一直没被写进锁文件的 **lazydev.nvim**（`ft = "lua"`，见 lspconfig 小节的依赖）补上（旧锁文件停在 2026-09-25，只有 37 条），同批 5 个插件升到最新 —— `nvim-lspconfig`、`nvim-treesitter`、`mason-lspconfig.nvim`、`md-render.nvim`、`sidekick.nvim`。当次升级后实测（不代表本次替换已验证）：启动退出码 0、`checkhealth` 无新增配置类告警、24 个 Treesitter 解析器（lua/java/cpp 逐个加载通过）、`lua_ls` 照常 attach。
-> **最后更新**：2026-10-04（Java/Spring：`<leader>sr` 改为「自动识别主类」—— 多入口弹选择框、含「全部启动」、每个主类一个终端槽，新增 `core/java_main.lua`；`<leader>Jd` 重新扫描主类。用户文档侧 `nvim快捷键.md` / `从零搭建依赖清单.md` / `构建SpringBoot项目实操指南.md` 已删除，快捷键速查改看 `<leader>hk`）
+> **Java/Spring 更新：2026-10-14**。收拢重复逻辑、保留工作流，补齐单文件运行，向导改官方 API；快捷键看 `<leader>hk`，验证方式见[配置架构](</home/pang/md/nvim/nvim配置架构.md>)。
+
+## 配置维护边界
+
+DAP、toggleterm 与 Sidekick 的键位直接在各自 keys 中定义，不再分别写懒加载壳和第二套绑定。Mason 初始化与工具安装器是单向依赖，启动不刷新/安装。当前锁定版 virtual-text 的请求监听参数由[调试配置](</home/pang/.config/nvim/lua/plugins/dap/init.lua>)适配，保留全栈显示并避免错误响应导致异步异常；升级后运行[协议测试](</home/pang/.config/nvim/tests/dap_listener.lua>)核对是否仍需要。

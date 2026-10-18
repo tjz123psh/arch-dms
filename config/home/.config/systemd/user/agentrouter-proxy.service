@@ -1,11 +1,11 @@
 [Unit]
-Description=AgentRouter wire-image reverse proxy for DSH (egress via Clash 127.0.0.1:7890)
+Description=AgentRouter reverse proxy for DSH (codex wire image; egress via Clash)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/node /home/pang/.local/bin/agentrouter-proxy.mjs
+ExecStart=/usr/bin/node %h/.local/bin/agentrouter-proxy.mjs
 Environment=NODE_USE_ENV_PROXY=1
 Environment=HTTPS_PROXY=http://127.0.0.1:7890
 Environment=HTTP_PROXY=http://127.0.0.1:7890

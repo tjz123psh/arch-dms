@@ -1,22 +1,62 @@
--- ============================================
 -- 调试适配器协议：nvim-dap
--- 提供统一的调试界面，支持打断点、单步执行、变量查看
--- 配合 dap-ui 显示调试面板，配合 dap-virtual-text 行内显示变量值
--- ============================================
+
+-- require 留在回调中，声明键位不提前加载调试器；Java 的局部 F5 仍优先。
+local function action(method)
+  return function()
+    require("dap")[method]()
+  end
+end
+
+local function breakpoint(logpoint)
+  local label = logpoint and "日志" or "断点条件"
+  local value = vim.fn.input(label .. "（Esc 取消）: ")
+  if value == "" then
+    vim.notify(
+      logpoint and "已取消：日志为空，不设置日志断点"
+        or "已取消：条件为空，不设置条件断点",
+      vim.log.levels.INFO
+    )
+    return
+  end
+  -- 空字符串会退化为普通断点，因此取消不能传给 DAP。
+  if logpoint then
+    require("dap").set_breakpoint(nil, nil, value)
+  else
+    require("dap").set_breakpoint(value)
+  end
+end
 
 return {
   "mfussenegger/nvim-dap",
   keys = {
-    { "<F5>", desc = "继续执行" },
-    { "<F9>", desc = "切换断点" },
-    { "<F10>", desc = "单步跳过" },
-    { "<F11>", desc = "单步进入" },
-    { "<F12>", desc = "单步跳出" },
-    { "<leader>dl", desc = "重跑上次调试" },
-    { "<leader>db", desc = "断点列表" },
-    { "<leader>dB", desc = "条件断点" },
-    { "<leader>dL", desc = "日志断点" },
-    { "<leader>dC", desc = "清除所有断点" },
+    { "<F5>", action("continue"), desc = "继续执行" },
+    { "<F9>", action("toggle_breakpoint"), desc = "切换断点" },
+    { "<F10>", action("step_over"), desc = "单步跳过" },
+    { "<F11>", action("step_into"), desc = "单步进入" },
+    { "<F12>", action("step_out"), desc = "单步跳出" },
+    { "<leader>dl", action("run_last"), desc = "重跑上次调试" },
+    {
+      "<leader>db",
+      function()
+        require("dap").list_breakpoints(true)
+      end,
+      desc = "断点列表",
+    },
+    {
+      "<leader>dB",
+      function()
+        breakpoint(false)
+      end,
+      desc = "条件断点",
+    },
+    {
+      "<leader>dL",
+      function()
+        breakpoint(true)
+      end,
+      desc = "日志断点",
+    },
+    { "<leader>dC", action("clear_breakpoints"), desc = "清除所有断点" },
   },
   dependencies = {
     "rcarriga/nvim-dap-ui",
@@ -27,10 +67,23 @@ return {
         all_frames = true,
         virt_text_pos = "eol",
       },
+      config = function(_, opts)
+        require("nvim-dap-virtual-text").setup(opts)
+        -- 当前锁定版仍把第二参数当响应；DAP 请求监听实际为 session, err, response。
+        local listeners = require("dap").listeners.after.stackTrace
+        local render = listeners["nvim-dap-virtual-text"]
+        listeners["nvim-dap-virtual-text"] = function(session, err, response)
+          if not err and type(response) == "table" and type(response.stackFrames) == "table" then
+            return render(session, response)
+          end
+        end
+      end,
     },
   },
 
-  opts = {},
+  opts = function()
+    return require("languages").dap()
+  end,
 
   config = function(_, opts)
     local dap = require("dap")
@@ -43,7 +96,6 @@ return {
       dap.configurations[lang] = configs
     end
 
-    -- 侧栏放右侧，避免和 neo-tree（左侧）冲突
     dapui.setup({
       layouts = {
         {
@@ -53,7 +105,7 @@ return {
             { id = "stacks", size = 0.25 },
             { id = "watches", size = 0.25 },
           },
-          size = 45,
+          size = math.max(28, math.min(45, math.floor(vim.o.columns * 0.32))),
           position = "right",
         },
         {
@@ -64,36 +116,15 @@ return {
       },
     })
 
-    -- 调试开始自动打开 UI，结束自动关闭
-    -- 监听 attach/launch（非 event_initialized），反应更及时
     dap.listeners.before.attach.dapui_config = dapui.open
     dap.listeners.before.launch.dapui_config = dapui.open
     dap.listeners.before.event_terminated["dapui_config"] = dapui.close
     dap.listeners.before.event_exited["dapui_config"] = dapui.close
 
-    -- 断点符号（默认 B/C/R/L 不够直观，改用 Nerd Font 符号）
     vim.fn.sign_define("DapBreakpoint", { text = "●", texthl = "DiagnosticSignError" })
     vim.fn.sign_define("DapBreakpointCondition", { text = "◆", texthl = "DiagnosticSignWarn" })
     vim.fn.sign_define("DapBreakpointRejected", { text = "✕", texthl = "DiagnosticSignHint" })
     vim.fn.sign_define("DapLogPoint", { text = "◉", texthl = "DiagnosticSignInfo" })
     vim.fn.sign_define("DapStopped", { text = "→", texthl = "SignColumn", linehl = "debugPC" })
-
-    -- DAP 全局快捷键（Java 中 <F5> 被 buffer-local 覆盖）
-    vim.keymap.set("n", "<leader>dl", dap.run_last, { desc = "重跑上次调试" })
-    vim.keymap.set("n", "<leader>db", function()
-      dap.list_breakpoints(true)
-    end, { desc = "断点列表" })
-    vim.keymap.set("n", "<leader>dB", function()
-      dap.set_breakpoint(vim.fn.input("断点条件: "))
-    end, { desc = "条件断点" })
-    vim.keymap.set("n", "<leader>dL", function()
-      dap.set_breakpoint(nil, nil, vim.fn.input("日志: "))
-    end, { desc = "日志断点" })
-    vim.keymap.set("n", "<leader>dC", dap.clear_breakpoints, { desc = "清除所有断点" })
-    vim.keymap.set("n", "<F5>", dap.continue, { desc = "继续执行" })
-    vim.keymap.set("n", "<F9>", dap.toggle_breakpoint, { desc = "切换断点" })
-    vim.keymap.set("n", "<F10>", dap.step_over, { desc = "单步跳过" })
-    vim.keymap.set("n", "<F11>", dap.step_into, { desc = "单步进入" })
-    vim.keymap.set("n", "<F12>", dap.step_out, { desc = "单步跳出" })
   end,
 }
