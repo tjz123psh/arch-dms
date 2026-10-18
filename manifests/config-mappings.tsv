@@ -92,7 +92,6 @@ physical-v1	developer-editor	config/home/md/linux/Shorin-ArchLinux-Guide-合集.
 physical-v1	developer-editor	config/home/md/linux/.gitignore	md/linux/.gitignore	644
 physical-v1	developer-editor	config/home/md/linux/Btrfs快照与滚挂恢复流程.md	md/linux/Btrfs快照与滚挂恢复流程.md	644
 physical-v1	developer-editor	config/home/md/linux/b站视频弹窗播放.md	md/linux/b站视频弹窗播放.md	644
-physical-v1	developer-editor	config/home/md/linux/nemo文件管理器.md	md/linux/nemo文件管理器.md	644
 physical-v1	developer-editor	config/home/md/nvim/nvim命令.md	md/nvim/nvim命令.md	644
 physical-v1	developer-editor	config/home/md/nvim/nvim插件介绍.md	md/nvim/nvim插件介绍.md	644
 physical-v1	developer-editor	config/home/md/nvim/nvim自定义命令.md	md/nvim/nvim自定义命令.md	644
@@ -195,3 +194,5 @@ physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree�
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/ref-bg-942x1012.png	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/ref-bg-942x1012.png	644
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/contrast.py	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/contrast.py	755
 physical-v1	maintenance	config/home/scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	scripts/MusicFree-歌单和插件/MusicFree主题-夜阑/tools/rebuild.py	644
+physical-v1	desktop-apps	config/home/.config/nautilus/nautilus.dconf	.config/nautilus/nautilus.dconf	644
+physical-v1	desktop-apps	config/home/.local/share/nautilus-python/extensions/rice-menu.py	.local/share/nautilus-python/extensions/rice-menu.py	644

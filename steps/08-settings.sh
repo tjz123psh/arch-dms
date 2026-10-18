@@ -74,6 +74,26 @@ if command -v fish >/dev/null 2>&1; then
   fi
 fi
 
+# --- Nautilus file manager settings ---
+# Nautilus preferences live in dconf; the dump is part of the config payload.
+# A private session bus lets dconf write ~/.config/dconf/user without a login.
+nautilus_dconf="${TARGET_HOME}/.config/nautilus/nautilus.dconf"
+if [[ -f "${nautilus_dconf}" ]]; then
+  if command -v dconf >/dev/null 2>&1 && command -v dbus-run-session >/dev/null 2>&1; then
+    log "Loading Nautilus settings (dconf)"
+    if [[ "$(id -u)" -eq 0 ]]; then
+      runuser -u "${TARGET_USER}" -- env HOME="${TARGET_HOME}" \
+        dbus-run-session -- dconf load /org/gnome/nautilus/ < "${nautilus_dconf}" >/dev/null \
+        || warn "could not load Nautilus dconf settings (load them manually after login)"
+    else
+      dbus-run-session -- dconf load /org/gnome/nautilus/ < "${nautilus_dconf}" >/dev/null \
+        || warn "could not load Nautilus dconf settings (load them manually after login)"
+    fi
+  else
+    warn "dconf/dbus-run-session missing; Nautilus settings not loaded"
+  fi
+fi
+
 # --- snapper configs ---
 # 07 enables snapper-cleanup.timer; the snapshot tooling expects root and home
 # configs, with wheel able to read the .snapshots subvolumes.

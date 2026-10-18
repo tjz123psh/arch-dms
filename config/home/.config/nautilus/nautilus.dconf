@@ -1,0 +1,12 @@
+[list-view]
+default-column-order=['name', 'size', 'type', 'owner', 'group', 'permissions', 'date_modified', 'date_accessed', 'date_created', 'recency', 'detailed_type']
+default-visible-columns=['name', 'size', 'date_modified']
+
+[preferences]
+default-folder-viewer='list-view'
+migrated-gtk-settings=true
+
+[window-state]
+initial-size=(890, 550)
+initial-size-file-chooser=(890, 550)
+maximized=false
